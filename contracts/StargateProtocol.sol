@@ -77,6 +77,15 @@ contract StargateProtocol is SchemaResolver {
     }
 
     // Function to decode the EAS attestation data
+
+    // TODO: simplify how we decode the data from a schema. Example:
+    // function decodeData(
+    //     bytes memory data
+    // ) public pure returns (uint256, string memory) {
+    //     (uint256 number, string memory text) = abi.decode(data, (uint256, string));
+    //     return (number, text);
+    // }
+
     function decodeValue(
         bytes memory attestationData
     ) internal pure returns (uint256) {
@@ -98,12 +107,4 @@ contract StargateProtocol is SchemaResolver {
         }
         return value;
     }
-}
-
-// decode the data from a schema
-function decodeData(
-    bytes memory data
-) public pure returns (uint256, string memory) {
-    (uint256 number, string memory text) = abi.decode(data, (uint256, string));
-    return (number, text);
 }
