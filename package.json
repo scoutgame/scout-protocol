@@ -6,6 +6,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
+    "@nomicfoundation/hardhat-viem": "^2.0.2",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
@@ -22,6 +23,7 @@
     "typechain": "^8.3.2"
   },
   "dependencies": {
+    "@ethereum-attestation-service/eas-contracts": "^1.7.1",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@pinata/sdk": "^2.1.0",

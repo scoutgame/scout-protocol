@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { viem } from 'hardhat';
 import { getAddress, parseGwei } from 'viem';
 
-describe('Lock', function () {
+describe('StargateProtocol', function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
   // and reset Hardhat Network to that snapshot in every test.
@@ -29,13 +29,13 @@ describe('Lock', function () {
     it('Should set the right unlockTime', async function () {
       const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
 
-      expect(await lock.unlockTime()).to.equal(unlockTime);
+      expect(await lock.read.unlockTime()).to.equal(unlockTime);
     });
 
     it('Should set the right owner', async function () {
       const { lock, owner } = await loadFixture(deployOneYearLockFixture);
 
-      expect(await lock.owner()).to.equal(getAddress(owner.account.address));
+      expect(await lock.read.owner()).to.equal(getAddress(owner.account.address));
     });
 
     it('Should receive and store the funds to lock', async function () {
