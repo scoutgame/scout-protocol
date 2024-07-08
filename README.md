@@ -1,8 +1,6 @@
 # stargate-protocol
 
-The Blockchain ActiveDirectory
-
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+This project was built with Hardhat. For more reference, visit https://hardhat.org/hardhat-runner/docs/getting-started
 
 Try running some of the following tasks:
 
