@@ -1,10 +1,11 @@
 import { task } from 'hardhat/config';
-import { createPublicClient, createWalletClient, http, encodeFunctionData, decodeFunctionResult } from 'viem';
+import { createPublicClient, createWalletClient, http, encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../lib/connectors';
+import { prettyPrint } from '../lib/prettyPrint';
 
 dotenv.config();
 
@@ -37,7 +38,7 @@ task('claimBalance', 'Claims the balance from StargateProtocol')
     const getBalanceData = encodeFunctionData({
       abi,
       functionName: 'getUnclaimedBalance',
-      args: [signer.address],
+      args: [getAddress(signer.address)],
     });
 
     try {
@@ -46,30 +47,36 @@ task('claimBalance', 'Claims the balance from StargateProtocol')
         data: getBalanceData,
       });
 
-      const claimableBalance = decodeFunctionResult({
+      const claimableBalance = (decodeFunctionResult({
         abi,
         functionName: 'getUnclaimedBalance',
         data: balanceResponse.data as `0x${string}`,
-      }) as bigint;
+      }) as any) as bigint; // Get the first element from the decoded result which is the balance
+
+      prettyPrint(claimableBalance)
 
       console.log(`Claimable balance for ${signer.address}:`, claimableBalance.toString());
 
-      // Step 2: Claim the balance
-      const claimBalanceData = encodeFunctionData({
-        abi,
-        functionName: 'claimBalance',
-        args: [claimableBalance],
-      });
+      if (claimableBalance > 0n) {
+        // Step 2: Claim the balance
+        const claimBalanceData = encodeFunctionData({
+          abi,
+          functionName: 'claimBalance',
+          args: [claimableBalance],
+        });
 
-      const tx = await walletClient.sendTransaction({
-        to: stargateProtocolAddress,
-        data: claimBalanceData,
-        gasLimit: 600000n,
-      });
+        const tx = await walletClient.sendTransaction({
+          to: stargateProtocolAddress,
+          data: claimBalanceData,
+          gasLimit: 600000n,
+        });
 
-      const receipt = await client.waitForTransactionReceipt({ hash: tx });
+        const receipt = await client.waitForTransactionReceipt({ hash: tx });
 
-      console.log('Claim transaction receipt:', receipt);
+        console.log('Claim transaction receipt:', receipt);
+      } else {
+        console.log(`No balance to claim for ${signer.address}.`);
+      }
     } catch (error) {
       console.error('Error during claim process:', error);
     }
