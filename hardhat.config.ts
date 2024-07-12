@@ -5,19 +5,34 @@ import '@nomicfoundation/hardhat-ignition-viem';
 import '@nomicfoundation/hardhat-viem';
 import 'hardhat-jest'; // Enable support for Jest: https://www.npmjs.com/package/hardhat-jest
 
-const SEPOLIA_PRIVATE_KEY = vars.get('PRIVATE_KEY');
+import { connectors, SupportedChains } from './lib/connectors';
+import { NetworksUserConfig } from 'hardhat/types';
 
-const config: HardhatUserConfig = {
+
+// Tasks
+import './scripts/deployCreate2Factory';
+import './scripts/deployStardustCoin';
+
+const PRIVATE_KEY = vars.get('PRIVATE_KEY');
+
+const config: Omit<HardhatUserConfig, 'networks'> & {networks: Record<SupportedChains, NetworksUserConfig[string]>} = {
   solidity: '0.8.26',
   networks: {
+    opsepolia: {
+      url: connectors.opsepolia.rpcUrl,
+      accounts: [PRIVATE_KEY],
+      // add gas to avoid errros on deploy https://ethereum.stackexchange.com/questions/115223/cannot-estimate-gas-transaction-may-fail-or-may-require-manual-gas-limit
+      gas: 2100000,
+      gasPrice: 8000000000
+    },
     sepolia: {
-      url: 'https://sepolia.optimism.io',
-      accounts: [SEPOLIA_PRIVATE_KEY],
+      url: connectors.sepolia.rpcUrl,
+      accounts: [PRIVATE_KEY],
       // add gas to avoid errros on deploy https://ethereum.stackexchange.com/questions/115223/cannot-estimate-gas-transaction-may-fail-or-may-require-manual-gas-limit
       gas: 2100000,
       gasPrice: 8000000000
     }
-  },
+  } as Record<SupportedChains, NetworksUserConfig[string]>,
   paths: {
     tests: './__test__'
   }

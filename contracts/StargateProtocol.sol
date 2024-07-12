@@ -4,7 +4,7 @@ pragma solidity 0.8.26;
 import "@ethereum-attestation-service/eas-contracts/contracts/resolver/SchemaResolver.sol";
 import "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
 import "@ethereum-attestation-service/eas-contracts/contracts/EAS.sol";
-import "node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title ExpirationTimeResolver
 /// @notice A sample schema resolver that checks whether the expiration time is later than a specific timestamp.
