@@ -4,7 +4,9 @@
     "lint": "npx eslint . --fix",
     "test": "npx hardhat test",
     "setkey": "npx hardhat vars set PRIVATE_KEY",
-    "compile": "npx hardhat compile"
+    "compile": "npx hardhat compile",
+    "getclaimbalance": "npx hardhat getUnclaimedBalance --network opsepolia  --address ",
+    "claimbalance": "npx hardhat claimBalance --network opsepolia --privatekey "
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
