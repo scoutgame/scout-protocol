@@ -2,14 +2,13 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { Address } from "viem";
 import { SupportedChains } from "./connectors";
+import { NULL_ADDRESS } from "./constants";
 
 const DEPLOY_SALT = 'deterministic-salt-01';
 
 export function getDeterministicDeploySalt() {
   return  '0x' + Buffer.from(DEPLOY_SALT.padEnd(32, '0')).toString('hex');
 }
-
-export const NULL_ADDRESS = '0x'
 
 type Factory = {
   tokenFactory: Address;

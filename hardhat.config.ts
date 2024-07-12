@@ -12,6 +12,7 @@ import { NetworksUserConfig } from 'hardhat/types';
 // Tasks
 import './scripts/deployCreate2Factory';
 import './scripts/deployStardustCoin';
+import './scripts/deployStargateProtocol';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
