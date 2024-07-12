@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Chain } from "viem"
+import { Address, Chain } from "viem"
 import { optimismSepolia, sepolia } from "viem/chains";
 import { NULL_ADDRESS } from "./constants";
 
@@ -7,9 +7,9 @@ type Connector = {
   chain: Chain;
   rpcUrl: string;
   // See https://docs.attest.org/docs/quick--start/contracts for full list
-  easContract: string;
-  stardustCoinContract: string;
-  stargateProtocolContract: string;
+  easContract: Address;
+  stardustCoinContract: Address;
+  stargateProtocolContract: Address;
 }
 
 export const connectors = {

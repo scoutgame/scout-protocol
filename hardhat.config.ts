@@ -13,6 +13,8 @@ import { NetworksUserConfig } from 'hardhat/types';
 import './scripts/deployCreate2Factory';
 import './scripts/deployStardustCoin';
 import './scripts/deployStargateProtocol';
+import './scripts/getUnclaimedBalance';
+import './scripts/claimBalance';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
