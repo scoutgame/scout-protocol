@@ -11,7 +11,7 @@ import { NetworksUserConfig } from 'hardhat/types';
 
 // Tasks
 import './scripts/deployCreate2Factory';
-import './scripts/deployStardustCoin';
+import './scripts/deployLuckyStarCoin';
 import './scripts/deployStargateProtocol';
 import './scripts/getUnclaimedBalance';
 import './scripts/claimBalance';

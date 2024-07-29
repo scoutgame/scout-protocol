@@ -8,7 +8,7 @@ type Connector = {
   rpcUrl: string;
   // See https://docs.attest.org/docs/quick--start/contracts for full list
   easContract: Address;
-  stardustCoinContract: Address;
+  luckyStarCoinContract: Address;
   stargateProtocolContract: Address;
 }
 
@@ -17,14 +17,14 @@ export const connectors = {
     rpcUrl: 'https://sepolia.optimism.io',
     chain: optimismSepolia,
     easContract: '0x4200000000000000000000000000000000000021',
-    stardustCoinContract: '0xa7FF66C08d85c9362DED96fd4F8DDaf73A86eec0',
-    stargateProtocolContract: '0xda8793f28080ac2473032dc50497b93de0c1c67b'
+    luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
+    stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38'
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
     chain: sepolia,
     easContract: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
-    stardustCoinContract: NULL_ADDRESS,
+    luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS
   } as Connector
 } as const;

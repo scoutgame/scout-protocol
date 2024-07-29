@@ -23,7 +23,7 @@ task('deployStargateProtocol', 'Deploys the StargateProtocol contract')
 
     // Replace these addresses with actual deployed contract addresses
     const easAddress = connector.easContract; // Address of the deployed EAS contract
-    const tokenAddress = connector.stardustCoinContract; // Address of the deployed ERC20 token contract
+    const tokenAddress = connector.luckyStarCoinContract; // Address of the deployed ERC20 token contract
 
     const client = createPublicClient({
       chain: connector.chain,

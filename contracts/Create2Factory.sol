@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "./StardustCoin.sol"; // Make sure the path is correct
+import "./LuckyStarCoin.sol"; // Make sure the path is correct
 
 
 contract Create2Factory {
@@ -29,7 +29,7 @@ contract Create2Factory {
     }
 
     function getBytecode(address owner, uint256 initialSupply) public pure returns (bytes memory) {
-        bytes memory bytecode = type(StardustCoin).creationCode;
+        bytes memory bytecode = type(LuckyStarCoin).creationCode;
         return abi.encodePacked(bytecode, abi.encode(owner, initialSupply));
     }
 }

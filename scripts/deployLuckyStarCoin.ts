@@ -8,10 +8,11 @@ import { getConnectorFromHardhatRuntimeEnvironment } from '../lib/connectors';
 import { ensureAbisDirectoryExists } from '../lib/ensureDirectoryExists';
 import { getDeterministicDeploySalt, getFactoryFromHardhatRuntimeEnvironment } from '../lib/deterministicDeploy';
 import { PRIVATE_KEY } from '../lib/constants';
+import { prettyPrint } from '../lib/prettyPrint';
 
 dotenv.config();
 
-task('deployStardustCoin', 'Deploys the StardustCoin contract deterministically using Create2Factory')
+task('deployLuckyStarCoin', 'Deploys the LuckyStarCoin contract deterministically using Create2Factory')
   .setAction(async (taskArgs, hre) => {
     ensureAbisDirectoryExists();
 
@@ -20,7 +21,7 @@ task('deployStardustCoin', 'Deploys the StardustCoin contract deterministically 
 
     await hre.run('compile');
 
-    const tokenArtifactPath = path.resolve(__dirname, '../artifacts/contracts/StardustCoin.sol/StardustCoin.json');
+    const tokenArtifactPath = path.resolve(__dirname, '../artifacts/contracts/LuckyStarCoin.sol/LuckyStarCoin.json');
     const factoryArtifactPath = path.resolve(__dirname, '../artifacts/contracts/Create2Factory.sol/Create2Factory.json');
 
     const tokenArtifact = JSON.parse(fs.readFileSync(tokenArtifactPath, 'utf8'));
@@ -41,7 +42,7 @@ task('deployStardustCoin', 'Deploys the StardustCoin contract deterministically 
       transport: http(connector.rpcUrl),
     });
 
-    console.log('Deploying StardustCoin with the account:', account.address, 'on chain:', connector.chain.name);
+    console.log('Deploying LuckyStarCoin with the account:', account.address, 'on chain:', connector.chain.name);
 
     const salt = getDeterministicDeploySalt(); // Use a unique salt
     const initialSupply = parseUnits('1000000000', 18); // 1 billion tokens
@@ -77,7 +78,7 @@ task('deployStardustCoin', 'Deploys the StardustCoin contract deterministically 
       functionName: 'getAddress',
       data: predictedAddressResponse.data as `0x${string}`,
     });
-    console.log('Predicted StardustCoin contract address:', predictedAddress);
+    console.log('Predicted LuckyStarCoin contract address:', predictedAddress);
 
     const deployTxData = encodeFunctionData({
       abi: factoryABI,
@@ -92,9 +93,10 @@ task('deployStardustCoin', 'Deploys the StardustCoin contract deterministically 
     });
 
     const receipt = await client.waitForTransactionReceipt({ hash: deployTx });
-    console.log('StardustCoin deployed to:', predictedAddress, 'on chain:', connector.chain.name);
+    console.log('LuckyStarCoin deployed to:', predictedAddress, 'on chain:', connector.chain.name);
 
-    console.log(JSON.stringify({ receipt }, null, 2));
+    prettyPrint(receipt);
+
 
     fs.writeFileSync(path.resolve(__dirname, '..', 'abis', 'tokenABI.json'), JSON.stringify(tokenABI, null, 2));
   });

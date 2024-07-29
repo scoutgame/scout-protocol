@@ -6,7 +6,7 @@ import "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @title StargateProtocol
-/// @notice A schema resolver that manages unclaimed balances of StardustCoin based on EAS attestations.
+/// @notice A schema resolver that manages unclaimed balances of LuckyStarCoin based on EAS attestations.
 contract StargateProtocol is SchemaResolver {
     IERC20 public token;
     mapping(address => uint256) private _unclaimedBalances;

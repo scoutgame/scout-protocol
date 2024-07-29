@@ -1,6 +1,8 @@
 
 
 export function prettyPrint(obj: any) {
+  if (typeof obj === 'bigint')
+    return obj.toString();
   if (typeof obj !== 'object') {
     console.log(obj);
   } else {
