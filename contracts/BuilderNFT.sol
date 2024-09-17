@@ -12,6 +12,8 @@ contract BuilderNFT is ERC1155, Ownable {
 
     event BuilderTokenRegistered(uint256 tokenId);
 
+    mapping(uint256 => uint256) private _totalSupply;
+
     // Constructor accepts proceedsReceiver and priceIncrement
     constructor(string memory uri_, address payable _proceedsReceiver, uint256 _priceIncrement) ERC1155(uri_) Ownable(msg.sender) {
         require(_proceedsReceiver != address(0), "Invalid receiver address");
@@ -37,6 +39,9 @@ contract BuilderNFT is ERC1155, Ownable {
 
         // Mint the token to the buyer
         _mint(msg.sender, tokenId, amount, "");
+
+        // Update the total supply for this tokenId
+        _totalSupply[tokenId] += amount;
 
         // Transfer the funds to the global proceeds receiver
         proceedsReceiver.transfer(msg.value);
@@ -66,6 +71,6 @@ contract BuilderNFT is ERC1155, Ownable {
 
     // Use totalSupply from ERC1155 to track how many tokens exist for a specific tokenId
     function totalSupply(uint256 tokenId) public view returns (uint256) {
-        return balanceOf(address(this), tokenId);  // This checks how many tokens exist (minted)
+        return _totalSupply[tokenId];
     }
 }
