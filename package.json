@@ -2,22 +2,32 @@
   "name": "hardhat-project",
   "scripts": {
     "lint": "npx eslint . --fix",
-    "test": "npx hardhat test"
+    "test": "npx hardhat test",
+    "setkey": "npx hardhat vars set PRIVATE_KEY",
+    "compile": "npx hardhat compile",
+    "deploy:token": "npx hardhat deployLuckyStarCoin --network opsepolia",
+    "deploy:protocol": "npx hardhat deployStargateProtocol --network opsepolia",
+    "getclaimbalance": "npx hardhat getUnclaimedBalance --network opsepolia  --address ",
+    "claimbalance": "npx hardhat claimBalance --network opsepolia --privatekey "
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
-    "@nomicfoundation/hardhat-viem": "^2.0.2",
+    "@nomicfoundation/hardhat-ethers": "^3.0.6",
+    "@nomicfoundation/hardhat-viem": "^2.0.3",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "chai": "^4.4.1",
+    "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^5.1.3",
+    "ethers": "^6.13.1",
+    "hardhat": "^2.22.6",
     "solady": "^0.0.177",
     "ts-jest": "^29.1.2",
     "typechain": "^8.3.2"
@@ -27,8 +37,6 @@
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@pinata/sdk": "^2.1.0",
-    "dotenv": "^16.4.5",
-    "hardhat": "^2.22.0",
     "hardhat-jest": "^1.0.8",
     "viem": "^2.8.6"
   },
