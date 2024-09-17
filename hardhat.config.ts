@@ -10,11 +10,11 @@ import { NetworksUserConfig } from 'hardhat/types';
 
 
 // Tasks
-import './scripts/deployCreate2Factory';
-import './scripts/deployLuckyStarCoin';
-import './scripts/deployStargateProtocol';
-import './scripts/getUnclaimedBalance';
-import './scripts/claimBalance';
+import './scripts/deploy/deployCreate2Factory';
+import './scripts/deploy/deployLuckyStarCoin';
+import './scripts/deploy/deployStargateProtocol';
+import './scripts/interact/getUnclaimedBalance';
+import './scripts/interact/claimBalance';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 

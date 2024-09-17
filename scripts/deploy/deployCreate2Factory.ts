@@ -4,9 +4,9 @@ import { task } from 'hardhat/config';
 import path from 'path';
 import { createPublicClient, createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { getConnectorFromHardhatRuntimeEnvironment } from '../lib/connectors';
-import { ensureAbisDirectoryExists } from '../lib/ensureDirectoryExists';
-import { PRIVATE_KEY } from '../lib/constants';
+import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
+import { ensureAbisDirectoryExists } from '../../lib/ensureDirectoryExists';
+import { PRIVATE_KEY } from '../../lib/constants';
 
 dotenv.config();
 

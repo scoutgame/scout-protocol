@@ -3,7 +3,7 @@ import { createPublicClient, http, encodeFunctionData, decodeFunctionResult } fr
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import { getConnectorFromHardhatRuntimeEnvironment } from '../lib/connectors';
+import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 
 dotenv.config();
 

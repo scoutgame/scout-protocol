@@ -4,8 +4,8 @@ import { privateKeyToAccount } from 'viem/accounts';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
-import { getConnectorFromHardhatRuntimeEnvironment } from '../lib/connectors';
-import { prettyPrint } from '../lib/prettyPrint';
+import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
+import { prettyPrint } from '../../lib/prettyPrint';
 
 dotenv.config();
 
