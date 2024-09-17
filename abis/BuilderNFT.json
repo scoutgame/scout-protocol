@@ -5,6 +5,16 @@
         "internalType": "string",
         "name": "uri_",
         "type": "string"
+      },
+      {
+        "internalType": "address payable",
+        "name": "_proceedsReceiver",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_priceIncrement",
+        "type": "uint256"
       }
     ],
     "stateMutability": "nonpayable",
@@ -166,18 +176,6 @@
         "indexed": false,
         "internalType": "uint256",
         "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "proceedsReceiver",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "price",
         "type": "uint256"
       }
     ],
@@ -348,40 +346,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "builderTokens",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "totalSupply",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "reserve",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address payable",
-        "name": "proceedsReceiver",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
       },
@@ -400,16 +364,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
+        "name": "currentSupply",
         "type": "uint256"
       }
     ],
-    "name": "getBatchPurchasePrice",
+    "name": "getNextPrice",
     "outputs": [
       {
         "internalType": "uint256",
@@ -424,26 +383,12 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "currentSupply",
-        "type": "uint256"
-      }
-    ],
-    "name": "getNextPrice",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
         "type": "uint256"
       }
     ],
@@ -509,18 +454,33 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address payable",
-        "name": "proceedsReceiver",
-        "type": "address"
-      },
+    "inputs": [],
+    "name": "priceIncrement",
+    "outputs": [
       {
         "internalType": "uint256",
-        "name": "startPrice",
+        "name": "",
         "type": "uint256"
       }
     ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proceedsReceiver",
+    "outputs": [
+      {
+        "internalType": "address payable",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "registerBuilderToken",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -639,6 +599,25 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "totalSupply",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "newOwner",
         "type": "address"
@@ -651,11 +630,6 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
       {
         "internalType": "address payable",
         "name": "newReceiver",

@@ -9,7 +9,8 @@
     "deploy:builders": "npx hardhat deployBuilderNFT --network opsepolia",
     "deploy:protocol": "npx hardhat deployStargateProtocol --network opsepolia",
     "getclaimbalance": "npx hardhat getUnclaimedBalance --network opsepolia  --address ",
-    "claimbalance": "npx hardhat claimBalance --network opsepolia --privatekey "
+    "claimbalance": "npx hardhat claimBalance --network opsepolia --privatekey ",
+    "buildernft": "npx hardhat interactBuilderNFT --network opsepolia"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
@@ -39,6 +40,7 @@
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@pinata/sdk": "^2.1.0",
     "hardhat-jest": "^1.0.8",
+    "inquirer": "^11.0.1",
     "viem": "^2.8.6"
   },
   "overrides": {

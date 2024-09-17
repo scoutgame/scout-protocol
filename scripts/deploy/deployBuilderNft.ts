@@ -5,6 +5,7 @@ import { task } from 'hardhat/config';
 import { createPublicClient, createWalletClient, http, encodeDeployData } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
+import { bigint } from 'hardhat/internal/core/params/argumentTypes';
 
 dotenv.config();
 
@@ -38,7 +39,7 @@ task('deployBuilderNFT', 'Deploys the BuilderNFT contract')
     const encodedData = encodeDeployData({
       abi: contractABI,
       bytecode: contractBytecode,
-      args: ['http://localhost:3000/api/nft/{id}.json'],
+      args: ['http://localhost:3000/api/nft/{id}.json', "0xB5beacf4eE08198dad9C1f2BcB78e7B22DC15074", BigInt(1e15)],
     });
 
     const deployTx = await walletClient.sendTransaction({
