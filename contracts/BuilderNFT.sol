@@ -33,7 +33,7 @@ contract BuilderNFT is ERC1155, Ownable {
 
         uint256 cost = getTokenPurchasePrice(tokenId, amount);
 
-        require(msg.value == cost, "Incorrect ETH sent");
+        require(msg.value >= cost, "Need same or more ETH");
 
         // Mint the token to the buyer
         _mint(msg.sender, tokenId, amount, "");

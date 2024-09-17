@@ -9,6 +9,17 @@ import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors'
 
 dotenv.config();
 
+/*
+token 1: 0.001
+token 2: 0.002
+
+// Total: 0.012
+token 3: 0.003
+token 4: 0.004
+token 5: 0.005
+
+ */
+
 task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
   // .addParam('privatekey', 'The private key of the signer')
   .setAction(async (taskArgs, hre) => {
@@ -125,7 +136,8 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
         const tx = await walletClient.sendTransaction({
           to: builderNFTAddress,
           data: txData,
-          gasLimit: 600000n,
+          gasPrice: BigInt(2e8),
+          value: BigInt(1e16)
         });
 
         const receipt = await client.waitForTransactionReceipt({ hash: tx });
@@ -138,13 +150,13 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
       const txData = encodeFunctionData({
         abi,
         functionName: selectedMethod.name,
-        args: [],
+        args: []
       });
 
       if (selectedMethod.stateMutability === 'view' || selectedMethod.stateMutability === 'pure') {
         const callResponse = await client.call({
           to: builderNFTAddress,
-          data: txData,
+          data: txData
         });
 
         const result = decodeFunctionResult({
@@ -158,7 +170,7 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
         const tx = await walletClient.sendTransaction({
           to: builderNFTAddress,
           data: txData,
-          gasLimit: 600000n,
+          gasLimit: 600000n
         });
 
         const receipt = await client.waitForTransactionReceipt({ hash: tx });
