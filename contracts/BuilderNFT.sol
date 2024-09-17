@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract BuilderTokens is ERC1155, Ownable {
+contract BuilderNFT is ERC1155, Ownable {
 
     struct BuilderToken {
         uint256 totalSupply;
@@ -64,7 +64,7 @@ contract BuilderTokens is ERC1155, Ownable {
 
     // Calculate the cost of the tokens using a simple linear bonding curve
     function getNextPrice(uint256 currentSupply) public pure returns (uint256) {
-        uint256 totalCost = (currentSupply + 1 ) * 2; // Linear bonding curve
+        uint256 totalCost = (currentSupply + 1 ) * 0.001 ether; // Linear bonding curve
         return totalCost;
     }
 

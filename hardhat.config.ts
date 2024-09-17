@@ -9,10 +9,13 @@ import { connectors, SupportedChains } from './lib/connectors';
 import { NetworksUserConfig } from 'hardhat/types';
 
 
-// Tasks
+// Deploys
 import './scripts/deploy/deployCreate2Factory';
 import './scripts/deploy/deployLuckyStarCoin';
 import './scripts/deploy/deployStargateProtocol';
+import './scripts/deploy/deployBuilderNft';
+
+// Interactions
 import './scripts/interact/getUnclaimedBalance';
 import './scripts/interact/claimBalance';
 
