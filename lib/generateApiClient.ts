@@ -19,10 +19,10 @@ function generateInputTypes(abiItem: any): string {
     .join(', ');
 }
 
-// Generate the method implementations with object parameters
 function generateMethodImplementation(abiItem: any): string {
   const functionName = abiItem.name;
   const inputs = abiItem.inputs || [];
+  const outputs = abiItem.outputs || [];
 
   // Define the parameter type based on inputs
   const paramsType = inputs.length > 0
@@ -31,23 +31,43 @@ function generateMethodImplementation(abiItem: any): string {
 
   const inputNames = inputs.map((input: any) => `params.args.${input.name}`).join(', ');
 
-  // Check if the function is view/pure or payable/nonpayable
+  // Function to handle the output parsing based on ABI output types
+  function getReturnType(outputs: any[]): string {
+    if (!outputs.length) return 'null';
+    if (outputs.length === 1) return solidityTypeToTsType(outputs[0].type);
+    return `{ ${outputs.map((output: any, i: number) => `${output.name || 'output' + i}: ${solidityTypeToTsType(output.type)}`).join(', ')} }`;
+  }
+
+  // Handle read methods (view/pure) with output type parsing
   if (abiItem.stateMutability === 'view' || abiItem.stateMutability === 'pure') {
+    const returnType = getReturnType(outputs);
+
     return `
-    async ${functionName}(params: ${paramsType}): Promise<any> {
+    async ${functionName}(params: ${paramsType}): Promise<${returnType}> {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "${functionName}",
         args: [${inputNames}],
       });
 
-      return this.publicClient.call({
+      const { data } = await this.publicClient.call({
         to: this.contractAddress,
         data: txData,
       });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "${functionName}",
+        data: data as \`0x\${string}\`,
+      });
+
+      // Parse the result based on the return type
+      return result as ${returnType};
     }
     `;
   } else {
+    // Handle write methods (payable/nonpayable) and return the transaction receipt
     return `
     async ${functionName}(params: ${paramsType}): Promise<any> {
       if (!this.walletClient) {
@@ -60,15 +80,17 @@ function generateMethodImplementation(abiItem: any): string {
         args: [${inputNames}],
       });
 
-      const tx = await this.walletClient.sendTransaction({
-        to: this.contractAddress,
+      const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+        to: getAddress(this.contractAddress),
         data: txData,
-        value: params.value, // Optional value for payable methods
+        value: params.value ?? BigInt(0), // Optional value for payable methods
         gasPrice: params.gasPrice, // Optional gasPrice
-        account: this.walletClient.account!.address as \`0x\${string}\`,
-        chain: this.chain
-      });
+      };
 
+      // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+      const tx = await this.walletClient.sendTransaction(txInput as any);
+
+      // Return the transaction receipt
       return this.walletClient.waitForTransactionReceipt({ hash: tx });
     }
     `;
@@ -81,8 +103,8 @@ async function generateApiClient({ abi, selectedFunctionIndices }: { abi: any[],
 
   // Generate TypeScript class code
   let classCode = `
-  import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, Transport, WalletActions } from 'viem';
-  import { encodeFunctionData } from 'viem';
+  import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, Transport, WalletActions, WalletClient } from 'viem';
+  import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
 
   // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
   //  https://github.com/wevm/viem/discussions/1463#discussioncomment-7504732
