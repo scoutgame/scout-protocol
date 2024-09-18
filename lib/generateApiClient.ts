@@ -176,7 +176,7 @@ async function generateApiClient({ abi, selectedFunctionIndices }: { abi: any[],
 // Function to load the ABI from a file
 function loadAbiFromFile(abiFilePath: string): any[] {
   try {
-    const resolvedPath = path.resolve(abiFilePath);
+    const resolvedPath = path.resolve( abiFilePath);
     if (!fs.existsSync(resolvedPath)) {
       throw new Error(`ABI file not found at path: ${resolvedPath}`);
     }
@@ -265,9 +265,6 @@ async function main() {
   // Generate the API client with the selected functions
   await generateApiClient({ abi, selectedFunctionIndices });
 }
-
-// Run the script
-main();
 
 // Run the script
 main();

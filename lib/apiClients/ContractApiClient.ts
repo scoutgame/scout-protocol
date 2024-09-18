@@ -77,6 +77,44 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      }
+    ],
+    "name": "getBuilderIdForToken",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "builderId",
+        "type": "string"
+      }
+    ],
+    "name": "getTokenIdForBuilder",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
@@ -106,6 +144,19 @@
     "name": "registerBuilderToken",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalBuilderTokens",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -214,6 +265,54 @@
     }
     
 
+    async getBuilderIdForToken(params: { args: { tokenId: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<string> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "getBuilderIdForToken",
+        args: [params.args.tokenId],
+      });
+
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
+        data: txData,
+      });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "getBuilderIdForToken",
+        data: data as `0x${string}`,
+      });
+
+      // Parse the result based on the return type
+      return result as string;
+    }
+    
+
+    async getTokenIdForBuilder(params: { args: { builderId: string }, value?: bigint, gasPrice?: bigint }): Promise<BigInt> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "getTokenIdForBuilder",
+        args: [params.args.builderId],
+      });
+
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
+        data: txData,
+      });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "getTokenIdForBuilder",
+        data: data as `0x${string}`,
+      });
+
+      // Parse the result based on the return type
+      return result as BigInt;
+    }
+    
+
     async getTokenPurchasePrice(params: { args: { tokenId: BigInt, amount: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
@@ -261,6 +360,30 @@
 
       // Return the transaction receipt
       return this.walletClient.waitForTransactionReceipt({ hash: tx });
+    }
+    
+
+    async totalBuilderTokens(params: { value?: bigint, gasPrice?: bigint }): Promise<BigInt> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "totalBuilderTokens",
+        args: [],
+      });
+
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
+        data: txData,
+      });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "totalBuilderTokens",
+        data: data as `0x${string}`,
+      });
+
+      // Parse the result based on the return type
+      return result as BigInt;
     }
     
 
