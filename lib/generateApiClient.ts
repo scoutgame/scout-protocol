@@ -41,7 +41,7 @@ function generateMethodImplementation(abiItem: any): string {
         args: [${inputNames}],
       });
 
-      return await this.publicClient.call({
+      return this.publicClient.call({
         to: this.contractAddress,
         data: txData,
       });
@@ -65,12 +65,11 @@ function generateMethodImplementation(abiItem: any): string {
         data: txData,
         value: params.value, // Optional value for payable methods
         gasPrice: params.gasPrice, // Optional gasPrice
-        gasLimit: 600000n,
         account: this.walletClient.account!.address as \`0x\${string}\`,
         chain: this.chain
       });
 
-      return await this.walletClient.waitForTransactionReceipt({ hash: tx });
+      return this.walletClient.waitForTransactionReceipt({ hash: tx });
     }
     `;
   }
@@ -213,11 +212,40 @@ async function main() {
     },
   ]);
 
-  const selectedFunctionIndices = functionIndices.split(',').map((num: string) => parseInt(num.trim(), 10) - 1);
+  // Map selected functions and display them for confirmation
+  const selectedFunctionIndices = functionIndices.split(',').map((num: string) => parseInt(num.trim(), 10) - 1) as number[];
+  const selectedFunctions = selectedFunctionIndices.map(index => ({
+    index: index + 1, // +1 to display correct user-facing index
+    name: abi[index].name,
+    stateMutability: abi[index].stateMutability
+  }));
+
+  // Display selected methods to the user
+  console.log("\nYou have selected the following methods:");
+  selectedFunctions.forEach((method) => {
+    console.log(`${method.index}. ${method.name} (${method.stateMutability})`);
+  });
+
+  // Ask for confirmation
+  const { confirmSelection } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirmSelection',
+      message: 'Do you want to proceed with these methods?',
+    },
+  ]);
+
+  if (!confirmSelection) {
+    console.log("\nRestarting selection process...\n");
+    return main(); // Restart the process if the user says no
+  }
 
   // Generate the API client with the selected functions
   await generateApiClient({ abi, selectedFunctionIndices });
 }
+
+// Run the script
+main();
 
 // Run the script
 main();
