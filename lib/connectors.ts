@@ -44,7 +44,7 @@ export const connectors = {
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
-    builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af'
+    builderNFTContract: '0x6fa2f63f9580db41f957160eca7b3bf127ce459d'
   }
 } as const;
 

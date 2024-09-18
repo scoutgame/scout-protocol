@@ -215,7 +215,7 @@
     }
 
     
-    async balanceOf(params: { args: { account: string, id: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<BigInt> {
+    async balanceOf(params: { args: { account: string, id: BigInt },  }): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "balanceOf",
@@ -265,7 +265,7 @@
     }
     
 
-    async getBuilderIdForToken(params: { args: { tokenId: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<string> {
+    async getBuilderIdForToken(params: { args: { tokenId: BigInt },  }): Promise<string> {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "getBuilderIdForToken",
@@ -289,7 +289,7 @@
     }
     
 
-    async getTokenIdForBuilder(params: { args: { builderId: string }, value?: bigint, gasPrice?: bigint }): Promise<BigInt> {
+    async getTokenIdForBuilder(params: { args: { builderId: string },  }): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "getTokenIdForBuilder",
@@ -313,7 +313,7 @@
     }
     
 
-    async getTokenPurchasePrice(params: { args: { tokenId: BigInt, amount: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<BigInt> {
+    async getTokenPurchasePrice(params: { args: { tokenId: BigInt, amount: BigInt },  }): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "getTokenPurchasePrice",
@@ -363,7 +363,7 @@
     }
     
 
-    async totalBuilderTokens(params: { value?: bigint, gasPrice?: bigint }): Promise<BigInt> {
+    async totalBuilderTokens(params: {  }): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "totalBuilderTokens",
@@ -387,7 +387,7 @@
     }
     
 
-    async totalSupply(params: { args: { tokenId: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<BigInt> {
+    async totalSupply(params: { args: { tokenId: BigInt },  }): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "totalSupply",
@@ -411,4 +411,5 @@
     }
     
   }
+
   

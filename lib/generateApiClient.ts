@@ -23,11 +23,7 @@ function generateMethodImplementation(abiItem: any): string {
   const functionName = abiItem.name;
   const inputs = abiItem.inputs || [];
   const outputs = abiItem.outputs || [];
-
-  // Define the parameter type based on inputs
-  const paramsType = inputs.length > 0
-    ? `{ args: { ${generateInputTypes(abiItem)} }, value?: bigint, gasPrice?: bigint }`
-    : '{ value?: bigint, gasPrice?: bigint }';
+  
 
   const inputNames = inputs.map((input: any) => `params.args.${input.name}`).join(', ');
 
@@ -38,8 +34,17 @@ function generateMethodImplementation(abiItem: any): string {
     return `{ ${outputs.map((output: any, i: number) => `${output.name || 'output' + i}: ${solidityTypeToTsType(output.type)}`).join(', ')} }`;
   }
 
+  const isReadOperation = abiItem.stateMutability === 'view' || abiItem.stateMutability === 'pure';
+
+  const transactionConfig = isReadOperation ? '' : 'value?: bigint, gasPrice?: bigint';
+
+  // Define the parameter type based on inputs
+  const paramsType = inputs.length > 0
+  ? `{ args: { ${generateInputTypes(abiItem)} }, ${transactionConfig} }`
+  : `{ ${transactionConfig} }`;
+
   // Handle read methods (view/pure) with output type parsing
-  if (abiItem.stateMutability === 'view' || abiItem.stateMutability === 'pure') {
+  if (isReadOperation) {
     const returnType = getReturnType(outputs);
 
     return `
