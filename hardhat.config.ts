@@ -45,6 +45,11 @@ const config: Omit<HardhatUserConfig, 'networks'> & {networks: Record<SupportedC
       accounts: [PRIVATE_KEY],
       gasPrice: 4e8,
       gas: 21e15
+    },
+    base: {
+      url: connectors.basesepolia.rpcUrl,
+      accounts: [PRIVATE_KEY],
+      gasPrice: 3e7
     }
   } as Record<SupportedChains, NetworksUserConfig[string]>,
   paths: {
