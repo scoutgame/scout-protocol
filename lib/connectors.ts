@@ -1,6 +1,6 @@
 import { HardhatRuntimeEnvironment } from "hardhat/types";
 import { Address, Chain } from "viem"
-import { optimismSepolia, sepolia } from "viem/chains";
+import { baseSepolia, optimismSepolia, sepolia } from "viem/chains";
 import { NULL_ADDRESS } from "./constants";
 
 type Connector = {
@@ -29,7 +29,15 @@ export const connectors = {
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: NULL_ADDRESS
-  } as Connector
+  } as Connector,
+  basesepolia: {
+    rpcUrl: 'https://sepolia.base.org',
+    chain: baseSepolia,
+    easContract: NULL_ADDRESS,
+    luckyStarCoinContract: NULL_ADDRESS,
+    stargateProtocolContract: NULL_ADDRESS,
+    builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af'
+  }
 } as const;
 
 export type SupportedChains = keyof typeof connectors;

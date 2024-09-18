@@ -110,6 +110,8 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
 
       console.log(`Calling method "${selectedMethod.name}" with arguments:`, formattedArgs);
 
+
+
       // Dynamically encode the function call
       const txData = encodeFunctionData({
         abi,
@@ -132,12 +134,16 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
 
         console.log(`Result:`, result);
       } else {
+
+        console.log('Performing write transaction..')
+
+        
         // For non-view methods, send a transaction
         const tx = await walletClient.sendTransaction({
           to: builderNFTAddress,
           data: txData,
-          gasPrice: BigInt(2e8),
-          value: BigInt(1e16)
+          value: BigInt(1e16),
+          gasPrice: BigInt(4e8)
         });
 
         const receipt = await client.waitForTransactionReceipt({ hash: tx });

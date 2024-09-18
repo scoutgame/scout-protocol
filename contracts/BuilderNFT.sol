@@ -10,7 +10,12 @@ contract BuilderNFT is ERC1155, Ownable {
     address payable public proceedsReceiver;  // Global proceeds receiver
     uint256 public priceIncrement;            // Global price increment for all tokens - linear curve
 
-    event BuilderTokenRegistered(uint256 tokenId);
+    event BuilderTokenRegistered(uint256 tokenId, string uuid);
+    event BuilderScouted(uint256 tokenId, uint256 amount, string scoutId);
+
+
+    // Mapping from tokenId to UUID string
+    mapping(uint256 => string) private tokenToBuilderRegistry;
 
     mapping(uint256 => uint256) private _totalSupply;
 
@@ -24,13 +29,22 @@ contract BuilderNFT is ERC1155, Ownable {
     }
 
     // Register a new builder token with an automatically assigned tokenId
-    function registerBuilderToken() external onlyOwner {
-        emit BuilderTokenRegistered(nextTokenId);
+    function registerBuilderToken(string calldata builderId) external onlyOwner {
+        require(bytes(builderId).length > 0, "Builder ID must be registered");
+
+        // Store the UUID for the newly registered token
+        tokenToBuilderRegistry[nextTokenId] = builderId;
+
+        emit BuilderTokenRegistered(nextTokenId, builderId);
+
         nextTokenId++;
     }
 
     // Buy a specific builder's token based on bonding curve
-    function buyToken(uint256 tokenId, uint256 amount) external payable {
+    function buyToken(uint256 tokenId, uint256 amount, string calldata scout) external payable {
+        // Check that the tokenId has a valid UUID mapped to it
+        require(bytes(tokenToBuilderRegistry[tokenId]).length > 0, "Token not registered or has no UUID");
+
         require(amount > 0, "Must buy at least one token");
 
         uint256 cost = getTokenPurchasePrice(tokenId, amount);
@@ -45,6 +59,8 @@ contract BuilderNFT is ERC1155, Ownable {
 
         // Transfer the funds to the global proceeds receiver
         proceedsReceiver.transfer(msg.value);
+
+        emit BuilderScouted(tokenId, amount, scout);
     }
 
     // Update the global proceeds receiver address

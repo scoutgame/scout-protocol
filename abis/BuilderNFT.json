@@ -177,6 +177,37 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "scoutId",
+        "type": "string"
+      }
+    ],
+    "name": "BuilderScouted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "uuid",
+        "type": "string"
       }
     ],
     "name": "BuilderTokenRegistered",
@@ -353,6 +384,11 @@
         "internalType": "uint256",
         "name": "amount",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "scout",
+        "type": "string"
       }
     ],
     "name": "buyToken",
@@ -480,7 +516,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "builderId",
+        "type": "string"
+      }
+    ],
     "name": "registerBuilderToken",
     "outputs": [],
     "stateMutability": "nonpayable",
