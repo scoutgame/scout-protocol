@@ -16,6 +16,7 @@ contract BuilderNFT is ERC1155, Ownable {
 
     // Mapping from tokenId to UUID string
     mapping(uint256 => string) private tokenToBuilderRegistry;
+    mapping(string => uint256) private builderToTokenRegistry;
 
     mapping(uint256 => uint256) private _totalSupply;
 
@@ -26,42 +27,53 @@ contract BuilderNFT is ERC1155, Ownable {
 
         proceedsReceiver = _proceedsReceiver;
         priceIncrement = _priceIncrement;
+        nextTokenId = 1;
     }
+
+    function isValidUUID(string memory uuid) internal pure returns (bool) {
+    bytes memory uuidBytes = bytes(uuid);
+    return uuidBytes.length == 36 &&
+        uuidBytes[8] == "-" &&
+        uuidBytes[13] == "-" &&
+        uuidBytes[18] == "-" &&
+        uuidBytes[23] == "-";
+    }
+
 
     // Register a new builder token with an automatically assigned tokenId
     function registerBuilderToken(string calldata builderId) external onlyOwner {
-        require(bytes(builderId).length > 0, "Builder ID must be registered");
+        require(isValidUUID(builderId), "Builder ID must be valid v4 uuid");
+
+        // Expecting the engine to return 0 as the default value for a non existing reference
+        uint256 existingBuilderTokenId = builderToTokenRegistry[builderId];
+
+        require(existingBuilderTokenId == 0, "Builder already registered");
 
         // Store the UUID for the newly registered token
         tokenToBuilderRegistry[nextTokenId] = builderId;
+        builderToTokenRegistry[builderId] = nextTokenId;
 
         emit BuilderTokenRegistered(nextTokenId, builderId);
 
         nextTokenId++;
     }
 
-    // Buy a specific builder's token based on bonding curve
-    function buyToken(uint256 tokenId, uint256 amount, string calldata scout) external payable {
-        // Check that the tokenId has a valid UUID mapped to it
-        require(bytes(tokenToBuilderRegistry[tokenId]).length > 0, "Token not registered or has no UUID");
+   function buyToken(uint256 tokenId, uint256 amount, string calldata scout) external payable {
+    require(bytes(tokenToBuilderRegistry[tokenId]).length > 0, "Token not registered");
+    // Token must be registered to a builder before allowing purchases
+    require(builderToTokenRegistry[tokenToBuilderRegistry[tokenId]] == tokenId, "Builder-token mismatch");
 
-        require(amount > 0, "Must buy at least one token");
+    require(amount > 0, "Must buy at least one token");
+    uint256 cost = getTokenPurchasePrice(tokenId, amount);
+    require(msg.value >= cost, "Need same or more ETH");
 
-        uint256 cost = getTokenPurchasePrice(tokenId, amount);
+    // Proceed with minting and fund transfer
+    _mint(msg.sender, tokenId, amount, "");
+    _totalSupply[tokenId] += amount;
+    proceedsReceiver.transfer(msg.value);
 
-        require(msg.value >= cost, "Need same or more ETH");
-
-        // Mint the token to the buyer
-        _mint(msg.sender, tokenId, amount, "");
-
-        // Update the total supply for this tokenId
-        _totalSupply[tokenId] += amount;
-
-        // Transfer the funds to the global proceeds receiver
-        proceedsReceiver.transfer(msg.value);
-
-        emit BuilderScouted(tokenId, amount, scout);
-    }
+    emit BuilderScouted(tokenId, amount, scout);
+}
 
     // Update the global proceeds receiver address
     function updateProceedsReceiver(address payable newReceiver) external onlyOwner {
@@ -88,5 +100,21 @@ contract BuilderNFT is ERC1155, Ownable {
     // Use totalSupply from ERC1155 to track how many tokens exist for a specific tokenId
     function totalSupply(uint256 tokenId) public view returns (uint256) {
         return _totalSupply[tokenId];
+    }
+
+    function getBuilderIdForToken(uint256 tokenId) public view returns (string memory) {
+      string memory builderId = tokenToBuilderRegistry[tokenId];
+      require(bytes(builderId).length > 0, "Token not registered");      
+      return tokenToBuilderRegistry[tokenId];
+    }
+
+    function getTokenIdForBuilder(string calldata builderId) public view returns (uint256) {
+      uint256 tokenId = builderToTokenRegistry[builderId];
+      require(tokenId != 0, "Builder not registered");
+      return tokenId;
+    }
+
+    function totalBuilderTokens() public view returns (uint256) {
+        return nextTokenId - 1;
     }
 }

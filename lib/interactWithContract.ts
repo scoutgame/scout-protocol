@@ -111,6 +111,9 @@ export async function interactWithContract({
 
   // Call or send transaction depending on the method's state mutability
   if (['view', 'pure'].includes(selectedMethod.stateMutability)) {
+
+    console.log('Performing read operation...');
+
     const callResponse = await walletClient.call({
       to: contractAddress,
       data: txData,
@@ -130,9 +133,8 @@ export async function interactWithContract({
       chain: connector.chain,
       to: contractAddress,
       data: txData,
-      account: signer.address,
       value, // Only set value if applicable (undefined for non-payable functions)
-      gasPrice: BigInt(4e8), // 400 gwei
+      gasPrice: BigInt(4e7), // 40 gwei
     });
 
     const receipt = await walletClient.waitForTransactionReceipt({ hash: tx });
