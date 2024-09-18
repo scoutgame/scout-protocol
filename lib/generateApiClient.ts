@@ -41,14 +41,14 @@ function generateMethodImplementation(abiItem: any): string {
   // Define the parameter type based on inputs
   const paramsType = inputs.length > 0
   ? `{ args: { ${generateInputTypes(abiItem)} }, ${transactionConfig} }`
-  : `{ ${transactionConfig} }`;
+  : transactionConfig ? `{ ${transactionConfig} }` : '';
 
   // Handle read methods (view/pure) with output type parsing
   if (isReadOperation) {
     const returnType = getReturnType(outputs);
 
     return `
-    async ${functionName}(params: ${paramsType}): Promise<${returnType}> {
+    async ${functionName}(${paramsType ? `params: ${paramsType}` : ''}): Promise<${returnType}> {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "${functionName}",

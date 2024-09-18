@@ -117,4 +117,13 @@ contract BuilderNFT is ERC1155, Ownable {
     function totalBuilderTokens() public view returns (uint256) {
         return nextTokenId - 1;
     }
+
+    function adjustPriceIncrement(uint256 newPriceIncrement) external onlyOwner {
+        require(newPriceIncrement > 0, "Price increment must be greater than zero");
+        priceIncrement = newPriceIncrement;
+    }
+
+    function getPriceIncrement() public view returns (uint256) {
+      return priceIncrement;
+    }
 }

@@ -27,6 +27,19 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "newPriceIncrement",
+        "type": "uint256"
+      }
+    ],
+    "name": "adjustPriceIncrement",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "account",
         "type": "address"
@@ -91,6 +104,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getPriceIncrement",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "string",
@@ -123,6 +149,19 @@
       }
     ],
     "name": "getTokenPurchasePrice",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "priceIncrement",
     "outputs": [
       {
         "internalType": "uint256",
@@ -215,6 +254,32 @@
     }
 
     
+    async adjustPriceIncrement(params: { args: { newPriceIncrement: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<any> {
+      if (!this.walletClient) {
+        throw new Error('Wallet client is required for write operations.');
+      }
+      
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "adjustPriceIncrement",
+        args: [params.args.newPriceIncrement],
+      });
+
+      const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+        to: getAddress(this.contractAddress),
+        data: txData,
+        value: params.value ?? BigInt(0), // Optional value for payable methods
+        gasPrice: params.gasPrice, // Optional gasPrice
+      };
+
+      // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+      const tx = await this.walletClient.sendTransaction(txInput as any);
+
+      // Return the transaction receipt
+      return this.walletClient.waitForTransactionReceipt({ hash: tx });
+    }
+    
+
     async balanceOf(params: { args: { account: string, id: BigInt },  }): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
@@ -289,6 +354,30 @@
     }
     
 
+    async getPriceIncrement(): Promise<BigInt> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "getPriceIncrement",
+        args: [],
+      });
+
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
+        data: txData,
+      });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "getPriceIncrement",
+        data: data as `0x${string}`,
+      });
+
+      // Parse the result based on the return type
+      return result as BigInt;
+    }
+    
+
     async getTokenIdForBuilder(params: { args: { builderId: string },  }): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
@@ -337,6 +426,30 @@
     }
     
 
+    async priceIncrement(): Promise<BigInt> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "priceIncrement",
+        args: [],
+      });
+
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
+        data: txData,
+      });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "priceIncrement",
+        data: data as `0x${string}`,
+      });
+
+      // Parse the result based on the return type
+      return result as BigInt;
+    }
+    
+
     async registerBuilderToken(params: { args: { builderId: string }, value?: bigint, gasPrice?: bigint }): Promise<any> {
       if (!this.walletClient) {
         throw new Error('Wallet client is required for write operations.');
@@ -363,7 +476,7 @@
     }
     
 
-    async totalBuilderTokens(params: {  }): Promise<BigInt> {
+    async totalBuilderTokens(): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "totalBuilderTokens",
@@ -411,5 +524,4 @@
     }
     
   }
-
   
