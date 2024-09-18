@@ -130,6 +130,7 @@ export async function interactWithContract({
       chain: connector.chain,
       to: contractAddress,
       data: txData,
+      account: signer.address,
       value, // Only set value if applicable (undefined for non-payable functions)
       gasPrice: BigInt(4e8), // 400 gwei
     });

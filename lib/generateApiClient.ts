@@ -26,10 +26,10 @@ function generateMethodImplementation(abiItem: any): string {
 
   // Define the parameter type based on inputs
   const paramsType = inputs.length > 0
-    ? `{ ${generateInputTypes(abiItem)} }`
-    : '{}';
+    ? `{ args: { ${generateInputTypes(abiItem)} }, value?: bigint, gasPrice?: bigint }`
+    : '{ value?: bigint, gasPrice?: bigint }';
 
-  const inputNames = inputs.map((input: any) => `params.${input.name}`).join(', ');
+  const inputNames = inputs.map((input: any) => `params.args.${input.name}`).join(', ');
 
   // Check if the function is view/pure or payable/nonpayable
   if (abiItem.stateMutability === 'view' || abiItem.stateMutability === 'pure') {
@@ -53,6 +53,7 @@ function generateMethodImplementation(abiItem: any): string {
       if (!this.walletClient) {
         throw new Error('Wallet client is required for write operations.');
       }
+      
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "${functionName}",
@@ -62,7 +63,11 @@ function generateMethodImplementation(abiItem: any): string {
       const tx = await this.walletClient.sendTransaction({
         to: this.contractAddress,
         data: txData,
+        value: params.value, // Optional value for payable methods
+        gasPrice: params.gasPrice, // Optional gasPrice
+        gasLimit: 600000n,
         account: this.walletClient.account!.address as \`0x\${string}\`,
+        chain: this.chain
       });
 
       return await this.walletClient.waitForTransactionReceipt({ hash: tx });
@@ -99,6 +104,7 @@ async function generateApiClient({ abi, selectedFunctionIndices }: { abi: any[],
     private contractAddress: Address;
     private publicClient: PublicClient;
     private walletClient?: ReadWriteWalletClient;
+    private chain: Chain;
 
     private abi: Abi = ${JSON.stringify(selectedFunctions, null, 2)};
 
@@ -106,21 +112,33 @@ async function generateApiClient({ abi, selectedFunctionIndices }: { abi: any[],
       contractAddress,
       publicClient,
       walletClient,
+      chain
     }: {
       contractAddress: Address,
-      publicClient?: any,
-      walletClient?: any,
+      chain: Chain,
+      publicClient?: PublicClient,
+      walletClient?: ReadWriteWalletClient,
     }) {
       if (!publicClient && !walletClient) {
         throw new Error('At least one client is required.');
+      } else if (publicClient && walletClient) {
+        throw new Error('Provide only a public client or wallet clients'); 
       };
 
+      this.chain = chain;
       this.contractAddress = contractAddress;
-      this.publicClient = publicClient;
-      this.walletClient = walletClient;
 
-      if (!this.publicClient) {
-        this.publicClient = walletClient;
+      const client = publicClient || walletClient;
+
+      if (client!.chain!.id !== chain.id) {
+        throw new Error('Client must be on the same chain as the contract. Make sure to add a chain to your client');
+      }
+
+      if (publicClient) {
+        this.publicClient = publicClient;
+      } else {
+        this.walletClient = walletClient;
+        this.publicClient = walletClient as PublicClient; 
       }
     }
 
