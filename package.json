@@ -41,7 +41,7 @@
     "@pinata/sdk": "^2.1.0",
     "hardhat-jest": "^1.0.8",
     "inquirer": "^11.0.1",
-    "viem": "^2.8.6"
+    "viem": "^2.21.9"
   },
   "overrides": {
     "chai": "^4.4.1"

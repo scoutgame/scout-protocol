@@ -62,7 +62,7 @@ function generateMethodImplementation(abiItem: any): string {
       const tx = await this.walletClient.sendTransaction({
         to: this.contractAddress,
         data: txData,
-        gasLimit: 600000n
+        account: this.walletClient.account.address as \`0x\${string}\`,
       });
 
       return await this.walletClient.waitForTransactionReceipt({ hash: tx });
@@ -77,30 +77,51 @@ async function generateApiClient({ abi, selectedFunctionIndices }: { abi: any[],
 
   // Generate TypeScript class code
   let classCode = `
-  import type { Abi } from 'viem';
+  import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, Transport, WalletActions } from 'viem';
   import { encodeFunctionData } from 'viem';
+
+  // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
+  //  https://github.com/wevm/viem/discussions/1463#discussioncomment-7504732
+  type ReadWriteWalletClient<
+    transport extends Transport = Transport,
+    chain extends Chain | undefined = Chain | undefined,
+    account extends Account | undefined = Account | undefined,
+  > = Client<
+    transport,
+    chain,
+    account,
+    RpcSchema,
+    PublicActions<transport, chain, account> & WalletActions<chain, account>
+  >;
 
   export class ContractApiClient {
 
-    private contractAddress: string;
-    private publicClient: any;
-    private walletClient?: any;
+    private contractAddress: Address;
+    private publicClient: PublicClient;
+    private walletClient?: ReadWriteWalletClient;
 
-    private abi: Abi;
+    private abi: Abi = ${JSON.stringify(selectedFunctions, null, 2)};
 
     constructor({
       contractAddress,
       publicClient,
       walletClient,
     }: {
-      contractAddress: string,
-      publicClient: any,
+      contractAddress: Address,
+      publicClient?: any,
       walletClient?: any,
     }) {
+      if (!publicClient && !walletClient) {
+        throw new Error('At least one client is required.');
+      };
+
       this.contractAddress = contractAddress;
-      this.abi = abi;
       this.publicClient = publicClient;
       this.walletClient = walletClient;
+
+      if (!this.publicClient) {
+        this.publicClient = walletClient;
+      }
     }
 
     ${selectedFunctions.map(generateMethodImplementation).join('\n')}
