@@ -62,7 +62,7 @@ function generateMethodImplementation(abiItem: any): string {
       const tx = await this.walletClient.sendTransaction({
         to: this.contractAddress,
         data: txData,
-        account: this.walletClient.account.address as \`0x\${string}\`,
+        account: this.walletClient.account!.address as \`0x\${string}\`,
       });
 
       return await this.walletClient.waitForTransactionReceipt({ hash: tx });
