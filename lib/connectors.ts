@@ -36,7 +36,7 @@ export const connectors = {
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
-    builderNFTContract: NULL_ADDRESS
+    builderNFTContract: '0x98098059e6af2eb49e32cf336a6e61c91b85c81f'
   },
   base: {
     rpcUrl: 'https://mainnet.base.org',

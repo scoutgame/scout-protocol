@@ -13,10 +13,10 @@ import {ContractApiClient} from './ContractApiClient'
 const walletClient = getWalletClient({chain: base, privateKey: process.env.PRIVATE_KEY as string, rpcUrl: connectors.base.rpcUrl});
 
 const contractClient = new ContractApiClient({
-  contractAddress: connectors.base.builderNFTContract,
+  contractAddress: connectors.basesepolia.builderNFTContract,
   walletClient,
   chain: base,
-})
+});
 
 console.log("Interacting BuilderNFT via the account:", walletClient.account.address, "on chain:", base.name); 
 
@@ -40,7 +40,7 @@ async function test() {
   // await contractClient.buyToken({args: {tokenId: BigInt(0), amount: BigInt(1), scout: "scout"} }).then(console.log);
 
   console.log("registerBuilderToken");
-  await contractClient.registerBuilderToken({args: {builderId: 'builder1'}, gasPrice: BigInt(4e7)}).then(console.log);
+  await contractClient.registerBuilderToken({args: {builderId: 'fc70e8f8-e35e-4a98-9a84-b34f99b32196'}, gasPrice: BigInt(4e7)}).then(console.log);
 }
 
 

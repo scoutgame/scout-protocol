@@ -1,5 +1,5 @@
 
-  import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, Transport, WalletActions, WalletClient } from 'viem';
+  import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, TransactionReceipt, Transport, WalletActions, WalletClient } from 'viem';
   import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
 
   // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
@@ -254,7 +254,7 @@
     }
 
     
-    async adjustPriceIncrement(params: { args: { newPriceIncrement: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<any> {
+    async adjustPriceIncrement(params: { args: { newPriceIncrement: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
       if (!this.walletClient) {
         throw new Error('Wallet client is required for write operations.');
       }
@@ -304,7 +304,7 @@
     }
     
 
-    async buyToken(params: { args: { tokenId: BigInt, amount: BigInt, scout: string }, value?: bigint, gasPrice?: bigint }): Promise<any> {
+    async buyToken(params: { args: { tokenId: BigInt, amount: BigInt, scout: string }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
       if (!this.walletClient) {
         throw new Error('Wallet client is required for write operations.');
       }
@@ -450,7 +450,7 @@
     }
     
 
-    async registerBuilderToken(params: { args: { builderId: string }, value?: bigint, gasPrice?: bigint }): Promise<any> {
+    async registerBuilderToken(params: { args: { builderId: string }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
       if (!this.walletClient) {
         throw new Error('Wallet client is required for write operations.');
       }

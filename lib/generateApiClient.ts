@@ -74,7 +74,7 @@ function generateMethodImplementation(abiItem: any): string {
   } else {
     // Handle write methods (payable/nonpayable) and return the transaction receipt
     return `
-    async ${functionName}(params: ${paramsType}): Promise<any> {
+    async ${functionName}(params: ${paramsType}): Promise<TransactionReceipt> {
       if (!this.walletClient) {
         throw new Error('Wallet client is required for write operations.');
       }
@@ -108,7 +108,7 @@ async function generateApiClient({ abi, selectedFunctionIndices }: { abi: any[],
 
   // Generate TypeScript class code
   let classCode = `
-  import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, Transport, WalletActions, WalletClient } from 'viem';
+  import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, TransactionReceipt, Transport, WalletActions, WalletClient } from 'viem';
   import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
 
   // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
