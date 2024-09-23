@@ -39,7 +39,7 @@ contract BuilderNFT is ERC1155, Ownable {
         uuidBytes[23] == "-";
     }
 
-
+\
     // Register a new builder token with an automatically assigned tokenId
     function registerBuilderToken(string calldata builderId) external onlyOwner {
         require(isValidUUID(builderId), "Builder ID must be valid v4 uuid");

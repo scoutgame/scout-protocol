@@ -103,7 +103,7 @@ function generateMethodImplementation(abiItem: any): string {
 }
 
 // Main function to generate the API client
-async function generateApiClient({ abi, selectedFunctionIndices }: { abi: any[], selectedFunctionIndices: number[] }) {
+async function generateApiClient({ abi, selectedFunctionIndices, abiPath }: { abi: any[], selectedFunctionIndices: number[]; abiPath: string }) {
   const selectedFunctions = selectedFunctionIndices.map(index => abi[index]);
 
   // Generate TypeScript class code
@@ -173,7 +173,7 @@ async function generateApiClient({ abi, selectedFunctionIndices }: { abi: any[],
   `;
 
   // Write to a separate file
-  const outputPath = path.join(__dirname, '/apiClients/ContractApiClient.ts');
+  const outputPath = path.join(__dirname, `/apiClients/${abiPath.split('/').pop()?.replace('.json', 'Client.ts')}`);
   fs.writeFileSync(outputPath, classCode);
   console.log(`API Client written to ${outputPath}`);
 }
@@ -268,7 +268,7 @@ async function main() {
   }
 
   // Generate the API client with the selected functions
-  await generateApiClient({ abi, selectedFunctionIndices });
+  await generateApiClient({ abi, selectedFunctionIndices, abiPath: abiFilePath });
 }
 
 // Run the script
