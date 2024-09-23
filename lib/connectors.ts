@@ -11,6 +11,7 @@ type Connector = {
   luckyStarCoinContract: Address;
   stargateProtocolContract: Address;
   builderNFTContract: Address;
+  usdcContract?: Address;
 }
 
 export const connectors = {
@@ -20,7 +21,8 @@ export const connectors = {
     easContract: '0x4200000000000000000000000000000000000021',
     luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
-    builderNFTContract: '0x6ce2b047ce9c4c9a8179db5c7422364bfba20bb1'
+    builderNFTContract: '0x6ce2b047ce9c4c9a8179db5c7422364bfba20bb1',
+    usdcContract: NULL_ADDRESS
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
@@ -28,7 +30,8 @@ export const connectors = {
     easContract: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
-    builderNFTContract: NULL_ADDRESS
+    builderNFTContract: NULL_ADDRESS,
+    usdcContract: NULL_ADDRESS
   } as Connector,
   basesepolia: {
     rpcUrl: 'https://sepolia.base.org',
@@ -36,8 +39,10 @@ export const connectors = {
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
-    builderNFTContract: '0x98098059e6af2eb49e32cf336a6e61c91b85c81f'
-  },
+    // This is the new version of the contract with a sudo-type mint
+    builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
+    usdcContract: NULL_ADDRESS
+  } as Connector,
   base: {
     rpcUrl: 'https://mainnet.base.org',
     chain: base,
@@ -45,7 +50,7 @@ export const connectors = {
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x278cc8861cfc93ea47c9e89b1876d0def2037c27'
-  }
+  } as Connector
 } as const;
 
 export type SupportedChains = keyof typeof connectors;

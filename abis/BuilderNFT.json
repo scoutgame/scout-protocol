@@ -7,7 +7,7 @@
         "type": "string"
       },
       {
-        "internalType": "address payable",
+        "internalType": "address",
         "name": "_proceedsReceiver",
         "type": "address"
       },
@@ -15,6 +15,11 @@
         "internalType": "uint256",
         "name": "_priceIncrement",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_usdcToken",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -406,7 +411,7 @@
     ],
     "name": "buyToken",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -528,6 +533,29 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "nextTokenId",
     "outputs": [
@@ -571,7 +599,7 @@
     "name": "proceedsReceiver",
     "outputs": [
       {
-        "internalType": "address payable",
+        "internalType": "address",
         "name": "",
         "type": "address"
       }
@@ -750,7 +778,7 @@
   {
     "inputs": [
       {
-        "internalType": "address payable",
+        "internalType": "address",
         "name": "newReceiver",
         "type": "address"
       }
@@ -774,6 +802,19 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "usdcToken",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",

@@ -10,7 +10,7 @@
     "deploy:protocol": "npx hardhat deployStargateProtocol --network opsepolia",
     "getclaimbalance": "npx hardhat getUnclaimedBalance --network opsepolia  --address ",
     "claimbalance": "npx hardhat claimBalance --network opsepolia --privatekey ",
-    "buildernft": "npx hardhat interactBuilderNFT --network base",
+    "buildernft": "npx hardhat interactBuilderNFT --network basesepolia",
     "build:api": "npx tsx lib/generateApiClient.ts"
   },
   "devDependencies": {

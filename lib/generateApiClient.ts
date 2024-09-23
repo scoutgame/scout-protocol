@@ -189,6 +189,10 @@ function loadAbiFromFile(abiFilePath: string): any[] {
     const fileContent = fs.readFileSync(resolvedPath, 'utf-8');
     const abi = JSON.parse(fileContent);
 
+    if (abi.abi && Array.isArray(abi.abi)) {
+      return abi.abi;
+    }
+
     if (!Array.isArray(abi)) {
       throw new Error('Invalid ABI format. Expected an array.');
     }
