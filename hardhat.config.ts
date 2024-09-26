@@ -33,6 +33,13 @@ const config: Omit<HardhatUserConfig, 'networks'> & {networks: Record<SupportedC
       gas: 2100000,
       gasPrice: 1e8
     },
+    optimism: {
+      url: connectors.optimism.rpcUrl,
+      accounts: [PRIVATE_KEY],
+      // add gas to avoid errros on deploy https://ethereum.stackexchange.com/questions/115223/cannot-estimate-gas-transaction-may-fail-or-may-require-manual-gas-limit
+      gas: 2100000,
+      gasPrice: 1e11
+    },
     sepolia: {
       url: connectors.sepolia.rpcUrl,
       accounts: [PRIVATE_KEY],

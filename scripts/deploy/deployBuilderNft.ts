@@ -1,11 +1,10 @@
 import dotenv from 'dotenv';
 import fs from 'fs';
-import path from 'path';
 import { task } from 'hardhat/config';
-import { createPublicClient, createWalletClient, http, encodeDeployData } from 'viem';
+import path from 'path';
+import { createPublicClient, createWalletClient, encodeDeployData, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
-import { bigint } from 'hardhat/internal/core/params/argumentTypes';
 
 dotenv.config();
 
@@ -17,7 +16,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys the BuilderNFTSeasonOne contract')
 
     await hre.run('compile');
 
-    const artifactPath = path.resolve(__dirname, '../../artifacts/contracts/BuilderNFTSeasonOne.sol/BuilderNFTSeasonOne.json');
+    const artifactPath = path.resolve(__dirname, '../../artifacts/contracts/SeasonOne/BuilderNFTSeasonOne.sol/BuilderNFTSeasonOne.json');
     const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
     const contractBytecode = artifact.bytecode;
     const contractABI = artifact.abi;
@@ -42,7 +41,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys the BuilderNFTSeasonOne contract')
     const encodedData = encodeDeployData({
       abi: contractABI,
       bytecode: contractBytecode,
-      args: ['http://localhost:3000/api/nft/{id}.json', "0x554e9CFd8b1b446D020a4Fbf6F53142780E41402", basePrice, '0x036CbD53842c5426634e7929541eC2318f3dCF7e'],
+      args: ["0x4A29c8fF7D6669618580A68dc691565B07b19e25", basePrice, connector.usdcContract],
     });
 
     const gasPrice = await client.getGasPrice()
