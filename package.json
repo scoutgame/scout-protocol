@@ -6,7 +6,7 @@
     "setkey": "npx hardhat vars set PRIVATE_KEY",
     "compile": "npx hardhat compile",
     "deploy:token": "npx hardhat deployLuckyStarCoin --network base",
-    "deploy:builders": "npx hardhat deployBuilderNFT --network basesepolia",
+    "deploy:builders": "npx hardhat deployBuilderNFT --network opsepolia",
     "deploy:protocol": "npx hardhat deployStargateProtocol --network opsepolia",
     "getclaimbalance": "npx hardhat getUnclaimedBalance --network opsepolia  --address ",
     "claimbalance": "npx hardhat claimBalance --network opsepolia --privatekey ",
