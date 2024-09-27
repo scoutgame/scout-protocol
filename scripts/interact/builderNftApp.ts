@@ -31,7 +31,7 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
 
     // Load the BuilderNFT contract ABI and address
     const builderNFTAddress = connector.builderNFTContract; // Replace with your BuilderNFT contract address
-    const artifactPath = path.resolve(__dirname, '../../artifacts/contracts/BuilderNFT.sol/BuilderNFT.json');
+    const artifactPath = path.resolve(__dirname, '../../artifacts/contracts/BuilderNFTSeasonOne.sol/BuilderNFTSeasonOne.json');
     const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
     const abi = artifact.abi;
 

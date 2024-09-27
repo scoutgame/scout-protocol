@@ -5,17 +5,20 @@ import { Address, createWalletClient, decodeFunctionResult, encodeFunctionData, 
 import { privateKeyToAccount } from 'viem/accounts';
 import { getConnectorFromHardhatRuntimeEnvironment } from './connectors';
 
-export async function interactWithContract({
-  hre,
-  contractAddress,
-  privateKey,
-  abi
-}: {
+type InteractParams = {
   hre: HardhatRuntimeEnvironment;
   contractAddress: Address;
   privateKey: `0x${string}`;
   abi: any;
-}) {
+}
+
+export async function interactWithContract(params: InteractParams) {
+  const {
+    hre,
+    contractAddress,
+    privateKey,
+    abi
+  } = params;
   const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
   const walletClient = createWalletClient({
@@ -36,12 +39,15 @@ export async function interactWithContract({
     console.log(`${index + 1}. ${method.name}`);
   });
 
+  console.log(`\r\n From Wallet: ${signer.address}\r\n`);
+  
+
   // Select method using inquirer
   const { selectedMethodIndex } = await inquirer.prompt([
     {
       type: 'input',
       name: 'selectedMethodIndex',
-      message: 'Enter the number of the method you want to call:',
+      message: 'nter the number of the method you want to call:',
       validate: (input) => {
         const index = parseInt(input, 10);
         return index > 0 && index <= contractMethods.length ? true : 'Invalid method number';
@@ -52,6 +58,8 @@ export async function interactWithContract({
   const methodIndex = parseInt(selectedMethodIndex, 10) - 1;
   const selectedMethod = contractMethods[methodIndex];
   let txData;
+
+
 
   // If method has inputs, prompt for arguments
   if (selectedMethod.inputs.length > 0) {
@@ -140,4 +148,19 @@ export async function interactWithContract({
     const receipt = await walletClient.waitForTransactionReceipt({ hash: tx });
     console.log('Transaction receipt:', receipt);
   }
+
+  const {decision} = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'decision',
+      message: 'Continue ? Y/N',
+    },
+  ]);
+
+  if (!String(decision).toLowerCase().startsWith('y')) {
+    return
+  }
+
+
+  return interactWithContract(params);
 }

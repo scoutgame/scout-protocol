@@ -3,14 +3,15 @@
   "scripts": {
     "lint": "npx eslint . --fix",
     "test": "npx hardhat test",
+    "script": "npx dotenv -e .env.local -- npx tsx",
     "setkey": "npx hardhat vars set PRIVATE_KEY",
     "compile": "npx hardhat compile",
     "deploy:token": "npx hardhat deployLuckyStarCoin --network base",
-    "deploy:builders": "npx hardhat deployBuilderNFT --network opsepolia",
+    "deploy:builders": "npx hardhat deployBuilderNFTSeasonOne --network opsepolia",
     "deploy:protocol": "npx hardhat deployStargateProtocol --network opsepolia",
     "getclaimbalance": "npx hardhat getUnclaimedBalance --network opsepolia  --address ",
     "claimbalance": "npx hardhat claimBalance --network opsepolia --privatekey ",
-    "buildernft": "npx hardhat interactBuilderNFT --network basesepolia",
+    "buildernft": "npx hardhat interactBuilderNFT --network opsepolia",
     "build:api": "npx tsx lib/generateApiClient.ts"
   },
   "devDependencies": {

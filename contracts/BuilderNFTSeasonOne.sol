@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./BuilderNFTUtils.sol"; // Import the utility contract
 
-contract BuilderNFT is ERC1155, Ownable {
+contract BuilderNFTSeasonOne is ERC1155, Ownable {
     using SafeERC20 for IERC20;
 
     uint256 public nextTokenId;
@@ -25,16 +25,15 @@ contract BuilderNFT is ERC1155, Ownable {
     string public baseUrl = "cdn.scoutgame.com/nft/";
 
     // Constructor to initialize proceedsReceiver, priceIncrement, USDC token, and the utility contract
-    constructor( address _proceedsReceiver, uint256 _priceIncrement, address _usdcToken, address _utils) ERC1155(baseUrl) Ownable(msg.sender) {
+    constructor( address _proceedsReceiver, uint256 _priceIncrement, address _usdcToken) ERC1155(baseUrl) Ownable(msg.sender) {
         require(_proceedsReceiver != address(0), "Invalid receiver address");
         require(_priceIncrement > 0, "Price increment must be greater than zero");
         require(_usdcToken != address(0), "Invalid USDC address");
-        require(_utils != address(0), "Invalid utility contract address");
 
         proceedsReceiver = _proceedsReceiver;
         priceIncrement = _priceIncrement;
         usdcToken = IERC20(_usdcToken);
-        utils = BuilderUtils(_utils);  // Set the utility contract
+        utils = new BuilderUtils();  // Set the utility contract
         nextTokenId = 1;
     }
 
@@ -126,6 +125,20 @@ contract BuilderNFT is ERC1155, Ownable {
       // Get total supply of a specific token
     function totalSupply(uint256 tokenId) public view returns (uint256) {
         return _totalSupply[tokenId];
+    }
+
+    // Get the builder ID for a given token ID
+    function getBuilderIdForToken(uint256 tokenId) public view returns (string memory) {
+        string memory builderId = tokenToBuilderRegistry[tokenId];
+        require(bytes(builderId).length > 0, "No builder ID found for this token");
+        return builderId;
+    }
+
+    // Get the token ID for a given builder ID
+    function getTokenIdForBuilder(string calldata builderId) public view returns (uint256) {
+        uint256 tokenId = builderToTokenRegistry[builderId];
+        require(tokenId != 0, "No token ID found for this builder");
+        return tokenId;
     }
 
 }

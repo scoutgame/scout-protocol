@@ -16,7 +16,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys the BuilderNFTSeasonOne contract')
 
     await hre.run('compile');
 
-    const artifactPath = path.resolve(__dirname, '../../artifacts/contracts/SeasonOne/BuilderNFTSeasonOne.sol/BuilderNFTSeasonOne.json');
+    const artifactPath = path.resolve(__dirname, '../../artifacts/contracts/BuilderNFTSeasonOne.sol/BuilderNFTSeasonOne.json');
     const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
     const contractBytecode = artifact.bytecode;
     const contractABI = artifact.abi;

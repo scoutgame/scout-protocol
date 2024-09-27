@@ -106,6 +106,8 @@ function generateMethodImplementation(abiItem: any): string {
 async function generateApiClient({ abi, selectedFunctionIndices, abiPath }: { abi: any[], selectedFunctionIndices: number[]; abiPath: string }) {
   const selectedFunctions = selectedFunctionIndices.map(index => abi[index]);
 
+  const apiClientName = `${abiPath.split('/').pop()?.replace('.json', '')}Client`
+
   // Generate TypeScript class code
   let classCode = `
   import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, TransactionReceipt, Transport, WalletActions, WalletClient } from 'viem';
@@ -125,7 +127,7 @@ async function generateApiClient({ abi, selectedFunctionIndices, abiPath }: { ab
     PublicActions<transport, chain, account> & WalletActions<chain, account>
   >;
 
-  export class ContractApiClient {
+  export class ${apiClientName} {
 
     private contractAddress: Address;
     private publicClient: PublicClient;
@@ -173,7 +175,7 @@ async function generateApiClient({ abi, selectedFunctionIndices, abiPath }: { ab
   `;
 
   // Write to a separate file
-  const outputPath = path.join(__dirname, `/apiClients/${abiPath.split('/').pop()?.replace('.json', 'Client.ts')}`);
+  const outputPath = path.join(__dirname, `/apiClients/${apiClientName}.ts`);
   fs.writeFileSync(outputPath, classCode);
   console.log(`API Client written to ${outputPath}`);
 }
