@@ -26,8 +26,8 @@ export const connectors = {
     easContract: '0x4200000000000000000000000000000000000021',
     luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
-    builderNFTContract: '0xca8bca279e16cd192b755c877da34f879793a5c3',
-    usdcContract: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7'
+    builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
+    usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253'
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',

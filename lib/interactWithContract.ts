@@ -28,7 +28,10 @@ export async function interactWithContract(params: InteractParams) {
   }).extend(publicActions);
 
   const signer = walletClient.account;
-  console.log('Signer address:', signer.address);
+  console.log('Wallet address:', signer.address);
+
+  console.log('Contract address:', connector.builderNFTContract);
+  console.log('USDC address:', connector.usdcContract);
 
   // List available contract methods
   const contractMethods = abi.filter((item: any) => item.type === 'function');

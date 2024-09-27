@@ -3,11 +3,11 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./BuilderNFTUtils.sol"; // Import the utility contract
 
 contract BuilderNFTSeasonOne is ERC1155, Ownable {
-    using SafeERC20 for IERC20;
+    // using ERC20 for IERC20;
 
     uint256 public nextTokenId;
     address public proceedsReceiver;   // Global proceeds receiver
@@ -37,6 +37,7 @@ contract BuilderNFTSeasonOne is ERC1155, Ownable {
         nextTokenId = 1;
     }
 
+
     // Buy token using USDC
     function mintBuilderNft(uint256 tokenId, uint256 amount, string calldata scout) external {
         require(utils.isValidUUID(scout), "Invalid scout ID");
@@ -48,7 +49,7 @@ contract BuilderNFTSeasonOne is ERC1155, Ownable {
         uint256 mintCost = getTokenQuote(tokenId, amount);
 
         uint256 beforeBalance = usdcToken.balanceOf(proceedsReceiver);
-        usdcToken.safeTransferFrom(msg.sender, proceedsReceiver, mintCost);
+        usdcToken.transferFrom(msg.sender, proceedsReceiver, mintCost);
         uint256 afterBalance = usdcToken.balanceOf(proceedsReceiver);
 
         require((beforeBalance + mintCost) == afterBalance, "ERC20 transfer slippage");
@@ -103,6 +104,10 @@ contract BuilderNFTSeasonOne is ERC1155, Ownable {
       require(_newIncrement > 2e4, "Increment must be minimum 0.02$");
       priceIncrement = _newIncrement;
     }
+
+    function updateERC20Contract(address _newContract) external onlyOwner {
+      usdcToken = IERC20(_newContract);
+    }
   
 
     // -----------------------------------------------------------------------------
@@ -143,6 +148,12 @@ contract BuilderNFTSeasonOne is ERC1155, Ownable {
         uint256 tokenId = builderToTokenRegistry[builderId];
         require(tokenId != 0, "No token ID found for this builder");
         return tokenId;
+    }
+
+    function getAllowance() public view returns (uint256) {
+      uint256 _allowance = usdcToken.allowance(msg.sender, address(this));
+
+      return _allowance;
     }
 
 }

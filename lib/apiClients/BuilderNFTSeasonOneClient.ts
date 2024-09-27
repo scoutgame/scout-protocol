@@ -28,12 +28,51 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "target",
+        "name": "account",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
       }
     ],
-    "name": "AddressEmptyCode",
-    "type": "error"
+    "name": "balanceOf",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "baseUrl",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getAllowance",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -140,6 +179,34 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "scout",
+        "type": "string"
+      }
+    ],
+    "name": "mintTo",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "nextTokenId",
     "outputs": [
@@ -154,12 +221,38 @@
   },
   {
     "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "priceIncrement",
     "outputs": [
       {
         "internalType": "uint256",
         "name": "",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "proceedsReceiver",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -198,52 +291,76 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "usdcToken",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "contract IERC20",
-        "name": "",
+        "internalType": "address",
+        "name": "newOwner",
         "type": "address"
       }
     ],
-    "stateMutability": "view",
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "account",
+        "name": "_newContract",
         "type": "address"
-      },
+      }
+    ],
+    "name": "updateERC20Contract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_newIncrement",
         "type": "uint256"
-      },
+      }
+    ],
+    "name": "updateIncrement",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
+        "internalType": "address",
+        "name": "newReceiver",
+        "type": "address"
+      }
+    ],
+    "name": "updateProceedsReceiver",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
       {
         "internalType": "string",
-        "name": "scout",
+        "name": "newBaseUrl",
         "type": "string"
       }
     ],
-    "name": "mintTo",
+    "name": "updateTokenBaseUri",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "owner",
+    "name": "usdcToken",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "contract IERC20",
         "name": "",
         "type": "address"
       }
@@ -288,29 +405,75 @@
     }
 
     
-    async AddressEmptyCode(params: { args: { target: string }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
-      if (!this.walletClient) {
-        throw new Error('Wallet client is required for write operations.');
-      }
-      
+    async balanceOf(params: { args: { account: string, id: BigInt },  }): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
-        functionName: "AddressEmptyCode",
-        args: [params.args.target],
+        functionName: "balanceOf",
+        args: [params.args.account, params.args.id],
       });
 
-      const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
-        to: getAddress(this.contractAddress),
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
         data: txData,
-        value: params.value ?? BigInt(0), // Optional value for payable methods
-        gasPrice: params.gasPrice, // Optional gasPrice
-      };
+      });
 
-      // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
-      const tx = await this.walletClient.sendTransaction(txInput as any);
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "balanceOf",
+        data: data as `0x${string}`,
+      });
 
-      // Return the transaction receipt
-      return this.walletClient.waitForTransactionReceipt({ hash: tx });
+      // Parse the result based on the return type
+      return result as BigInt;
+    }
+    
+
+    async baseUrl(): Promise<string> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "baseUrl",
+        args: [],
+      });
+
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
+        data: txData,
+      });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "baseUrl",
+        data: data as `0x${string}`,
+      });
+
+      // Parse the result based on the return type
+      return result as string;
+    }
+    
+
+    async getAllowance(): Promise<BigInt> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "getAllowance",
+        args: [],
+      });
+
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
+        data: txData,
+      });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "getAllowance",
+        data: data as `0x${string}`,
+      });
+
+      // Parse the result based on the return type
+      return result as BigInt;
     }
     
 
@@ -436,6 +599,32 @@
     }
     
 
+    async mintTo(params: { args: { account: string, tokenId: BigInt, amount: BigInt, scout: string }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
+      if (!this.walletClient) {
+        throw new Error('Wallet client is required for write operations.');
+      }
+      
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "mintTo",
+        args: [params.args.account, params.args.tokenId, params.args.amount, params.args.scout],
+      });
+
+      const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+        to: getAddress(this.contractAddress),
+        data: txData,
+        value: params.value ?? BigInt(0), // Optional value for payable methods
+        gasPrice: params.gasPrice, // Optional gasPrice
+      };
+
+      // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+      const tx = await this.walletClient.sendTransaction(txInput as any);
+
+      // Return the transaction receipt
+      return this.walletClient.waitForTransactionReceipt({ hash: tx });
+    }
+    
+
     async nextTokenId(): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
@@ -460,6 +649,30 @@
     }
     
 
+    async owner(): Promise<string> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "owner",
+        args: [],
+      });
+
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
+        data: txData,
+      });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "owner",
+        data: data as `0x${string}`,
+      });
+
+      // Parse the result based on the return type
+      return result as string;
+    }
+    
+
     async priceIncrement(): Promise<BigInt> {
       const txData = encodeFunctionData({
         abi: this.abi,
@@ -481,6 +694,30 @@
 
       // Parse the result based on the return type
       return result as BigInt;
+    }
+    
+
+    async proceedsReceiver(): Promise<string> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "proceedsReceiver",
+        args: [],
+      });
+
+      const { data } = await this.publicClient.call({
+        to: this.contractAddress,
+        data: txData,
+      });
+
+      // Decode the result based on the expected return type
+      const result = decodeFunctionResult({
+        abi: this.abi,
+        functionName: "proceedsReceiver",
+        data: data as `0x${string}`,
+      });
+
+      // Parse the result based on the return type
+      return result as string;
     }
     
 
@@ -534,39 +771,15 @@
     }
     
 
-    async usdcToken(): Promise<string> {
-      const txData = encodeFunctionData({
-        abi: this.abi,
-        functionName: "usdcToken",
-        args: [],
-      });
-
-      const { data } = await this.publicClient.call({
-        to: this.contractAddress,
-        data: txData,
-      });
-
-      // Decode the result based on the expected return type
-      const result = decodeFunctionResult({
-        abi: this.abi,
-        functionName: "usdcToken",
-        data: data as `0x${string}`,
-      });
-
-      // Parse the result based on the return type
-      return result as string;
-    }
-    
-
-    async mintTo(params: { args: { account: string, tokenId: BigInt, amount: BigInt, scout: string }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
+    async transferOwnership(params: { args: { newOwner: string }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
       if (!this.walletClient) {
         throw new Error('Wallet client is required for write operations.');
       }
       
       const txData = encodeFunctionData({
         abi: this.abi,
-        functionName: "mintTo",
-        args: [params.args.account, params.args.tokenId, params.args.amount, params.args.scout],
+        functionName: "transferOwnership",
+        args: [params.args.newOwner],
       });
 
       const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -584,10 +797,114 @@
     }
     
 
-    async owner(): Promise<string> {
+    async updateERC20Contract(params: { args: { _newContract: string }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
+      if (!this.walletClient) {
+        throw new Error('Wallet client is required for write operations.');
+      }
+      
       const txData = encodeFunctionData({
         abi: this.abi,
-        functionName: "owner",
+        functionName: "updateERC20Contract",
+        args: [params.args._newContract],
+      });
+
+      const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+        to: getAddress(this.contractAddress),
+        data: txData,
+        value: params.value ?? BigInt(0), // Optional value for payable methods
+        gasPrice: params.gasPrice, // Optional gasPrice
+      };
+
+      // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+      const tx = await this.walletClient.sendTransaction(txInput as any);
+
+      // Return the transaction receipt
+      return this.walletClient.waitForTransactionReceipt({ hash: tx });
+    }
+    
+
+    async updateIncrement(params: { args: { _newIncrement: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
+      if (!this.walletClient) {
+        throw new Error('Wallet client is required for write operations.');
+      }
+      
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "updateIncrement",
+        args: [params.args._newIncrement],
+      });
+
+      const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+        to: getAddress(this.contractAddress),
+        data: txData,
+        value: params.value ?? BigInt(0), // Optional value for payable methods
+        gasPrice: params.gasPrice, // Optional gasPrice
+      };
+
+      // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+      const tx = await this.walletClient.sendTransaction(txInput as any);
+
+      // Return the transaction receipt
+      return this.walletClient.waitForTransactionReceipt({ hash: tx });
+    }
+    
+
+    async updateProceedsReceiver(params: { args: { newReceiver: string }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
+      if (!this.walletClient) {
+        throw new Error('Wallet client is required for write operations.');
+      }
+      
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "updateProceedsReceiver",
+        args: [params.args.newReceiver],
+      });
+
+      const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+        to: getAddress(this.contractAddress),
+        data: txData,
+        value: params.value ?? BigInt(0), // Optional value for payable methods
+        gasPrice: params.gasPrice, // Optional gasPrice
+      };
+
+      // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+      const tx = await this.walletClient.sendTransaction(txInput as any);
+
+      // Return the transaction receipt
+      return this.walletClient.waitForTransactionReceipt({ hash: tx });
+    }
+    
+
+    async updateTokenBaseUri(params: { args: { newBaseUrl: string }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
+      if (!this.walletClient) {
+        throw new Error('Wallet client is required for write operations.');
+      }
+      
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "updateTokenBaseUri",
+        args: [params.args.newBaseUrl],
+      });
+
+      const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+        to: getAddress(this.contractAddress),
+        data: txData,
+        value: params.value ?? BigInt(0), // Optional value for payable methods
+        gasPrice: params.gasPrice, // Optional gasPrice
+      };
+
+      // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+      const tx = await this.walletClient.sendTransaction(txInput as any);
+
+      // Return the transaction receipt
+      return this.walletClient.waitForTransactionReceipt({ hash: tx });
+    }
+    
+
+    async usdcToken(): Promise<string> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "usdcToken",
         args: [],
       });
 
@@ -599,7 +916,7 @@
       // Decode the result based on the expected return type
       const result = decodeFunctionResult({
         abi: this.abi,
-        functionName: "owner",
+        functionName: "usdcToken",
         data: data as `0x${string}`,
       });
 
