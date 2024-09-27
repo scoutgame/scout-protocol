@@ -26,7 +26,7 @@ export const connectors = {
     easContract: '0x4200000000000000000000000000000000000021',
     luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
-    builderNFTContract: '0xdfd96f58d0e549ecf231e9e705c3f0e48a94cebe',
+    builderNFTContract: '0xca8bca279e16cd192b755c877da34f879793a5c3',
     usdcContract: '0x5fd84259d66Cd46123540766Be93DFE6D43130D7'
   } as Connector,
   sepolia: {

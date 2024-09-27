@@ -98,7 +98,11 @@ contract BuilderNFTSeasonOne is ERC1155, Ownable {
     }
 
 
-
+    function updateIncrement(uint256 _newIncrement) external onlyOwner {
+      // 2 cts
+      require(_newIncrement > 2e4, "Increment must be minimum 0.02$");
+      priceIncrement = _newIncrement;
+    }
   
 
     // -----------------------------------------------------------------------------

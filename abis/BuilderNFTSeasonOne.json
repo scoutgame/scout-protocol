@@ -790,6 +790,19 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_newIncrement",
+        "type": "uint256"
+      }
+    ],
+    "name": "updateIncrement",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "newReceiver",
         "type": "address"
