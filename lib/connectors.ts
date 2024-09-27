@@ -58,12 +58,12 @@ export const connectors = {
     usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
   } as Connector,
   optimism: {
-    rpcUrl: 'https://mainnet.base.org',
+    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
     chain: optimism,
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
-    builderNFTContract: NULL_ADDRESS,
+    builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85'
   }
 } as const;
