@@ -4,11 +4,11 @@ import { task } from 'hardhat/config';
 import path from 'path';
 import { createPublicClient, createWalletClient, http, parseUnits, encodeFunctionData, decodeFunctionResult } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { getConnectorFromHardhatRuntimeEnvironment } from '../lib/connectors';
-import { ensureAbisDirectoryExists } from '../lib/ensureDirectoryExists';
-import { getDeterministicDeploySalt, getFactoryFromHardhatRuntimeEnvironment } from '../lib/deterministicDeploy';
-import { PRIVATE_KEY } from '../lib/constants';
-import { prettyPrint } from '../lib/prettyPrint';
+import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
+import { ensureAbisDirectoryExists } from '../../lib/ensureDirectoryExists';
+import { getDeterministicDeploySalt, getFactoryFromHardhatRuntimeEnvironment } from '../../lib/deterministicDeploy';
+import { PRIVATE_KEY } from '../../lib/constants';
+import { prettyPrint } from '../../lib/prettyPrint';
 
 dotenv.config();
 

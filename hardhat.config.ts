@@ -9,15 +9,20 @@ import { connectors, SupportedChains } from './lib/connectors';
 import { NetworksUserConfig } from 'hardhat/types';
 
 
-// Tasks
+// Deploys
 import './scripts/deploy/deployCreate2Factory';
 import './scripts/deploy/deployLuckyStarCoin';
 import './scripts/deploy/deployStargateProtocol';
+import './scripts/deploy/deployBuilderNft';
+
+// Interactions
 import './scripts/interact/getUnclaimedBalance';
 import './scripts/interact/claimBalance';
+import './scripts/interact/builderNftApp'
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
+// Gas prices fetched from blockscout. Last refreshed Sep. 18th 2024
 const config: Omit<HardhatUserConfig, 'networks'> & {networks: Record<SupportedChains, NetworksUserConfig[string]>} = {
   solidity: '0.8.26',
   networks: {
@@ -26,14 +31,32 @@ const config: Omit<HardhatUserConfig, 'networks'> & {networks: Record<SupportedC
       accounts: [PRIVATE_KEY],
       // add gas to avoid errros on deploy https://ethereum.stackexchange.com/questions/115223/cannot-estimate-gas-transaction-may-fail-or-may-require-manual-gas-limit
       gas: 2100000,
-      gasPrice: 8000000000
+      gasPrice: 1e8
+    },
+    optimism: {
+      url: connectors.optimism.rpcUrl,
+      accounts: [PRIVATE_KEY],
+      // add gas to avoid errros on deploy https://ethereum.stackexchange.com/questions/115223/cannot-estimate-gas-transaction-may-fail-or-may-require-manual-gas-limit
+      gas: 2100000,
+      gasPrice: 1e11
     },
     sepolia: {
       url: connectors.sepolia.rpcUrl,
       accounts: [PRIVATE_KEY],
       // add gas to avoid errros on deploy https://ethereum.stackexchange.com/questions/115223/cannot-estimate-gas-transaction-may-fail-or-may-require-manual-gas-limit
-      gas: 2100000,
-      gasPrice: 8000000000
+      gas: 8e9,
+
+    },
+    basesepolia: {
+      url: connectors.basesepolia.rpcUrl,
+      accounts: [PRIVATE_KEY],
+      gasPrice: 4e8,
+      gas: 21e15
+    },
+    base: {
+      url: connectors.basesepolia.rpcUrl,
+      accounts: [PRIVATE_KEY],
+      gasPrice: 3e7
     }
   } as Record<SupportedChains, NetworksUserConfig[string]>,
   paths: {

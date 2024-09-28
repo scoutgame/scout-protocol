@@ -4,7 +4,7 @@ import path from 'path';
 import { task } from 'hardhat/config';
 import { createPublicClient, createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { getConnectorFromHardhatRuntimeEnvironment } from '../lib/connectors';
+import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 
 dotenv.config();
 
