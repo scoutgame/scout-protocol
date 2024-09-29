@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./BuilderNFTUtils.sol"; // Import the utility contract
+import "contracts/archived/BuilderNFTUtils.sol"; // Import the utility contract
 
 contract BuilderNFTSeasonOne is ERC1155, Ownable {
     // using ERC20 for IERC20;
