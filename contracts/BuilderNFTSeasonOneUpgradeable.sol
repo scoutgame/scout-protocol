@@ -2,8 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "./libs/MemoryUtils.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Proxy {
+contract BuilderNFTSeasonOneUpgradeable {
     using MemoryUtils for bytes32;
 
     // Modifier to restrict access to admin functions
@@ -12,13 +13,15 @@ contract Proxy {
         _;
     }
 
-    constructor(address implementationAddress) {
+    constructor(address implementationAddress, address paymentTokenAddress) {
         require(implementationAddress != address(0), "Invalid implementation address");
+        require(paymentTokenAddress != address(0), "Invalid payment token address");
         MemoryUtils.setAddress(MemoryUtils.IMPLEMENTATION_SLOT, implementationAddress);
         MemoryUtils.setAddress(MemoryUtils.ADMIN_SLOT, msg.sender);
+        MemoryUtils.setAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT, paymentTokenAddress);
     }
 
-    // Existing admin functions
+    // Admin functions
     function setImplementation(address newImplementation) external onlyAdmin {
         require(newImplementation != address(0), "Invalid implementation address");
         MemoryUtils.setAddress(MemoryUtils.IMPLEMENTATION_SLOT, newImplementation);
@@ -37,37 +40,6 @@ contract Proxy {
         return MemoryUtils.getAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT);
     }
 
-    // New admin functions using delegatecall
-
-    // Mint tokens to a specific account
-    function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdmin {
-        (bool success, bytes memory returnData) = MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT).delegatecall(
-            abi.encodeWithSignature(
-                "adminMintTo(address,uint256,uint256,string)",
-                account,
-                tokenId,
-                amount,
-                scout
-            )
-        );
-        require(success, _getRevertMsg(returnData));
-    }
-
-    // Update the proceeds receiver
-    function updateProceedsReceiver(address newReceiver) external onlyAdmin {
-        require(newReceiver != address(0), "Invalid address");
-        MemoryUtils.setAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT, newReceiver);
-    }
-
-    // Register a new builder token
-    function registerBuilderToken(string calldata builderId) external onlyAdmin {
-        (bool success, bytes memory returnData) = MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT).delegatecall(
-            abi.encodeWithSignature("adminRegisterBuilderToken(string)", builderId)
-        );
-        require(success, _getRevertMsg(returnData));
-    }
-
-    // Update the base URI for tokens
     function updateTokenBaseUri(string memory newBaseUrl) external onlyAdmin {
         require(bytes(newBaseUrl).length > 0, "Empty base URL not allowed");
         (bool success, bytes memory returnData) = MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT).delegatecall(
@@ -76,22 +48,21 @@ contract Proxy {
         require(success, _getRevertMsg(returnData));
     }
 
-    // Update the price increment
-    function updateIncrement(uint256 _newIncrement) external onlyAdmin {
-        require(_newIncrement > 2e4, "Increment must be minimum 0.02$");
-        MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, _newIncrement);
+    function registerBuilderToken(string calldata builderId) external onlyAdmin {
+        (bool success, bytes memory returnData) = MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT).delegatecall(
+            abi.encodeWithSignature("registerBuilderToken(string)", builderId)
+        );
+        require(success, _getRevertMsg(returnData));
     }
 
-    // Update the ERC20 payment token contract address
-    function updateERC20Contract(address _newContract) external onlyAdmin {
-        require(_newContract != address(0), "Invalid address");
-        MemoryUtils.setAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT, _newContract);
+    function updatePriceIncrement(uint256 newIncrement) external onlyAdmin {
+        require(newIncrement > 2e4, "Increment must be at least 0.02$");
+        MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, newIncrement);
     }
 
-    // Adjust the price increment
-    function adjustPriceIncrement(uint256 newPriceIncrement) external onlyAdmin {
-        require(newPriceIncrement > 0, "Price increment must be greater than zero");
-        MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, newPriceIncrement);
+    function updateERC20Contract(address newContract) external onlyAdmin {
+        require(newContract != address(0), "Invalid address");
+        MemoryUtils.setAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT, newContract);
     }
 
     // Helper function to extract revert message from delegatecall

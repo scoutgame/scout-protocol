@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 library ImplementationStorage {
     struct Layout {
@@ -33,43 +34,30 @@ library ImplementationStorage {
     }
 }
 
-contract ImplementationERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI {
+contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1155MetadataURI {
     using MemoryUtils for bytes32;
     using Address for address;
-
-    modifier onlyAdmin() {
-        require(msg.sender == MemoryUtils.getAddress(MemoryUtils.ADMIN_SLOT), "Implementation: caller is not the admin");
-        _;
-    }
 
     // Events
     event BuilderScouted(uint256 tokenId, uint256 amount, string scout);
     event BuilderTokenRegistered(uint256 tokenId, string builderId);
 
-    constructor(string memory baseUri) {
-        // Initialize base URI in storage
-        ImplementationStorage.layout().baseUri = baseUri;
+    constructor() {
+        // Initialization can be handled via an initializer function if needed
     }
 
-    // Admin functions called via delegatecall from proxy
+    // User functions
 
-    function adminMintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdmin {
-        require(ImplementationStorage.isValidUUID(scout), "Scout must be a valid UUID");
-        require(bytes(ImplementationStorage.layout().tokenToBuilderRegistry[tokenId]).length > 0, "Token not registered");
-        require(account != address(0), "ERC1155: mint to the zero address");
-
-        // Mint tokens
-        ImplementationStorage.layout().balances[tokenId][account] += amount;
-        emit TransferSingle(_msgSender(), address(0), account, tokenId, amount);
-
-        // Update total supply
-        ImplementationStorage.layout().totalSupply[tokenId] += amount;
-
-        // Emit BuilderScouted event
-        emit BuilderScouted(tokenId, amount, scout);
+    function uri(uint256) public view override returns (string memory) {
+        return ImplementationStorage.layout().baseUri;
     }
 
-    function adminRegisterBuilderToken(string calldata builderId) external onlyAdmin {
+    function setBaseUri(string memory newBaseUri) external {
+        require(bytes(newBaseUri).length > 0, "Empty base URI not allowed");
+        ImplementationStorage.layout().baseUri = newBaseUri;
+    }
+
+    function registerBuilderToken(string calldata builderId) external {
         require(ImplementationStorage.isValidUUID(builderId), "Builder ID must be a valid UUID");
         require(ImplementationStorage.layout().builderToTokenRegistry[builderId] == 0, "Builder already registered");
 
@@ -84,17 +72,6 @@ contract ImplementationERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI
 
         // Increment the next token ID
         MemoryUtils.setUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT, nextTokenId + 1);
-    }
-
-    function setBaseUri(string memory newBaseUri) external onlyAdmin {
-        require(bytes(newBaseUri).length > 0, "Empty base URI not allowed");
-        ImplementationStorage.layout().baseUri = newBaseUri;
-    }
-
-    // User functions
-
-    function uri(uint256) public view override returns (string memory) {
-        return ImplementationStorage.layout().baseUri;
     }
 
     function balanceOf(address account, uint256 id) public view override returns (uint256) {
@@ -129,16 +106,29 @@ contract ImplementationERC1155 is Context, ERC165, IERC1155, IERC1155MetadataURI
         revert("Batch transfers not allowed for soulbound tokens");
     }
 
-    function mint(address to, uint256 id, uint256 amount) external {
-        // Regular users can call this function
-        require(to != address(0), "ERC1155: mint to the zero address");
-        require(bytes(ImplementationStorage.layout().tokenToBuilderRegistry[id]).length > 0, "Token not registered");
+    // Mint function for users
+    function mint(uint256 tokenId, uint256 amount, string calldata scout) external {
+        require(ImplementationStorage.isValidUUID(scout), "Scout must be a valid UUID");
+        require(bytes(ImplementationStorage.layout().tokenToBuilderRegistry[tokenId]).length > 0, "Token not registered");
 
-        ImplementationStorage.layout().balances[id][to] += amount;
-        emit TransferSingle(_msgSender(), address(0), to, id, amount);
+        uint256 price = getTokenPurchasePrice(tokenId, amount);
+        address paymentToken = MemoryUtils.getAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
+        address proceedsReceiver = MemoryUtils.getAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT);
+
+        require(paymentToken != address(0), "Payment token not set");
+        require(proceedsReceiver != address(0), "Proceeds receiver not set");
+
+        IERC20(paymentToken).transferFrom(msg.sender, proceedsReceiver, price);
+
+        // Mint tokens
+        ImplementationStorage.layout().balances[tokenId][msg.sender] += amount;
+        emit TransferSingle(_msgSender(), address(0), msg.sender, tokenId, amount);
 
         // Update total supply
-        ImplementationStorage.layout().totalSupply[id] += amount;
+        ImplementationStorage.layout().totalSupply[tokenId] += amount;
+
+        // Emit BuilderScouted event
+        emit BuilderScouted(tokenId, amount, scout);
     }
 
     function getTokenPurchasePrice(uint256 tokenId, uint256 amount) public view returns (uint256) {

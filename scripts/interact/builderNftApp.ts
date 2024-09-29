@@ -1,41 +1,54 @@
-import { task } from 'hardhat/config';
-import { createPublicClient, createWalletClient, http, encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
 import dotenv from 'dotenv';
 import fs from 'fs';
+import { task } from 'hardhat/config';
+import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
 import path from 'path';
-import inquirer from 'inquirer';  // Importing inquirer for interactive CLI
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 import { interactWithContract } from '../../lib/interactWithContract';
 
 dotenv.config();
 
-/*
-token 1: 0.001
-token 2: 0.002
-
-// Total: 0.012
-token 3: 0.003
-token 4: 0.004
-token 5: 0.005
-
- */
-
 task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
-  // .addParam('privatekey', 'The private key of the signer')
   .setAction(async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
-
     const privateKey = process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY as `0x${string}` : `0x${process.env.PRIVATE_KEY}` as `0x${string}`;
 
-    // Load the BuilderNFT contract ABI and address
-    const builderNFTAddress = connector.builderNFTContract; // Replace with your BuilderNFT contract address
-    const artifactPath = path.resolve(__dirname, '../../artifacts/contracts/BuilderNFTSeasonOne.sol/BuilderNFTSeasonOne.json');
-    const artifact = JSON.parse(fs.readFileSync(artifactPath, 'utf8'));
-    const abi = artifact.abi;
+    // Prompt the user to choose between admin functions or user functions
+    const { functionType } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'functionType',
+        message: 'Do you want to interact with admin functions or user functions?',
+        choices: ['Admin Functions', 'User Functions'],
+      },
+    ]);
 
-    await interactWithContract({ hre, contractAddress: builderNFTAddress, privateKey, abi });
+    let contractAddress;
+    let abi;
+
+    if (functionType === 'Admin Functions') {
+      // Load the Proxy contract ABI and address for admin functions
+      contractAddress = connector.seasonOneProxy; // Ensure this is set in your connector
+      if (!contractAddress) {
+        throw new Error("Proxy contract address not found in connector");
+      }
+      const proxyArtifactPath = path.resolve(__dirname, '../../artifacts/contracts/BuilderNFTSeasonOneUpgradeable.sol/BuilderNFTSeasonOneUpgradeable.json');
+      const proxyArtifact = JSON.parse(fs.readFileSync(proxyArtifactPath, 'utf8'));
+      abi = proxyArtifact.abi;
+    } else {
+      // Load the Implementation ABI but use the proxy address for user functions
+      contractAddress = connector.seasonOneProxy; // Users interact with the proxy address
+      if (!contractAddress) {
+        throw new Error("Proxy contract address not found in connector");
+      }
+      const implementationArtifactPath = path.resolve(__dirname, '../../artifacts/contracts/BuilderNFTSeasonOneImplementation01.sol/BuilderNFTSeasonOneImplementation01.json');
+      const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
+      abi = implementationArtifact.abi;
+    }
+
+    // Proceed to interact with the contract using the selected ABI and contract address
+    await interactWithContract({ hre, contractAddress, privateKey, abi });
   });
 
 module.exports = {};
