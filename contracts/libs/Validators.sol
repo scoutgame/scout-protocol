@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-contract BuilderUtils {
+library Validators {
     // Validate if a string is a valid UUID
     function isValidUUID(string memory uuid) public pure returns (bool) {
         bytes memory uuidBytes = bytes(uuid);
@@ -30,5 +30,14 @@ contract BuilderUtils {
             value /= 10;
         }
         return string(buffer);
+    }
+
+        // Validators
+    function isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize, which returns 0 for contracts in
+        // construction, since the code is only stored at the end of the
+        // constructor execution.
+
+        return account.code.length > 0;
     }
 }
