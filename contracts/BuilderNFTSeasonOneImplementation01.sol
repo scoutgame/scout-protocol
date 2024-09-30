@@ -193,9 +193,10 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
     }
 
-    function getTokenURI(uint256 tokenId) public view returns (string memory) {
-        string memory baseUri = ImplementationStorage.layout().baseUri;
-        return string(abi.encodePacked(baseUri, uint2str(tokenId)));
+    function tokenURI(uint256 _tokenId) external pure returns (string memory) {
+      return string.concat("https://nft.scoutgame.xyz/2024-W40/beta/", uint2str(_tokenId), "/artwork.png");
+        // string memory baseUri = ImplementationStorage.layout().baseUri;
+        // return string(abi.encodePacked(baseUri, uint2str(_tokenId)));
     }
 
     // Utility function to convert uint to string
