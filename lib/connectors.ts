@@ -16,7 +16,6 @@ type Connector = {
   builderNFTContract: Address;
   usdcContract?: Address;
   seasonOneProxy?: Address | null;
-  seasonOneImplementation?: Address | null;
 }
 /**
  * 
@@ -33,8 +32,7 @@ export const connectors = {
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
-    seasonOneImplementation: '0x36f97e9d79fabad00d04303a6034afb6b188f5a5',
-    seasonOneProxy: '0x42ddd21c8eb2abf54b8de2f8aa74446a6910173e'
+    seasonOneProxy: '0x8b833851c2fdaa08b2c87b162d644a5db0c55ba4'
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',

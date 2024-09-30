@@ -7,9 +7,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract BuilderNFTSeasonOneUpgradeable {
     using MemoryUtils for bytes32;
 
-    string public constant NAME = "Scoutgame Builder";
-    string public constant SYMBOL = "BUILDERS";
-
     // Modifier to restrict access to admin functions
     modifier onlyAdmin() {
         require(MemoryUtils.isAdmin(msg.sender), "Proxy: caller is not the admin");
@@ -30,8 +27,19 @@ contract BuilderNFTSeasonOneUpgradeable {
 
         MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, 2000000);
 
+        MemoryUtils.setString(MemoryUtils.TOKEN_NAME, "ScoutGame Builders");
+        MemoryUtils.setString(MemoryUtils.TOKEN_SYMBOL, "BUILDERS");
+
         // Init logic
         MemoryUtils.setUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT, 1);
+    }
+
+    function name() external view returns (string memory) {
+      return MemoryUtils.getString(MemoryUtils.TOKEN_NAME);
+    }
+
+    function symbol() external view returns (string memory) {
+      return MemoryUtils.getString(MemoryUtils.TOKEN_SYMBOL);
     }
 
     // External wrapper for setting implementation
