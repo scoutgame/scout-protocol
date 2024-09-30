@@ -16,6 +16,7 @@ type Connector = {
   builderNFTContract: Address;
   usdcContract?: Address;
   seasonOneProxy?: Address | null;
+  devProxy?: Address | null;
 }
 /**
  * 
@@ -32,7 +33,19 @@ export const connectors = {
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
-    seasonOneProxy: '0x0b7342761a10e1b14df427681b967e67f5e6cef9'
+    seasonOneProxy: '0x0b7342761a10e1b14df427681b967e67f5e6cef9',
+    // devProxy: '0x0b7342761a10e1b14df427681b967e67f5e6cef9'
+  } as Connector,
+  optimism: {
+    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
+    chain: optimism,
+    easContract: NULL_ADDRESS,
+    luckyStarCoinContract: NULL_ADDRESS,
+    stargateProtocolContract: NULL_ADDRESS,
+    builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
+    usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+    seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
+    devProxy: '0x1d305a06cb9dbdc32e08c3d230889acb9fe8a4dd'
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
@@ -41,7 +54,7 @@ export const connectors = {
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: NULL_ADDRESS,
-    usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
+    usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
   } as Connector,
   basesepolia: {
     rpcUrl: 'https://sepolia.base.org',
@@ -61,16 +74,6 @@ export const connectors = {
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x278cc8861cfc93ea47c9e89b1876d0def2037c27',
     usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
-  } as Connector,
-  optimism: {
-    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
-    chain: optimism,
-    easContract: NULL_ADDRESS,
-    luckyStarCoinContract: NULL_ADDRESS,
-    stargateProtocolContract: NULL_ADDRESS,
-    builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
-    usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
-    seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83'
   } as Connector
 } as const;
 
