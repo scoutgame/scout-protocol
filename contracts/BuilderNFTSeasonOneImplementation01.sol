@@ -213,7 +213,7 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     }
 
     function _tokenURI(uint256 _tokenId) internal pure returns (string memory) {
-      return string(abi.encodePacked("https://nft.scoutgame.xyz/2024-W40/beta/", _uint2str(_tokenId), "/artwork.png"));
+      return string(abi.encodePacked("https://nft.scoutgame.xyz/2024-W40/beta/", _uint2str(_tokenId), "/metadata.json"));
     }
 
     // Utility function to convert uint to string
