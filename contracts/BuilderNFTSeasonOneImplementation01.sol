@@ -129,6 +129,8 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
 
     // Mint function for users
     function mint(address _account, uint256 tokenId, uint256 amount, string calldata scout) external {
+        revert("User minting is currently disabled");
+        //
         require(isValidUUID(scout), "Scout must be a valid UUID");
         require(bytes(ImplementationStorage.layout().tokenToBuilderRegistry[tokenId]).length > 0, "Token not registered");
 

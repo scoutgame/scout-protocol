@@ -33,8 +33,8 @@ export const connectors = {
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
-    seasonOneImplementation: '0x25184f92aee50f432d6ac7072ade6ac17ada631f',
-    seasonOneProxy: '0x04ecb09a6fc12d86e3c6354f1bc088807fd45b78'
+    seasonOneImplementation: '0xa9756a8aac0858521113071d8cb7f263f57c5551',
+    seasonOneProxy: '0x503ef7140cce25acb9e0857dc9b876ec3862b2ee'
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
@@ -76,6 +76,16 @@ export const connectors = {
     seasonOneProxy: '0x7b3eae98661cc29f7bd6ab399f0f6ddea407a17e'
   } as Connector
 } as const;
+
+export function getConnectorKey(chainId: number) {
+  const key = Object.entries(connectors).find(([key, val]) => val.chain.id === chainId)?.[0];
+
+  if (!key) {
+    throw new Error('Key not found')
+  }
+
+  return key
+}
 
 export type SupportedChains = keyof typeof connectors;
 

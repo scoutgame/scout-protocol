@@ -4,8 +4,9 @@ import { task } from 'hardhat/config';
 import path from 'node:path';
 import { createPublicClient, createWalletClient, encodeDeployData, http, parseAbiItem } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { getConnectorFromHardhatRuntimeEnvironment, proceedsReceiver } from '../../lib/connectors';
+import { getConnectorFromHardhatRuntimeEnvironment, proceedsReceiver, getConnectorKey } from '../../lib/connectors';
 import inquirer from 'inquirer';
+import {execSync} from 'node:child_process';
 
 dotenv.config();
 
@@ -39,11 +40,6 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
     const implementationBytecode = implementationArtifact.bytecode;
     const implementationABI = implementationArtifact.abi;
 
-
-
-
-
-
     // console.log(implementationABI)
 
     const encodedImplementationData = encodeDeployData({
@@ -67,6 +63,14 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
 
     console.log("Implementation contract deployed at address:", implementationAddress);
 
+    // Verify contract in the explorer
+
+    try {
+      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${implementationAddress}`)
+    } catch (err) {
+      console.warn('Error verifying contract', err)
+    }
+
     fs.writeFileSync(path.resolve(__dirname, '..', '..', 'abis', 'BuilderNFTSeasonOneImplementation01.json'), JSON.stringify(implementationArtifact.abi, null, 2));
 
     // Check if the proxy contract exists
@@ -87,10 +91,12 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
         throw new Error("Payment token address (USDC contract) not specified in the connector");
       }
 
+      const deployArgs = [implementationAddress, paymentTokenAddress, proceedsReceiver];
+
       const encodedProxyData = encodeDeployData({
         abi: proxyABI,
         bytecode: proxyBytecode,
-        args: [implementationAddress, paymentTokenAddress, proceedsReceiver],
+        args: deployArgs,
       });
 
       const gasPrice = await client.getGasPrice();
@@ -110,6 +116,14 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
 
       proxyAddress = contractAddress;
       console.log("Proxy contract deployed at address:", proxyAddress);
+
+
+    try {
+      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${contractAddress} ${deployArgs.join(' ')}`)
+    } catch (err) {
+      console.warn('Error verifying contract', err)
+    }
+
 
       fs.writeFileSync(path.resolve(__dirname, '..', '..', 'abis', 'BuilderNFTSeasonOneUpgradeableABI.json'), JSON.stringify(proxyArtifact.abi, null, 2));
     }

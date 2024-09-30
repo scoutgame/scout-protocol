@@ -61,6 +61,30 @@ const config: Omit<HardhatUserConfig, 'networks'> & {networks: Record<SupportedC
   } as Record<SupportedChains, NetworksUserConfig[string]>,
   paths: {
     tests: './__test__'
+  },
+  etherscan: {
+    apiKey: {
+      'opsepolia': 'empty',
+      optimism: 'empty'
+    },
+    customChains: [
+      {
+        network: "opsepolia",
+        chainId: 11155420,
+        urls: {
+          apiURL: "https://optimism-sepolia.blockscout.com/api",
+          browserURL: "https://optimism-sepolia.blockscout.com"
+        }
+      },
+      {
+        network: "optimism",
+        chainId: 10,
+        urls: {
+          apiURL: "https://optimism.blockscout.com/api",
+          browserURL: "https://optimism.blockscout.com"
+        }
+      }
+    ]
   }
 };
 
