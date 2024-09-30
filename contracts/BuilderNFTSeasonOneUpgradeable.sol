@@ -28,6 +28,8 @@ contract BuilderNFTSeasonOneUpgradeable {
         MemoryUtils.setAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT, paymentTokenAddress);
         MemoryUtils.setAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT, _proceedsReceiver);
 
+        MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, 2000000);
+
         // Init logic
         MemoryUtils.setUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT, 1);
     }
@@ -53,75 +55,46 @@ contract BuilderNFTSeasonOneUpgradeable {
         return MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT);
     }
 
-    // External wrapper for setting proceeds receiver
-    function setProceedsReceiver(address receiver) external onlyAdmin {
-        _setProceedsReceiver(receiver);
+    function transferAdmin(address _newAdmin) external onlyAdmin returns (address) {
+      require(_newAdmin != address(0), "Invalid address");
+      MemoryUtils.setAddress(MemoryUtils.ADMIN_SLOT, _newAdmin);
+      return _newAdmin;
     }
 
-    // Internal function for setting proceeds receiver
-    function _setProceedsReceiver(address receiver) internal {
+    function admin() external view returns (address) {
+      return MemoryUtils.getAddress(MemoryUtils.ADMIN_SLOT);
+    }
+
+    function setProceedsReceiver(address receiver) external onlyAdmin {
         require(receiver != address(0), "Invalid address");
         MemoryUtils.setAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT, receiver);
     }
 
-    // External wrapper for getting proceeds receiver
     function getProceedsReceiver() external view returns (address) {
         return _getProceedsReceiver();
     }
 
-    // Internal function for getting proceeds receiver
     function _getProceedsReceiver() internal view returns (address) {
         return MemoryUtils.getAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT);
     }
 
-    // External wrapper for updating token base URI
-    function updateTokenBaseUri(string memory newBaseUrl) external onlyAdmin {
-        _updateTokenBaseUri(newBaseUrl);
-    }
-
-    // Internal function for updating token base URI
-    function _updateTokenBaseUri(string memory newBaseUrl) internal {
-        require(bytes(newBaseUrl).length > 0, "Empty base URL not allowed");
-        (bool success, bytes memory returnData) = MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT).delegatecall(
-            abi.encodeWithSignature("setBaseUri(string)", newBaseUrl)
-        );
-        require(success, _getRevertMsg(returnData));
-    }
-
-    // External wrapper for registering builder token
-    function registerBuilderToken(string calldata builderId) external onlyAdmin {
-        _registerBuilderToken(builderId);
-    }
-
-    // Internal function for registering builder token
-    function _registerBuilderToken(string calldata builderId) internal {
-        (bool success, bytes memory returnData) = MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT).delegatecall(
-            abi.encodeWithSignature("registerBuilderToken(string)", builderId)
-        );
-        require(success, _getRevertMsg(returnData));
-    }
-
-    // External wrapper for updating price increment
     function updatePriceIncrement(uint256 newIncrement) external onlyAdmin {
-        _updatePriceIncrement(newIncrement);
-    }
-
-    // Internal function for updating price increment
-    function _updatePriceIncrement(uint256 newIncrement) internal {
-        require(newIncrement > 2e4, "Increment must be at least 0.02$");
         MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, newIncrement);
     }
 
-    // External wrapper for updating ERC20 contract address
-    function updateERC20Contract(address newContract) external onlyAdmin {
-        _updateERC20Contract(newContract);
+    function getPriceIncrement() external view returns (uint256) {
+      return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
     }
 
-    // Internal function for updating ERC20 contract address
-    function _updateERC20Contract(address newContract) internal {
+    function updateERC20Contract(address newContract) external onlyAdmin {
         require(newContract != address(0), "Invalid address");
         MemoryUtils.setAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT, newContract);
     }
+
+    function getERC20Contract() external view returns (uint256) {
+      return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
+    }
+
 
     // Helper function to extract revert message from delegatecall
     function _getRevertMsg(bytes memory _returnData) internal pure returns (string memory) {
@@ -148,7 +121,7 @@ contract BuilderNFTSeasonOneUpgradeable {
     }
 
     receive() external payable {
-        address payable receiver = payable(this._getProceedsReceiver());
+        address payable receiver = payable(_getProceedsReceiver());
 
         (bool success, ) = receiver.call{value: msg.value}("");
         require(success, "Transfer to proceedsReceiver failed.");

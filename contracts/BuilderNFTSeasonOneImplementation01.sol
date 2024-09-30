@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import "./libs/MemoryUtils.sol";
-// import "./libs/Validators.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -42,20 +41,24 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         _;
     }
 
-
     constructor () {}
 
-    function uri(uint256) public view override returns (string memory) {
-        return ImplementationStorage.layout().baseUri;
+ 
+    function setBaseUri(string memory newBaseUri) external {
+        _setBaseUri(newBaseUri);
     }
 
-    function setBaseUri(string memory newBaseUri) external {
+    function _setBaseUri(string memory newBaseUri) internal {
         require(bytes(newBaseUri).length > 0, "Empty base URI not allowed");
         ImplementationStorage.layout().baseUri = newBaseUri;
     }
 
-    function registerBuilderToken(string calldata builderId) external {
-        require(isValidUUID(builderId), "Builder ID must be a valid UUID");
+    function registerBuilderToken(string calldata builderId) external onlyAdmin() {
+        _registerBuilderToken(builderId);
+    }
+
+    function _registerBuilderToken(string calldata builderId) internal {
+        require(_isValidUUID(builderId), "Builder ID must be a valid UUID");
         require(ImplementationStorage.layout().builderToTokenRegistry[builderId] == 0, "Builder already registered");
 
         uint256 nextTokenId = MemoryUtils.getUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT);
@@ -71,171 +74,186 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         MemoryUtils.setUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT, nextTokenId + 1);
     }
 
-    function balanceOf(address account, uint256 id) public view override returns (uint256) {
+    function balanceOf(address account, uint256 id) external view override returns (uint256) {
+        return _balanceOf(account, id);
+    }
+
+    function _balanceOf(address account, uint256 id) internal view returns (uint256) {
         require(account != address(0), "ERC1155: balance query for the zero address");
         return ImplementationStorage.layout().balances[id][account];
     }
 
-    function balanceOfBatch(address[] memory accounts, uint256[] memory ids) public view override returns (uint256[] memory) {
+    function balanceOfBatch(address[] memory accounts, uint256[] memory ids) external view override returns (uint256[] memory) {
+        return _balanceOfBatch(accounts, ids);
+    }
+
+    function _balanceOfBatch(address[] memory accounts, uint256[] memory ids) internal view returns (uint256[] memory) {
         require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch");
         uint256[] memory batchBalances = new uint256[](accounts.length);
 
         for (uint256 i = 0; i < accounts.length; ++i) {
-            batchBalances[i] = balanceOf(accounts[i], ids[i]);
+            batchBalances[i] = _balanceOf(accounts[i], ids[i]);
         }
 
         return batchBalances;
     }
 
-    function setApprovalForAll(address, bool) public pure override {
+    function setApprovalForAll(address, bool) external pure override {
         revert("Approval not allowed for soulbound tokens");
     }
 
-    function isApprovedForAll(address, address) public pure override returns (bool) {
+    function isApprovedForAll(address, address) external pure override returns (bool) {
         return false; // Approvals are not allowed for soulbound tokens
     }
 
-    function safeTransferFrom(address, address, uint256, uint256, bytes memory) public pure override {
+    function safeTransferFrom(address, address, uint256, uint256, bytes memory) external pure override {
         revert("Transfers not allowed for soulbound tokens");
     }
 
-    function safeBatchTransferFrom(address, address, uint256[] memory, uint256[] memory, bytes memory) public pure override {
+    function safeBatchTransferFrom(address, address, uint256[] memory, uint256[] memory, bytes memory) external pure override {
         revert("Batch transfers not allowed for soulbound tokens");
     }
 
+    function mint(address account, uint256 tokenId, uint256 amount, string calldata scout) external {
+      revert("Minting by users currently on hold");
+    }
+
     function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdmin {
-      require(account != address(0), "Invalid account address");
-      require(isValidUUID(scout), "Scout must be a valid UUID");
+        _mintTo(account, tokenId, amount, scout);
+    }
 
-      // Check the tokenId exists
-      this.getBuilderIdForToken(tokenId);
+    function _mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) internal {
+        require(account != address(0), "Invalid account address");
+        require(_isValidUUID(scout), "Scout must be a valid UUID");
 
+        // Check the tokenId exists
+        _getBuilderIdForToken(tokenId);
 
-      ImplementationStorage.Layout storage s = ImplementationStorage.layout();
-
-      // Mint tokens
-      s.balances[tokenId][account] += amount;
-
-      // Update total supply
-      s.totalSupply[tokenId] += amount;
-
-      // Emit TransferSingle event
-      emit TransferSingle(msg.sender, address(0), account, tokenId, amount);
-
-      // Emit BuilderScouted event
-      emit BuilderScouted(tokenId, amount, scout);
-  }
-
-
-    // Mint function for users
-    function mint(address _account, uint256 tokenId, uint256 amount, string calldata scout) external {
-        revert("User minting is currently disabled");
-        //
-        require(isValidUUID(scout), "Scout must be a valid UUID");
-        require(bytes(ImplementationStorage.layout().tokenToBuilderRegistry[tokenId]).length > 0, "Token not registered");
-
-        uint256 price = getTokenPurchasePrice(tokenId, amount);
-        address paymentToken = MemoryUtils.getAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
-        address proceedsReceiver = MemoryUtils.getAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT);
-
-        require(paymentToken != address(0), "Payment token not set");
-        require(proceedsReceiver != address(0), "Proceeds receiver not set");
-
-        IERC20(paymentToken).transferFrom(msg.sender, proceedsReceiver, price);
+        ImplementationStorage.Layout storage s = ImplementationStorage.layout();
 
         // Mint tokens
-        ImplementationStorage.layout().balances[tokenId][_account] += amount;
-        emit TransferSingle(_msgSender(), address(0), _account, tokenId, amount);
+        s.balances[tokenId][account] += amount;
 
         // Update total supply
-        ImplementationStorage.layout().totalSupply[tokenId] += amount;
+        s.totalSupply[tokenId] += amount;
+
+        // Emit TransferSingle event
+        emit TransferSingle(msg.sender, address(0), account, tokenId, amount);
 
         // Emit BuilderScouted event
         emit BuilderScouted(tokenId, amount, scout);
     }
 
-    function getTokenPurchasePrice(uint256 tokenId, uint256 amount) public view returns (uint256) {
-        uint256 currentSupply = totalSupply(tokenId);
+    function getTokenPurchasePrice(uint256 tokenId, uint256 amount) external view returns (uint256) {
+        return _getTokenPurchasePrice(tokenId, amount);
+    }
+
+    function _getTokenPurchasePrice(uint256 tokenId, uint256 amount) internal view returns (uint256) {
+        uint256 priceIncrement = MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
+        uint256 currentSupply = _totalSupply(tokenId);
         uint256 totalCost = 0;
         for (uint256 i = 0; i < amount; i++) {
-            totalCost += getNextPrice(currentSupply + i);
+            totalCost += (currentSupply + i + 1) * priceIncrement;
         }
         return totalCost;
     }
 
-    function getNextPrice(uint256 supply) internal view returns (uint256) {
-        uint256 priceIncrement = MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
-        return supply * priceIncrement;
+    function totalSupply(uint256 tokenId) external view returns (uint256) {
+        return _totalSupply(tokenId);
     }
 
-    function totalSupply(uint256 tokenId) public view returns (uint256) {
+    function _totalSupply(uint256 tokenId) internal view returns (uint256) {
         return ImplementationStorage.layout().totalSupply[tokenId];
     }
 
-    function getBuilderIdForToken(uint256 tokenId) public view returns (string memory) {
+    function getBuilderIdForToken(uint256 tokenId) external view returns (string memory) {
+        return _getBuilderIdForToken(tokenId);
+    }
+
+    function _getBuilderIdForToken(uint256 tokenId) internal view returns (string memory) {
         string memory builderId = ImplementationStorage.layout().tokenToBuilderRegistry[tokenId];
         require(bytes(builderId).length > 0, "Token not yet allocated");
         return builderId;
     }
 
-    function getTokenIdForBuilder(string calldata builderId) public view returns (uint256) {
+    function getTokenIdForBuilder(string calldata builderId) external view returns (uint256) {
+        return _getTokenIdForBuilder(builderId);
+    }
+
+    function _getTokenIdForBuilder(string calldata builderId) internal view returns (uint256) {
         uint256 tokenId = ImplementationStorage.layout().builderToTokenRegistry[builderId];
         require(tokenId != 0, "Builder not registered");
         return tokenId;
     }
 
-    function totalBuilderTokens() public view returns (uint256) {
+    function totalBuilderTokens() external view returns (uint256) {
+        return _totalBuilderTokens();
+    }
+
+    function _totalBuilderTokens() internal view returns (uint256) {
         uint256 nextTokenId = MemoryUtils.getUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT);
         return nextTokenId - 1;
     }
 
-    function getPriceIncrement() public view returns (uint256) {
+    function getPriceIncrement() external view returns (uint256) {
+        return _getPriceIncrement();
+    }
+
+    function _getPriceIncrement() internal view returns (uint256) {
         return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
     }
 
+    function uri(uint256 _tokenId) external pure override returns (string memory) {
+      return _tokenURI(_tokenId);
+    }
+
+    // OpenSea requires tokenURI
     function tokenURI(uint256 _tokenId) external pure returns (string memory) {
-      return string.concat("https://nft.scoutgame.xyz/2024-W40/beta/", uint2str(_tokenId), "/artwork.png");
-        // string memory baseUri = ImplementationStorage.layout().baseUri;
-        // return string(abi.encodePacked(baseUri, uint2str(_tokenId)));
+        return _tokenURI(_tokenId);
+    }
+
+    function _tokenURI(uint256 _tokenId) internal pure returns (string memory) {
+      return string(abi.encodePacked("https://nft.scoutgame.xyz/2024-W40/beta/", _uint2str(_tokenId), "/artwork.png"));
     }
 
     // Utility function to convert uint to string
-    function uint2str(uint256 _i) internal pure returns (string memory _uintAsString) {
-        // Edge case for zero
+    function _uint2str(uint256 _i) internal pure returns (string memory) {
         if (_i == 0) {
             return "0";
         }
-        uint256 j = _i;
-        uint256 len;
-        while (j != 0) {
-            len++;
-            j /= 10;
+
+        uint256 temp = _i;
+        uint256 digits;
+
+        // Count the number of digits in the number
+        while (temp != 0) {
+            digits++;
+            temp /= 10;
         }
-        bytes memory bstr = new bytes(len);
-        uint256 k = len - 1;
+
+        // Create a byte array to store the characters of the number
+        bytes memory buffer = new bytes(digits);
+
+        // Extract each digit from the least significant to the most significant
         while (_i != 0) {
-            bstr[k--] = bytes1(uint8(48 + _i % 10));
+            digits -= 1;
+            buffer[digits] = bytes1(uint8(48 + uint256(_i % 10)));
             _i /= 10;
         }
-        return string(bstr);
+
+        return string(buffer);
     }
 
-      // Validate if a string is a valid UUID
-    function isValidUUID(string memory uuid) public pure returns (bool) {
+    function isValidUUID(string memory uuid) external pure returns (bool) {
+        return _isValidUUID(uuid);
+    }
+
+    function _isValidUUID(string memory uuid) internal pure returns (bool) {
         bytes memory uuidBytes = bytes(uuid);
         return uuidBytes.length == 36 &&
             uuidBytes[8] == "-" &&
             uuidBytes[13] == "-" &&
             uuidBytes[18] == "-" &&
             uuidBytes[23] == "-";
-    }
-
-        // Validators
-    function isContract(address account) internal view returns (bool) {
-        // This method relies on extcodesize, which returns 0 for contracts in
-        // construction, since the code is only stored at the end of the
-        // constructor execution.
-
-        return account.code.length > 0;
     }
 }
