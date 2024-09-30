@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "./libs/MemoryUtils.sol";
+// import "./libs/Validators.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -26,12 +27,6 @@ library ImplementationStorage {
             l.slot := slot
         }
     }
-
-    // Validate UUID (implement actual validation as needed)
-    function isValidUUID(string memory uuid) internal pure returns (bool) {
-        // Simple length check for illustration
-        return bytes(uuid).length == 36;
-    }
 }
 
 contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1155MetadataURI {
@@ -42,11 +37,13 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     event BuilderScouted(uint256 tokenId, uint256 amount, string scout);
     event BuilderTokenRegistered(uint256 tokenId, string builderId);
 
-    constructor() {
-        // Initialization can be handled via an initializer function if needed
+    modifier onlyAdmin() {
+        require(MemoryUtils.isAdmin(msg.sender), "Proxy: caller is not the admin");
+        _;
     }
 
-    // User functions
+
+    constructor () {}
 
     function uri(uint256) public view override returns (string memory) {
         return ImplementationStorage.layout().baseUri;
@@ -58,7 +55,7 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     }
 
     function registerBuilderToken(string calldata builderId) external {
-        require(ImplementationStorage.isValidUUID(builderId), "Builder ID must be a valid UUID");
+        require(isValidUUID(builderId), "Builder ID must be a valid UUID");
         require(ImplementationStorage.layout().builderToTokenRegistry[builderId] == 0, "Builder already registered");
 
         uint256 nextTokenId = MemoryUtils.getUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT);
@@ -106,9 +103,33 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         revert("Batch transfers not allowed for soulbound tokens");
     }
 
+    function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdmin {
+      require(account != address(0), "Invalid account address");
+      require(isValidUUID(scout), "Scout must be a valid UUID");
+
+      // Check the tokenId exists
+      this.getBuilderIdForToken(tokenId);
+
+
+      ImplementationStorage.Layout storage s = ImplementationStorage.layout();
+
+      // Mint tokens
+      s.balances[tokenId][account] += amount;
+
+      // Update total supply
+      s.totalSupply[tokenId] += amount;
+
+      // Emit TransferSingle event
+      emit TransferSingle(msg.sender, address(0), account, tokenId, amount);
+
+      // Emit BuilderScouted event
+      emit BuilderScouted(tokenId, amount, scout);
+  }
+
+
     // Mint function for users
-    function mint(uint256 tokenId, uint256 amount, string calldata scout) external {
-        require(ImplementationStorage.isValidUUID(scout), "Scout must be a valid UUID");
+    function mint(address _account, uint256 tokenId, uint256 amount, string calldata scout) external {
+        require(isValidUUID(scout), "Scout must be a valid UUID");
         require(bytes(ImplementationStorage.layout().tokenToBuilderRegistry[tokenId]).length > 0, "Token not registered");
 
         uint256 price = getTokenPurchasePrice(tokenId, amount);
@@ -121,8 +142,8 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         IERC20(paymentToken).transferFrom(msg.sender, proceedsReceiver, price);
 
         // Mint tokens
-        ImplementationStorage.layout().balances[tokenId][msg.sender] += amount;
-        emit TransferSingle(_msgSender(), address(0), msg.sender, tokenId, amount);
+        ImplementationStorage.layout().balances[tokenId][_account] += amount;
+        emit TransferSingle(_msgSender(), address(0), _account, tokenId, amount);
 
         // Update total supply
         ImplementationStorage.layout().totalSupply[tokenId] += amount;
@@ -151,7 +172,7 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
 
     function getBuilderIdForToken(uint256 tokenId) public view returns (string memory) {
         string memory builderId = ImplementationStorage.layout().tokenToBuilderRegistry[tokenId];
-        require(bytes(builderId).length > 0, "Token not registered");
+        require(bytes(builderId).length > 0, "Token not yet allocated");
         return builderId;
     }
 
@@ -194,5 +215,24 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
             _i /= 10;
         }
         return string(bstr);
+    }
+
+      // Validate if a string is a valid UUID
+    function isValidUUID(string memory uuid) public pure returns (bool) {
+        bytes memory uuidBytes = bytes(uuid);
+        return uuidBytes.length == 36 &&
+            uuidBytes[8] == "-" &&
+            uuidBytes[13] == "-" &&
+            uuidBytes[18] == "-" &&
+            uuidBytes[23] == "-";
+    }
+
+        // Validators
+    function isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize, which returns 0 for contracts in
+        // construction, since the code is only stored at the end of the
+        // constructor execution.
+
+        return account.code.length > 0;
     }
 }

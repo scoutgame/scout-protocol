@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "./libs/MemoryUtils.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -9,16 +9,21 @@ contract BuilderNFTSeasonOneUpgradeable {
 
     // Modifier to restrict access to admin functions
     modifier onlyAdmin() {
-        require(msg.sender == MemoryUtils.getAddress(MemoryUtils.ADMIN_SLOT), "Proxy: caller is not the admin");
+        require(MemoryUtils.isAdmin(msg.sender), "Proxy: caller is not the admin");
         _;
     }
 
-    constructor(address implementationAddress, address paymentTokenAddress) {
-        require(implementationAddress != address(0), "Invalid implementation address");
-        require(paymentTokenAddress != address(0), "Invalid payment token address");
-        MemoryUtils.setAddress(MemoryUtils.IMPLEMENTATION_SLOT, implementationAddress);
-        MemoryUtils.setAddress(MemoryUtils.ADMIN_SLOT, msg.sender);
-        MemoryUtils.setAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT, paymentTokenAddress);
+    constructor(address implementationAddress, address paymentTokenAddress, address _proceedsReceiver) {
+      require(implementationAddress != address(0), "Invalid implementation address");
+      require(paymentTokenAddress != address(0), "Invalid payment token address");
+      MemoryUtils.setAddress(MemoryUtils.ADMIN_SLOT, msg.sender);
+      MemoryUtils.setAddress(MemoryUtils.IMPLEMENTATION_SLOT, implementationAddress);
+      MemoryUtils.setAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT, paymentTokenAddress);
+      MemoryUtils.setAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT, _proceedsReceiver);
+
+      // Init logic
+      MemoryUtils.setUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT, 1);
+      
     }
 
     // Admin functions
@@ -27,7 +32,7 @@ contract BuilderNFTSeasonOneUpgradeable {
         MemoryUtils.setAddress(MemoryUtils.IMPLEMENTATION_SLOT, newImplementation);
     }
 
-    function getImplementation() external view returns (address) {
+   function implementation() external view returns (address) {
         return MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT);
     }
 
@@ -91,5 +96,14 @@ contract BuilderNFTSeasonOneUpgradeable {
         }
     }
 
-    receive() external payable {}
+    receive() external payable {
+        address payable receiver = payable(this.getProceedsReceiver());
+
+        // Transfer the received Ether to the proceedsReceiver
+        (bool success, ) = receiver.call{value: msg.value}("");
+        require(success, "Transfer to proceedsReceiver failed.");
+    }
+
+
+    
 }

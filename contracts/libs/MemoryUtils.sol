@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/utils/StorageSlot.sol";
 
@@ -51,5 +51,10 @@ library MemoryUtils {
 
     function setBytes32(bytes32 slot, bytes32 value) internal {
         StorageSlot.getBytes32Slot(slot).value = value;
+    }
+
+    // Function to check if an address is the admin
+    function isAdmin(address caller) internal view returns (bool) {
+        return caller == getAddress(ADMIN_SLOT);
     }
 }

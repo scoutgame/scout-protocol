@@ -10,6 +10,11 @@
         "internalType": "address",
         "name": "paymentTokenAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_proceedsReceiver",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -21,7 +26,7 @@
   },
   {
     "inputs": [],
-    "name": "getImplementation",
+    "name": "getProceedsReceiver",
     "outputs": [
       {
         "internalType": "address",
@@ -34,7 +39,7 @@
   },
   {
     "inputs": [],
-    "name": "getProceedsReceiver",
+    "name": "implementation",
     "outputs": [
       {
         "internalType": "address",

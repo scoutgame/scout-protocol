@@ -4,9 +4,8 @@ import { task } from 'hardhat/config';
 import path from 'node:path';
 import { createPublicClient, createWalletClient, encodeDeployData, http, parseAbiItem } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
+import { getConnectorFromHardhatRuntimeEnvironment, proceedsReceiver } from '../../lib/connectors';
 import inquirer from 'inquirer';
-
 
 dotenv.config();
 
@@ -40,29 +39,35 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
     const implementationBytecode = implementationArtifact.bytecode;
     const implementationABI = implementationArtifact.abi;
 
+
+
+
+
+
+    // console.log(implementationABI)
+
     const encodedImplementationData = encodeDeployData({
       abi: implementationABI,
       bytecode: implementationBytecode,
-      args: [], // No constructor arguments
+      args: []
     });
+
 
     const implementationDeployTx = await walletClient.sendTransaction({
-      data: encodedImplementationData,
-      gasPrice: await client.getGasPrice(),
+      data: encodedImplementationData
     });
 
-    
 
     const implementationReceipt = await client.waitForTransactionReceipt({ hash: implementationDeployTx });
     const implementationAddress = implementationReceipt.contractAddress;
-
-    fs.writeFileSync(path.resolve(__dirname, '..', '..', 'abis', 'BuilderNFTSeasonOneImplementation01.json'), JSON.stringify(implementationArtifact.abi, null, 2));
 
     if (!implementationAddress) {
       throw new Error("Failed to deploy implementation contract");
     }
 
     console.log("Implementation contract deployed at address:", implementationAddress);
+
+    fs.writeFileSync(path.resolve(__dirname, '..', '..', 'abis', 'BuilderNFTSeasonOneImplementation01.json'), JSON.stringify(implementationArtifact.abi, null, 2));
 
     // Check if the proxy contract exists
     let proxyAddress = connector.seasonOneProxy;
@@ -72,14 +77,11 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
       // Deploy the proxy contract
       console.log("Proxy contract not found. Deploying a new proxy contract...");
 
-      // Deploy the Proxy contract
       const proxyArtifactPath = path.resolve(__dirname, '../../artifacts/contracts/BuilderNFTSeasonOneUpgradeable.sol/BuilderNFTSeasonOneUpgradeable.json');
       const proxyArtifact = JSON.parse(fs.readFileSync(proxyArtifactPath, 'utf8'));
       const proxyBytecode = proxyArtifact.bytecode;
       const proxyABI = proxyArtifact.abi;
 
-
-      // Initialize the Proxy with the implementation address and ERC20 token address
       const paymentTokenAddress = connector.usdcContract; // ERC20 token address
       if (!paymentTokenAddress) {
         throw new Error("Payment token address (USDC contract) not specified in the connector");
@@ -88,7 +90,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
       const encodedProxyData = encodeDeployData({
         abi: proxyABI,
         bytecode: proxyBytecode,
-        args: [implementationAddress, paymentTokenAddress],
+        args: [implementationAddress, paymentTokenAddress, proceedsReceiver],
       });
 
       const gasPrice = await client.getGasPrice();
@@ -109,9 +111,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
       proxyAddress = contractAddress;
       console.log("Proxy contract deployed at address:", proxyAddress);
 
-      // Save the ABI
       fs.writeFileSync(path.resolve(__dirname, '..', '..', 'abis', 'BuilderNFTSeasonOneUpgradeableABI.json'), JSON.stringify(proxyArtifact.abi, null, 2));
-
     }
 
     // Prompt the user to update the implementation if the proxy already exists
@@ -126,7 +126,6 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
       ]);
 
       if (updateImplementation) {
-        // Interact with the proxy contract to set the new implementation
         console.log('Updating proxy to use the new implementation...');
 
         const proxyAbi = [parseAbiItem('function setImplementation(address _newImplementation)')];
@@ -138,16 +137,13 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
           args: [implementationAddress],
         });
 
-        // Wait for the transaction to be confirmed
         const receipt = await client.waitForTransactionReceipt({ hash: txHash });
         console.log('Proxy implementation updated. Transaction hash:', receipt.transactionHash);
-
       } else {
         console.log("Proxy implementation not updated.");
       }
     }
 
-    // Save ABI files and addresses
     console.log("Deployment and update process completed.");
   });
 

@@ -3,6 +3,9 @@ import { Address, Chain, rpcSchema } from "viem"
 import { base, baseSepolia, optimism, optimismSepolia, sepolia } from "viem/chains";
 import { NULL_ADDRESS } from "./constants";
 
+// https://app.ens.domains/scoutgame.eth
+export const proceedsReceiver = '0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D';
+
 type Connector = {
   chain: Chain;
   rpcUrl: string;
@@ -12,8 +15,8 @@ type Connector = {
   stargateProtocolContract: Address;
   builderNFTContract: Address;
   usdcContract?: Address;
-  seasonOneProxy?: Address;
-  seasonOneImplementation?: Address;
+  seasonOneProxy?: Address | null;
+  seasonOneImplementation?: Address | null;
 }
 /**
  * 
@@ -23,15 +26,15 @@ type Connector = {
 
 export const connectors = {
   opsepolia: {
-    rpcUrl: 'https://sepolia.optimism.io',
+    rpcUrl: 'https://opt-sepolia.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
     chain: optimismSepolia,
     easContract: '0x4200000000000000000000000000000000000021',
     luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
-    seasonOneImplementation: '0x92bbf17fcedee104bc6ae5d10b99eacf2fc2d3b6',
-    seasonOneProxy: '0xff9731e06f009800cb23ac6eddc2903d801fa890'
+    seasonOneImplementation: '0x25184f92aee50f432d6ac7072ade6ac17ada631f',
+    seasonOneProxy: '0x04ecb09a6fc12d86e3c6354f1bc088807fd45b78'
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
