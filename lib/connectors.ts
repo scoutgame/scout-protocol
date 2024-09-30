@@ -32,7 +32,7 @@ export const connectors = {
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
-    seasonOneProxy: '0x8b833851c2fdaa08b2c87b162d644a5db0c55ba4'
+    seasonOneProxy: '0x0b7342761a10e1b14df427681b967e67f5e6cef9'
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',

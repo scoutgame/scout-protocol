@@ -14,7 +14,7 @@ library MemoryUtils {
     bytes32 internal constant ADMIN_SLOT = keccak256("builderNFT.admin");
 
     bytes32 internal constant TOKEN_NAME = keccak256("token.name");
-    bytes32 internal constant TOKEN_SYMBOL = keccak256("token.name");
+    bytes32 internal constant TOKEN_SYMBOL = keccak256("token.symbol");
 
     // New storage slots for added variables
     bytes32 internal constant BASE_URI_SLOT = keccak256("builderNFT.baseUri");
