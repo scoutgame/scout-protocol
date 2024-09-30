@@ -70,8 +70,7 @@ export const connectors = {
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
-    // seasonOneImplementation: '0x38d0e292f6d76a988942e721a017aa36438797e4',
-    // seasonOneProxy: '0x7b3eae98661cc29f7bd6ab399f0f6ddea407a17e'
+    seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83'
   } as Connector
 } as const;
 
