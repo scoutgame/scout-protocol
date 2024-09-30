@@ -7,6 +7,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract BuilderNFTSeasonOneUpgradeable {
     using MemoryUtils for bytes32;
 
+    string public constant NAME = "Scoutgame Builder";
+    string public constant SYMBOL = "BUILDERS";
+
     // Modifier to restrict access to admin functions
     modifier onlyAdmin() {
         require(MemoryUtils.isAdmin(msg.sender), "Proxy: caller is not the admin");

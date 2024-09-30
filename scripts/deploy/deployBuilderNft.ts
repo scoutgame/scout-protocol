@@ -65,6 +65,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
 
     // Verify contract in the explorer
 
+    console.log('Verifying implementation with etherscan')
     try {
       execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${implementationAddress}`)
     } catch (err) {
@@ -118,6 +119,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
       console.log("Proxy contract deployed at address:", proxyAddress);
 
 
+    console.log('Verifying proxy contract with etherscan..')
     try {
       execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${contractAddress} ${deployArgs.join(' ')}`)
     } catch (err) {

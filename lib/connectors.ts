@@ -33,8 +33,8 @@ export const connectors = {
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
-    seasonOneImplementation: '0xa9756a8aac0858521113071d8cb7f263f57c5551',
-    seasonOneProxy: '0x503ef7140cce25acb9e0857dc9b876ec3862b2ee'
+    seasonOneImplementation: '0x142678cb39a03866c325711381204a38ee0ad4a2',
+    seasonOneProxy: '0x4fc7aaee16bd29d73dbdd7db0bedd5cc8b2e3b8f'
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
@@ -72,8 +72,8 @@ export const connectors = {
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
-    seasonOneImplementation: '0x38d0e292f6d76a988942e721a017aa36438797e4',
-    seasonOneProxy: '0x7b3eae98661cc29f7bd6ab399f0f6ddea407a17e'
+    // seasonOneImplementation: '0x38d0e292f6d76a988942e721a017aa36438797e4',
+    // seasonOneProxy: '0x7b3eae98661cc29f7bd6ab399f0f6ddea407a17e'
   } as Connector
 } as const;
 
