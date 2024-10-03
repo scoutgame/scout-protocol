@@ -33,8 +33,8 @@ export const connectors = {
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
-    seasonOneProxy: '0x0b7342761a10e1b14df427681b967e67f5e6cef9',
-    devProxy: '0x2f6093b70562729952bf379633dee3e89922d717'
+    seasonOneProxy: '0x3414d0578c6a37e17a5660475878b4bbb85dd347',
+    // devProxy: '0x2f6093b70562729952bf379633dee3e89922d717'
   } as Connector,
   optimism: {
     rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',

@@ -64,24 +64,40 @@ const config: Omit<HardhatUserConfig, 'networks'> & {networks: Record<SupportedC
   },
   etherscan: {
     apiKey: {
-      'opsepolia': 'empty',
-      optimism: 'empty'
+      'opsepolia': '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ',
+      optimism: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ'
     },
     customChains: [
+      // {
+      //   network: "opsepolia",
+      //   chainId: 11155420,
+      //   urls: {
+      //     apiURL: "https://optimism-sepolia.blockscout.com/api",
+      //     browserURL: "https://optimism-sepolia.blockscout.com"
+      //   }
+      // },
+      // {
+      //   network: "optimism",
+      //   chainId: 10,
+      //   urls: {
+      //     apiURL: "https://optimism.blockscout.com/api",
+      //     browserURL: "https://optimism.blockscout.com"
+      //   }
+      // },
       {
         network: "opsepolia",
         chainId: 11155420,
         urls: {
-          apiURL: "https://optimism-sepolia.blockscout.com/api",
-          browserURL: "https://optimism-sepolia.blockscout.com"
+          apiURL: "https://api-sepolia-optimism.etherscan.io/api",
+          browserURL: "https://sepolia-optimism.etherscan.io"
         }
       },
       {
         network: "optimism",
         chainId: 10,
         urls: {
-          apiURL: "https://optimism.blockscout.com/api",
-          browserURL: "https://optimism.blockscout.com"
+          apiURL: "https://api-optimistic.etherscan.io/api",
+          browserURL: "https://optimistic.etherscan.io"
         }
       }
     ]

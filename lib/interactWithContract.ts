@@ -145,7 +145,7 @@ export async function interactWithContract(params: InteractParams) {
       to: contractAddress,
       data: txData,
       value, // Only set value if applicable (undefined for non-payable functions)
-      gasPrice: BigInt(4e7), // 40 gwei
+      // gasPrice: BigInt(4e7), // 40 gwei
     });
 
     const receipt = await walletClient.waitForTransactionReceipt({ hash: tx });
