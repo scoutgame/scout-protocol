@@ -3,6 +3,9 @@ import { Address, Chain, rpcSchema } from "viem"
 import { base, baseSepolia, optimism, optimismSepolia, sepolia } from "viem/chains";
 import { NULL_ADDRESS } from "./constants";
 
+// https://app.ens.domains/scoutgame.eth
+export const proceedsReceiver = '0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D';
+
 type Connector = {
   chain: Chain;
   rpcUrl: string;
@@ -12,6 +15,9 @@ type Connector = {
   stargateProtocolContract: Address;
   builderNFTContract: Address;
   usdcContract?: Address;
+  seasonOneProxy?: Address | null;
+  devProxy?: Address | null;
+  testDevProxy?: Address | null;
 }
 /**
  * 
@@ -21,13 +27,27 @@ type Connector = {
 
 export const connectors = {
   opsepolia: {
-    rpcUrl: 'https://sepolia.optimism.io',
+    rpcUrl: 'https://opt-sepolia.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
     chain: optimismSepolia,
     easContract: '0x4200000000000000000000000000000000000021',
     luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
     stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
-    usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253'
+    usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
+    seasonOneProxy: '0x3414d0578c6a37e17a5660475878b4bbb85dd347',
+    // devProxy: '0x2f6093b70562729952bf379633dee3e89922d717'
+  } as Connector,
+  optimism: {
+    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
+    chain: optimism,
+    easContract: NULL_ADDRESS,
+    luckyStarCoinContract: NULL_ADDRESS,
+    stargateProtocolContract: NULL_ADDRESS,
+    builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
+    usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
+    // seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
+    // devProxy: '0x1d305a06cb9dbdc32e08c3d230889acb9fe8a4dd'
+    testDevProxy: '0x2cba9c6e0c14da826b0ec689cabf02a6f6b9808e'
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
@@ -36,7 +56,7 @@ export const connectors = {
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: NULL_ADDRESS,
-    usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
+    usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
   } as Connector,
   basesepolia: {
     rpcUrl: 'https://sepolia.base.org',
@@ -56,17 +76,18 @@ export const connectors = {
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x278cc8861cfc93ea47c9e89b1876d0def2037c27',
     usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
-  } as Connector,
-  optimism: {
-    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
-    chain: optimism,
-    easContract: NULL_ADDRESS,
-    luckyStarCoinContract: NULL_ADDRESS,
-    stargateProtocolContract: NULL_ADDRESS,
-    builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
-    usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85'
-  }
+  } as Connector
 } as const;
+
+export function getConnectorKey(chainId: number) {
+  const key = Object.entries(connectors).find(([key, val]) => val.chain.id === chainId)?.[0];
+
+  if (!key) {
+    throw new Error('Key not found')
+  }
+
+  return key
+}
 
 export type SupportedChains = keyof typeof connectors;
 

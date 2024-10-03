@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "./BuilderNFTUtils.sol"; // Import the utility contract
+import "contracts/archived/BuilderNFTUtils.sol"; // Import the utility contract
 
 contract BuilderNFTSeasonOne is ERC1155, Ownable {
     // using ERC20 for IERC20;
@@ -23,6 +23,7 @@ contract BuilderNFTSeasonOne is ERC1155, Ownable {
     mapping(uint256 => uint256) private _totalSupply;
 
     string public baseUrl = "cdn.scoutgame.com/nft/";
+    string public suffix = "metadata.json";
 
     // Constructor to initialize proceedsReceiver, priceIncrement, USDC token, and the utility contract
     constructor( address _proceedsReceiver, uint256 _priceIncrement, address _usdcToken) ERC1155(baseUrl) Ownable(msg.sender) {
@@ -38,8 +39,8 @@ contract BuilderNFTSeasonOne is ERC1155, Ownable {
     }
 
 
-    // Buy token using USDC
-    function mintBuilderNft(uint256 tokenId, uint256 amount, string calldata scout) external {
+    // Buy token using USDC - requires allowance
+    function mintBuilderNft(uint256 tokenId, uint256 amount, string calldata scout, address mintToAddress) external {
         require(utils.isValidUUID(scout), "Invalid scout ID");
 
         require(bytes(tokenToBuilderRegistry[tokenId]).length > 0, "Token not registered");
@@ -54,7 +55,7 @@ contract BuilderNFTSeasonOne is ERC1155, Ownable {
 
         require((beforeBalance + mintCost) == afterBalance, "ERC20 transfer slippage");
 
-        _mint(msg.sender, tokenId, amount, "");
+        _mint(mintToAddress, tokenId, amount, "");
         _totalSupply[tokenId] += amount;
 
         emit BuilderScouted(tokenId, amount, scout);

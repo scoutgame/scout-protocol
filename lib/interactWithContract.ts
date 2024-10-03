@@ -1,4 +1,3 @@
-import { task } from 'hardhat/config';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
 import { Address, createWalletClient, decodeFunctionResult, encodeFunctionData, getAddress, http, publicActions } from 'viem';
@@ -42,7 +41,8 @@ export async function interactWithContract(params: InteractParams) {
     console.log(`${index + 1}. ${method.name}`);
   });
 
-  console.log(`\r\n From Wallet: ${signer.address}\r\n`);
+  console.log(`\r\n🏦 From Wallet: ${signer.address}\r\n`);
+  console.log(`\r\n📑 To Contract: ${contractAddress}\r\n`);
   
 
   // Select method using inquirer
@@ -145,7 +145,7 @@ export async function interactWithContract(params: InteractParams) {
       to: contractAddress,
       data: txData,
       value, // Only set value if applicable (undefined for non-payable functions)
-      gasPrice: BigInt(4e7), // 40 gwei
+      // gasPrice: BigInt(4e7), // 40 gwei
     });
 
     const receipt = await walletClient.waitForTransactionReceipt({ hash: tx });
