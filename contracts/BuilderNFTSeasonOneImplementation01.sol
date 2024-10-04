@@ -156,8 +156,8 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         _getBuilderIdForToken(tokenId);
     }
 
-    function getERC20ContractV2() external view returns (uint256) {
-      return MemoryUtils.getUint256(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
+    function getERC20ContractV2() external view returns (address) {
+      return MemoryUtils.getAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
     }
 
     function getTokenPurchasePrice(uint256 tokenId, uint256 amount) external view returns (uint256) {
