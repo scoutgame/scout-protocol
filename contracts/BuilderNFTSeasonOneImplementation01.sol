@@ -115,7 +115,19 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     }
 
     function mint(address account, uint256 tokenId, uint256 amount, string calldata scout) external {
-      revert("Minting by users currently on hold");
+      _validateMint(account, tokenId, scout);
+
+      uint256 price = _getTokenPurchasePrice(tokenId, amount);
+      address paymentToken = MemoryUtils.getAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
+      address proceedsReceiver = MemoryUtils.getAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT);
+
+      require(paymentToken != address(0), "Payment token not set");
+      require(proceedsReceiver != address(0), "Proceeds receiver not set");
+
+      // Transfer payment from user to proceeds receiver
+      IERC20(paymentToken).transferFrom(msg.sender, proceedsReceiver, price);
+
+      _mintTo(account, tokenId, amount, scout);
     }
 
     function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdmin {
@@ -123,12 +135,6 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     }
 
     function _mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) internal {
-        require(account != address(0), "Invalid account address");
-        require(_isValidUUID(scout), "Scout must be a valid UUID");
-
-        // Check the tokenId exists
-        _getBuilderIdForToken(tokenId);
-
         ImplementationStorage.Layout storage s = ImplementationStorage.layout();
 
         // Mint tokens
@@ -142,6 +148,16 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
 
         // Emit BuilderScouted event
         emit BuilderScouted(tokenId, amount, scout);
+    }
+
+    function _validateMint(address account, uint256 tokenId, string calldata scout) internal view {
+        require(account != address(0), "Invalid account address");
+        require(_isValidUUID(scout), "Scout must be a valid UUID");
+        _getBuilderIdForToken(tokenId);
+    }
+
+    function getERC20ContractV2() external view returns (uint256) {
+      return MemoryUtils.getUint256(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
     }
 
     function getTokenPurchasePrice(uint256 tokenId, uint256 amount) external view returns (uint256) {

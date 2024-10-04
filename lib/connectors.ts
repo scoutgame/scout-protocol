@@ -45,8 +45,8 @@ export const connectors = {
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
-    // seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
-    // devProxy: '0x1d305a06cb9dbdc32e08c3d230889acb9fe8a4dd'
+    seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
+    devProxy: '0x1d305a06cb9dbdc32e08c3d230889acb9fe8a4dd',
     testDevProxy: '0x2cba9c6e0c14da826b0ec689cabf02a6f6b9808e'
   } as Connector,
   sepolia: {
