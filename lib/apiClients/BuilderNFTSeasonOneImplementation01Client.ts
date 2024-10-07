@@ -1,6 +1,6 @@
 
   import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, TransactionReceipt, Transport, WalletActions, WalletClient } from 'viem';
-  import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
+  import { encodeFunctionData, decodeFunctionResult, getAddress, createPublicClient } from 'viem';
 
   // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
   //  https://github.com/wevm/viem/discussions/1463#discussioncomment-7504732
