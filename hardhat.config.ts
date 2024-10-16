@@ -14,11 +14,12 @@ import './scripts/deploy/deployCreate2Factory';
 import './scripts/deploy/deployLuckyStarCoin';
 import './scripts/deploy/deployStargateProtocol';
 import './scripts/deploy/deployBuilderNft';
+import './scripts/deploy/updateProxyImplementation';
 
 // Interactions
 import './scripts/interact/getUnclaimedBalance';
 import './scripts/interact/claimBalance';
-import './scripts/interact/builderNftApp'
+import './scripts/interact/builderNftApp';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 

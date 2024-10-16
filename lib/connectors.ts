@@ -27,7 +27,7 @@ type Connector = {
 
 export const connectors = {
   opsepolia: {
-    rpcUrl: 'https://opt-sepolia.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
+    rpcUrl: 'https://opt-sepolia.g.alchemy.com/v2/0rLYBVk_UG9HAInXCNbYMX-gO5t1UxCM',
     chain: optimismSepolia,
     easContract: '0x4200000000000000000000000000000000000021',
     luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
@@ -38,15 +38,15 @@ export const connectors = {
     // devProxy: '0x2f6093b70562729952bf379633dee3e89922d717'
   } as Connector,
   optimism: {
-    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
+    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/0rLYBVk_UG9HAInXCNbYMX-gO5t1UxCM',
     chain: optimism,
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
-    // seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
-    // devProxy: '0x1d305a06cb9dbdc32e08c3d230889acb9fe8a4dd'
+    seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
+    devProxy: '0x1d305a06cb9dbdc32e08c3d230889acb9fe8a4dd',
     testDevProxy: '0x2cba9c6e0c14da826b0ec689cabf02a6f6b9808e'
   } as Connector,
   sepolia: {

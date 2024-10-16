@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 import fs from 'node:fs';
 import { task } from 'hardhat/config';
 import path from 'node:path';
-import { createPublicClient, createWalletClient, encodeDeployData, http, parseAbiItem } from 'viem';
+import { createPublicClient, createWalletClient, encodeDeployData, http, isAddress, parseAbiItem } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { getConnectorFromHardhatRuntimeEnvironment, proceedsReceiver, getConnectorKey } from '../../lib/connectors';
 import inquirer from 'inquirer';
@@ -131,7 +131,31 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
     }
 
     // Prompt the user to update the implementation if the proxy already exists
-    if (connector.seasonOneProxy) {
+    if (connector.seasonOneProxy || connector.testDevProxy || connector.devProxy) {
+
+      const proxyOptions = [
+        {address: connector.seasonOneProxy, env: 'prod'},
+        {address: connector.devProxy, env: 'staging'},
+        {address: connector.testDevProxy, env: 'dev'}
+      ].filter(val => isAddress(val.address as any));
+
+
+      const { selectedProxy } = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'selectedProxy',
+          message: 'Select a proxy contract to use:',
+          choices: proxyOptions.map(opt => `${opt.env}:: ${opt.address!.slice(0, 6)}`),
+        },
+      ]);
+
+      const proxyToUpdate = proxyOptions.find(opt => opt.env === (selectedProxy as string).split('::').shift()?.trim() as string)?.address as `0x${string}`;
+
+      if (!isAddress(proxyToUpdate)) {
+        throw new Error(`Proxy ${proxyToUpdate} is not an address`)
+      }
+
+
       const { updateImplementation } = await inquirer.prompt([
         {
           type: 'confirm',
@@ -147,7 +171,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
         const proxyAbi = [parseAbiItem('function setImplementation(address _newImplementation)')];
 
         const txHash = await walletClient.writeContract({
-          address: proxyAddress,
+          address: proxyToUpdate,
           abi: proxyAbi,
           functionName: 'setImplementation',
           args: [implementationAddress],

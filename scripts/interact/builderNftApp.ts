@@ -18,16 +18,16 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
 
     if (connector.devProxy) {
           // Prompt the user to choose between admin functions or user functions
-      const { devOrReal } = await inquirer.prompt([
+      const { stgOrReal } = await inquirer.prompt([
         {
           type: 'list',
-          name: 'devOrReal',
-          message: 'Dev contract, or real contract?',
-          choices: [`Real ${connector.seasonOneProxy?.slice(0,6)} `, `Dev ${connector.devProxy.slice(0, 6)}`],
+          name: 'stgOrReal',
+          message: 'STG contract, or real contract?',
+          choices: [`Prod ${connector.seasonOneProxy?.slice(0,6)} `, `Stg ${connector.devProxy.slice(0, 6)}`],
         },
       ]);
 
-      if (String(devOrReal).startsWith('Dev')) {
+      if (String(stgOrReal).startsWith('Stg')) {
         mode = 'devProxy';
       } else {
         mode = 'realProxy'
