@@ -1,5 +1,7 @@
 import { vars } from 'hardhat/config';
 import type { HardhatUserConfig } from 'hardhat/config';
+import '@nomicfoundation/hardhat-ethers';
+
 import '@nomicfoundation/hardhat-toolbox-viem';
 import '@nomicfoundation/hardhat-ignition-viem';
 import '@nomicfoundation/hardhat-viem';

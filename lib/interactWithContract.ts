@@ -11,7 +11,7 @@ type InteractParams = {
   abi: any;
 }
 
-export async function interactWithContract(params: InteractParams) {
+export async function interactWithContract(params: InteractParams): Promise<void> {
   const {
     hre,
     contractAddress,
