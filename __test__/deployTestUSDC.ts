@@ -1,18 +1,9 @@
 import { viem } from 'hardhat';
 import { Address } from 'viem';
+import { GeneratedWallet, generateWallets } from './generateWallets';
 
-export async function generateWallets() {
-  const [adminAccount, userAccount, secondUserAccount, thirdUserAccount] = await viem.getWalletClients();
 
-  return {
-    adminAccount,
-    userAccount,
-    secondUserAccount,
-    thirdUserAccount
-  }
-}
 
-type GeneratedWallet = Awaited<ReturnType<typeof generateWallets>>['userAccount'];
 
 export async function deployTestUSDC({minterWallet}: {minterWallet?: GeneratedWallet } = {}) {
   // Step 1: Get Admin Wallet (this will be the admin for the USDC proxy)

@@ -1,4 +1,5 @@
-import { deployTestUSDC, generateWallets, USDCTestFixture } from "../testUtils";
+import { deployTestUSDC, USDCTestFixture } from "../deployTestUSDC";
+import { generateWallets } from "../generateWallets";
 
 
 
