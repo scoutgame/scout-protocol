@@ -5,7 +5,7 @@ import { deployTestUSDC } from "./deployTestUSDC";
 export async function deployContractFixtures() {
 
   const usdc = await deployTestUSDC()
-  const builderNft = await deployBuilderNftContract()
+  const builderNft = await deployBuilderNftContract({USDCContractAddress: usdc.USDC.address});
   // Return contracts and signers for tests
   return { usdc, builderNft};
 }

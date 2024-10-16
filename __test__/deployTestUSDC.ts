@@ -20,7 +20,7 @@ export async function deployTestUSDC({minterWallet}: {minterWallet?: GeneratedWa
     'contracts/FiatTokenV2_2/contracts/util/SignatureChecker.sol:SignatureChecker': SignatureChecker.address,
   }
 
-  // Step 2: Deploy the USDC Implementation Contract (FiatTokenV2_2)
+  // Step 3: Deploy the USDC Implementation Contract (FiatTokenV2_2)
   const USDCImplementation = await viem.deployContract('FiatTokenV2_2', undefined, {
     client: {wallet: adminAccount},
     libraries
@@ -29,19 +29,13 @@ export async function deployTestUSDC({minterWallet}: {minterWallet?: GeneratedWa
   const USDC_DECIMALS = 6;
 
 
-  // Minter can issue up to 1 Trillion USDC  (1e12 * 1e6 USDC_DECIMALS)
-  const minterAllowance =  BigInt(1e12) * BigInt(USDC_DECIMALS);
-
-  console.log('USDC Implementation deployed at:', USDCImplementation.address);
-
-  // Step 3: Deploy the USDC Proxy Contract (FiatTokenProxy)
+  // Step 4: Deploy the USDC Proxy Contract (FiatTokenProxy)
   const USDCProxy = await viem.deployContract('FiatTokenProxy', [USDCImplementation.address], {
     client: {wallet: adminAccount}
   });
 
-  console.log('USDC Proxy deployed at:', USDCProxy.address);
 
-  // Step 4: Initialize the USDC Proxy Contract with ABI
+  // Step 5: Initialize the USDC Proxy Contract with Implementation ABI
   const USDC = await viem.getContractAt('FiatTokenV2_2', USDCProxy.address, { client: { wallet: adminAccount } }); // Proxy using Implementation ABI
 
   // contracts/FiatTokenV2_2/contracts/v1/FiatTokenV1.sol #L69 function initialize()
@@ -64,9 +58,10 @@ export async function deployTestUSDC({minterWallet}: {minterWallet?: GeneratedWa
     minter.account.address
   ], {account: minter.account});
 
-  await USDC.write.configureMinter([minter.account.address, minterAllowance], {account: minter.account});
+  // Minter can issue up to 1 Trillion USDC  (1e12 * 1e6 USDC_DECIMALS)
+  const minterAllowance =  BigInt(1e12) * BigInt(USDC_DECIMALS);
 
-  console.log('USDC Proxy initialized.');
+  await USDC.write.configureMinter([minter.account.address, minterAllowance], {account: minter.account});
 
   const USDC_DECIMALS_MULTIPLIER = BigInt(10) ** BigInt(USDC_DECIMALS);
 
