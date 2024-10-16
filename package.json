@@ -22,6 +22,7 @@
     "@nomicfoundation/hardhat-viem": "^2.0.3",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "chai": "^4.4.1",
@@ -46,6 +47,7 @@
     "@types/jest": "^29.5.13",
     "hardhat-jest": "^1.0.8",
     "inquirer": "^11.0.1",
+    "uuid": "^10.0.0",
     "viem": "^2.21.9"
   },
   "overrides": {
