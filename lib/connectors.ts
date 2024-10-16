@@ -27,7 +27,7 @@ type Connector = {
 
 export const connectors = {
   opsepolia: {
-    rpcUrl: 'https://opt-sepolia.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
+    rpcUrl: 'https://opt-sepolia.g.alchemy.com/v2/0rLYBVk_UG9HAInXCNbYMX-gO5t1UxCM',
     chain: optimismSepolia,
     easContract: '0x4200000000000000000000000000000000000021',
     luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
@@ -38,7 +38,7 @@ export const connectors = {
     // devProxy: '0x2f6093b70562729952bf379633dee3e89922d717'
   } as Connector,
   optimism: {
-    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/vTjY0u9L7uoxZQ5GtOw4yKwn7WJelMXp',
+    rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/0rLYBVk_UG9HAInXCNbYMX-gO5t1UxCM',
     chain: optimism,
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
