@@ -38,7 +38,7 @@ describe('BuilderNFT Proxy', function () {
       });
   
       describe('permissions', function () {
-        it('Should NOT allow another user than the admin to change the implementation', async function () {
+        it('Should deny another user than the admin to change the implementation', async function () {
           const { builderNft: {builderProxyContract}  } = await loadContractFixtures();
   
           const {userAccount} = await generateWallets();
