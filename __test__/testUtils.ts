@@ -93,6 +93,14 @@ export async function deployTestUSDC({minterWallet}: {minterWallet?: GeneratedWa
     return Number(balance / USDC_DECIMALS_MULTIPLIER);
   }
 
+  async function approve({args: {spender, amount}, wallet}: {args: {spender: Address, amount: number}, wallet: GeneratedWallet}) {
+    await USDC.write.approve([spender, BigInt(amount) * USDC_DECIMALS_MULTIPLIER], {account: wallet.account});
+  }
+
+  async function transferFrom({args: {from, to, amount}, wallet}: {args: {from: Address, to: Address, amount: number}, wallet: GeneratedWallet}) {
+    await USDC.write.transferFrom([from, to, BigInt(amount) * USDC_DECIMALS_MULTIPLIER], {account: wallet.account});
+  }
+
   // Return the proxy with the implementation ABI attached
-  return { USDC, USDCImplementation, USDCProxy, USDCAdminAccount: adminAccount, USDCMinterAccount: minter, USDC_DECIMALS, USDC_DECIMALS_MULTIPLIER, mintUSDCTo: mintTo, transferUSDC: transfer, balanceOfUSDC: balanceOf };
+  return { USDC, USDCImplementation, USDCProxy, USDCAdminAccount: adminAccount, USDCMinterAccount: minter, USDC_DECIMALS, USDC_DECIMALS_MULTIPLIER, mintUSDCTo: mintTo, transferUSDC: transfer, balanceOfUSDC: balanceOf, approveUSDC: approve, transferUSDCFrom: transferFrom };
 }
