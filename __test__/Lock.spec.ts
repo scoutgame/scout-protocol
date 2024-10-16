@@ -60,6 +60,16 @@ describe('Lock', function () {
 
   describe('Withdrawals', function () {
     describe('Validations', function () {
+
+      it("Should withdraw funds if the unlockTime has arrived and the owner calls it", async function () {
+        const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
+
+        // Transactions are sent using the first signer by default
+        await time.increaseTo(unlockTime);
+
+        await expect(lock.write.withdraw()).resolves.toMatch('0x');
+      });
+
       it('Should revert with the right error if called too soon', async function () {
         const { lock } = await loadFixture(deployOneYearLockFixture);
 
@@ -79,14 +89,7 @@ describe('Lock', function () {
         await expect(lockAsOtherAccount.write.withdraw()).rejects.toThrow("You aren't the owner");
       });
 
-      it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
-        const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
 
-        // Transactions are sent using the first signer by default
-        await time.increaseTo(unlockTime);
-
-        await expect(lock.write.withdraw()).resolves.toMatch('0x');
-      });
     });
 
     describe('Events', function () {
