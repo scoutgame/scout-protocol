@@ -6,7 +6,7 @@ import { generateWallets } from '../generateWallets';
 describe('BuilderNFT Proxy', function () {
 
   
-  describe('constructor()', function () {
+  describe('constructor', function () {
     it('Should set the correct admin, implementation, and payment token', async function () {
       const { builderNft: {builderProxyContract, builderNftAdminAccount, builderImplementationContract, builderNftContract}, usdc: {USDC} } = await loadContractFixtures();
 
@@ -21,37 +21,40 @@ describe('BuilderNFT Proxy', function () {
 
   });
 
-  describe('setImplementation()', function () {
+  describe('write', function () {
+    describe('setImplementation()', function () {
 
-    describe('effects', function () {
-      it('Should allow the admin to change the implementation', async function () {
-        const { builderNft: {builderProxyContract}  } = await loadContractFixtures();
-  
-        const newImplementation = await viem.deployContract('BuilderNFTSeasonOneImplementation01');
-  
-        await expect(builderProxyContract.write.setImplementation([newImplementation.address])).resolves.toBeDefined();
-  
-        const updatedImplementation = await builderProxyContract.read.implementation();
-        expect(updatedImplementation).toBe(getAddress(newImplementation.address));
+      describe('effects', function () {
+        it('Should allow the admin to change the implementation', async function () {
+          const { builderNft: {builderProxyContract}  } = await loadContractFixtures();
+    
+          const newImplementation = await viem.deployContract('BuilderNFTSeasonOneImplementation01');
+    
+          await expect(builderProxyContract.write.setImplementation([newImplementation.address])).resolves.toBeDefined();
+    
+          const updatedImplementation = await builderProxyContract.read.implementation();
+          expect(updatedImplementation).toBe(getAddress(newImplementation.address));
+        });
       });
-    });
-
-    describe('permissions', function () {
-      it('Should NOT allow another user than the admin to change the implementation', async function () {
-        const { builderNft: {builderProxyContract}  } = await loadContractFixtures();
-
-        const {userAccount} = await generateWallets();
-
-        const currentImplementation = await builderProxyContract.read.implementation();
-
-        const newImplementation = await viem.deployContract('BuilderNFTSeasonOneImplementation01');
-
-        await expect(builderProxyContract.write.setImplementation([newImplementation.address], {account: userAccount.account})).rejects.toThrow('Proxy: caller is not the admin');
-
-        const updatedImplementation = await builderProxyContract.read.implementation();
-
-        expect(updatedImplementation).toBe(currentImplementation);
+  
+      describe('permissions', function () {
+        it('Should NOT allow another user than the admin to change the implementation', async function () {
+          const { builderNft: {builderProxyContract}  } = await loadContractFixtures();
+  
+          const {userAccount} = await generateWallets();
+  
+          const currentImplementation = await builderProxyContract.read.implementation();
+  
+          const newImplementation = await viem.deployContract('BuilderNFTSeasonOneImplementation01');
+  
+          await expect(builderProxyContract.write.setImplementation([newImplementation.address], {account: userAccount.account})).rejects.toThrow('Proxy: caller is not the admin');
+  
+          const updatedImplementation = await builderProxyContract.read.implementation();
+  
+          expect(updatedImplementation).toBe(currentImplementation);
+        });
       });
+  
     });
 
   });
