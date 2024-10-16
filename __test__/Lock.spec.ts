@@ -1,6 +1,6 @@
 import { time, loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
 import { viem } from 'hardhat';
-import { getAddress, parseGwei } from 'viem';
+import { getAddress, parseGwei, decodeEventLog } from 'viem';
 
 describe('Lock', function () {
   // We define a fixture to reuse the same setup in every test.
@@ -91,17 +91,32 @@ describe('Lock', function () {
 
     describe('Events', function () {
       it('Should emit an event on withdrawals', async function () {
-        const { lock, unlockTime, lockedAmount, publicClient } = await loadFixture(deployOneYearLockFixture);
+        const { lock, unlockTime, lockedAmount, publicClient, owner } = await loadFixture(deployOneYearLockFixture);
 
         await time.increaseTo(unlockTime);
 
         const hash = await lock.write.withdraw();
-        await publicClient.waitForTransactionReceipt({ hash });
+        const receipt = await publicClient.waitForTransactionReceipt({ hash });
 
-        // get the withdrawal events in the latest block
-        // const withdrawalEvents = await lock.getEvents.Withdrawal();
-        // expect(withdrawalEvents).toHaveLength(1);
-        // expect((withdrawalEvents[0].args as any).amount).toEqual(lockedAmount);
+        // Get the logs from the receipt
+        const logs = receipt.logs;
+
+        console.log({logs})
+
+        // Define the event signature for the Withdrawal event (you can get this from the ABI)
+        const eventSignature = 'Withdrawal(address,uint256)';
+
+        // Decode the event log
+        const decodedEvent = decodeEventLog({
+          abi: lock.abi, // Assuming lock.abi is available
+          data: logs[0].data,
+          topics: logs[0].topics,
+        });
+
+        // Assert the event emitted correctly
+        expect(decodedEvent.eventName).toBe('Withdrawal');
+        expect((decodedEvent.args as any).owner.toLowerCase()).toEqual(owner.account.address);
+        expect((decodedEvent.args as any).amount).toEqual(lockedAmount);
       });
     });
   });
