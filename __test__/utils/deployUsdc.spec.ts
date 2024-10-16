@@ -1,12 +1,18 @@
-import { deployTestUSDC, generateWallets } from "../testUtils";
+import { deployTestUSDC, generateWallets, USDCTestFixture } from "../testUtils";
 
 
 
 describe('deployUsdc', () => {
 
+  let usdc: USDCTestFixture;
+
+  beforeAll(async () => {
+    usdc = await deployTestUSDC();
+  });
+
   it('should deploy the USDC contract, with minting, approve, transfer and transferFrom enabled', async () => {
 
-    const { USDC, mintUSDCTo, transferUSDC, balanceOfUSDC, approveUSDC, transferUSDCFrom, USDC_DECIMALS_MULTIPLIER } = await deployTestUSDC();
+    const { mintUSDCTo, transferUSDC, balanceOfUSDC, approveUSDC, transferUSDCFrom } = usdc;
 
     const {userAccount, secondUserAccount} = await generateWallets()
   

@@ -104,3 +104,6 @@ export async function deployTestUSDC({minterWallet}: {minterWallet?: GeneratedWa
   // Return the proxy with the implementation ABI attached
   return { USDC, USDCImplementation, USDCProxy, USDCAdminAccount: adminAccount, USDCMinterAccount: minter, USDC_DECIMALS, USDC_DECIMALS_MULTIPLIER, mintUSDCTo: mintTo, transferUSDC: transfer, balanceOfUSDC: balanceOf, approveUSDC: approve, transferUSDCFrom: transferFrom };
 }
+
+
+export type USDCTestFixture = Awaited<ReturnType<typeof deployTestUSDC>>;
