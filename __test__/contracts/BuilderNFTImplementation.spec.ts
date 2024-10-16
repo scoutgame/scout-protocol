@@ -3,12 +3,11 @@ import { generateWallets } from "../generateWallets";
 import {v4 as uuid} from 'uuid';
 
 describe('BuilderNFTImplementation.sol', function () {
-
   describe('write', function () {
     describe('registerBuilderToken()', function () {
       describe('effects', function () {
 
-        it('Should allow the admin to register a builder token', async function () {
+        it('Register a new builder token using a builderId', async function () {
 
           const { builderNft: {builderNftContract} } = await loadContractFixtures();
 
@@ -21,7 +20,7 @@ describe('BuilderNFTImplementation.sol', function () {
       });
 
       describe('permissions', function () {
-        it('Should deny another user than the admin to register a builder token', async function () {
+        it('Only admin can register a builder token', async function () {
           const { builderNft: {builderNftContract} } = await loadContractFixtures();
   
           const {userAccount} = await generateWallets();
@@ -33,7 +32,7 @@ describe('BuilderNFTImplementation.sol', function () {
 
 
       describe('validations', function () {
-        it('Should revert if the builderId is already registered', async function () {
+        it('Revert if the builderId is already registered', async function () {
           const { builderNft: {builderNftContract} } = await loadContractFixtures();
   
           const builderId = uuid();
@@ -42,13 +41,13 @@ describe('BuilderNFTImplementation.sol', function () {
           await expect(builderNftContract.write.registerBuilderToken([builderId])).rejects.toThrow('Builder already registered');
         });
 
-        it('Should revert if the builderId is an empty string', async function () {
+        it('Revert if the builderId is empty', async function () {
           const { builderNft: {builderNftContract} } = await loadContractFixtures();
   
-          await expect(builderNftContract.write.registerBuilderToken([''])).rejects.toThrow('Builder ID must be a valid UUID');
+          await expect(builderNftContract.write.registerBuilderToken([null as any])).rejects.toThrow('Builder ID must be a valid UUID');
         });
 
-        it('Should revert if the builderId is an invalid uuid', async function () {
+        it('Revert if the builderId is an invalid uuid', async function () {
           const { builderNft: {builderNftContract} } = await loadContractFixtures();
   
           await expect(builderNftContract.write.registerBuilderToken([''])).rejects.toThrow('Builder ID must be a valid UUID');
@@ -57,7 +56,95 @@ describe('BuilderNFTImplementation.sol', function () {
 
     });
 
+    describe('mint()', function () {
+      describe('effects', function () {
+        it('Accept USDC and mint the requested amount of tokens for an NFT', async function () {
+          const { builderNft: {builderNftContract},  usdc: {USDC, mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER} } = await loadContractFixtures();
+
+          const {secondUserAccount} = await generateWallets();
+
+          const testUserAddress = secondUserAccount.account.address;
+
+          const builderId = uuid();
+          await builderNftContract.write.registerBuilderToken([builderId]);
+    
+          const scoutId = uuid()
+    
+          const price = await builderNftContract.read.getTokenPurchasePrice([BigInt(1), BigInt(10)]);
+
+          await mintUSDCTo({account: secondUserAccount.account.address, amount: Number(price / USDC_DECIMALS_MULTIPLIER) });
    
+          await approveUSDC({wallet: secondUserAccount, args: {spender: builderNftContract.address, amount: Number(price)}});
+    
+          await expect(builderNftContract.write.mint([testUserAddress, BigInt(1), BigInt(10), scoutId], { account: secondUserAccount.account }))
+            .resolves.toBeDefined();
+    
+          const balance = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
+          expect(balance).toBe(BigInt(10));
+        });
+      });
+
+      describe('permissions', function () {
+        it('Should revert if the caller has not provided USDC allowance to the contract', async function () {
+          const { builderNft: {builderNftContract},  usdc: {USDC, mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER} } = await loadContractFixtures();
+
+          const {secondUserAccount} = await generateWallets();
+
+          const testUserAddress = secondUserAccount.account.address;
+
+          const builderId = uuid();
+          await builderNftContract.write.registerBuilderToken([builderId]);
+    
+          const scoutId = uuid()
+    
+          const price = await builderNftContract.read.getTokenPurchasePrice([BigInt(1), BigInt(10)]);
+
+          // Same code as mint code, but we don't provide a usdc balance
+          await mintUSDCTo({account: secondUserAccount.account.address, amount: Number(price / USDC_DECIMALS_MULTIPLIER) });
+   
+          // Skip approval
+          // await approveUSDC({wallet: secondUserAccount, args: {spender: builderNftContract.address, amount: Number(price)}});
+    
+          await expect(builderNftContract.write.mint([testUserAddress, BigInt(1), BigInt(10), scoutId], { account: secondUserAccount.account }))
+            .rejects.toThrow('ERC20: transfer amount exceeds allowance');
+
+          // Check balance unchanged
+          const balance = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
+          expect(balance).toBe(BigInt(0));
+      });
+
+      });
+
+      describe('validations', function () {
+        it('Revert if the caller\'s USDC balance is insufficent', async function () {
+          const { builderNft: {builderNftContract},  usdc: {USDC, mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER} } = await loadContractFixtures();
+
+          const {secondUserAccount} = await generateWallets();
+
+          const testUserAddress = secondUserAccount.account.address;
+
+          const builderId = uuid();
+          await builderNftContract.write.registerBuilderToken([builderId]);
+    
+          const scoutId = uuid()
+    
+          const price = await builderNftContract.read.getTokenPurchasePrice([BigInt(1), BigInt(10)]);
+
+          // Same code as mint code, but we don't provide a usdc balance
+          // await mintUSDCTo({account: secondUserAccount.account.address, amount: Number(price / USDC_DECIMALS_MULTIPLIER) });
+   
+          // Important to still approve USDC, even if we don't have the balance to differentiate error messages
+          await approveUSDC({wallet: secondUserAccount, args: {spender: builderNftContract.address, amount: Number(price)}});
+    
+          await expect(builderNftContract.write.mint([testUserAddress, BigInt(1), BigInt(10), scoutId], { account: secondUserAccount.account }))
+            .rejects.toThrow('ERC20: transfer amount exceeds balance');
+
+          // Check balance unchanged
+          const balance = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
+          expect(balance).toBe(BigInt(0));
+        });
+      });
+    });
   });
 });
 
