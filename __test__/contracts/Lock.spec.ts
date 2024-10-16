@@ -2,7 +2,7 @@ import { time, loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network
 import { viem } from 'hardhat';
 import { getAddress, parseGwei, decodeEventLog } from 'viem';
 
-describe('Lock', function () {
+describe('Lock.sol', function () {
   // We define a fixture to reuse the same setup in every test.
   // We use loadFixture to run this setup once, snapshot that state,
   // and reset Hardhat Network to that snapshot in every test.

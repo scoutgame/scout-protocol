@@ -1,7 +1,7 @@
 import { time, loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
 import { viem, } from 'hardhat';
 import { parseGwei, decodeEventLog } from 'viem';
-import { NULL_ADDRESS } from '../lib/constants';
+import { NULL_ADDRESS } from '../../lib/constants';
 import {v4 as uuid} from 'uuid';
 
 describe('BuilderNFT Proxy and Implementation', function () {

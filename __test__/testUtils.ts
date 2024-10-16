@@ -1,12 +1,25 @@
 import { viem } from 'hardhat';
 
+export async function generateWallets() {
+  const [adminAccount, userAccount, secondUserAccount, thirdUserAccount] = await viem.getWalletClients();
+
+  return {
+    adminAccount,
+    userAccount,
+    secondUserAccount,
+    thirdUserAccount
+  }
+}
+
 async function deployUSDC() {
   // Step 1: Get Admin Wallet (this will be the admin for the USDC proxy)
-  const [admin] = await viem.getWalletClients();
+  const {adminAccount, userAccount} = await generateWallets();
+
+  console.log()
 
   // Step 2: Deploy required libraries
   const SignatureChecker = await viem.deployContract('SignatureChecker', undefined, {
-    client: admin.account.client as any
+    client: adminAccount.account.client as any
   });
 
   const libraries = {
@@ -15,7 +28,7 @@ async function deployUSDC() {
 
   // Step 2: Deploy the USDC Implementation Contract (FiatTokenV2_2)
   const USDCImplementation = await viem.deployContract('FiatTokenV2_2', undefined, {
-    client: admin.account.client as any,
+    client: adminAccount.account.client as any,
     libraries
   });
 
@@ -23,20 +36,21 @@ async function deployUSDC() {
 
   // Step 3: Deploy the USDC Proxy Contract (FiatTokenProxy)
   const USDCProxy = await viem.deployContract('FiatTokenProxy', [USDCImplementation.address], {
-    client: admin.account.client as any
+    client: adminAccount.account.client as any
   });
 
   console.log('USDC Proxy deployed at:', USDCProxy.address);
 
   // Step 4: Initialize the USDC Proxy Contract with ABI
-  const USDC = await viem.getContractAt('FiatTokenV2_2', USDCProxy.address, { client: { wallet: admin } }); // Proxy using Implementation ABI
+  const USDC = await viem.getContractAt('FiatTokenV2_2', USDCProxy.address, { client: { wallet: adminAccount } }); // Proxy using Implementation ABI
 
   console.log('USDC Proxy initialized.');
 
   // Return the proxy with the implementation ABI attached
-  return { USDC, USDCImplementation, USDCProxy, admin };
+  return { USDC, USDCImplementation, USDCProxy, USDCAdminAccount: adminAccount };
 }
 
-deployUSDC()
-  .then(({ USDC }) => console.log('USDC deployment successful', USDC.address))
-  .catch((err) => console.error('USDC deployment failed', err));
+async function test() {
+  const { USDC, USDCImplementation, USDCProxy, USDCAdminAccount } = await deployUSDC();
+
+}
