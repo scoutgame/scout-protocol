@@ -16,9 +16,11 @@
  * limitations under the License.
  */
 
+
+
 pragma solidity 0.6.12;
 
-import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+import { SafeMath } from "contracts/FiatTokenV2_2/@openzeppelin/contracts/math/SafeMath.sol";
 import { AbstractFiatTokenV1 } from "./AbstractFiatTokenV1.sol";
 import { Ownable } from "./Ownable.sol";
 import { Pausable } from "./Pausable.sol";

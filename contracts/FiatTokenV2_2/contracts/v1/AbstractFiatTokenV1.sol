@@ -18,7 +18,7 @@
 
 pragma solidity 0.6.12;
 
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC20 } from "contracts/FiatTokenV2_2/@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 abstract contract AbstractFiatTokenV1 is IERC20 {
     function _approve(
