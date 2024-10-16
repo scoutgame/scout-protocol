@@ -11,7 +11,7 @@ describe('deployUsdc', () => {
     usdc = await deployTestUSDC();
   });
 
-  it('should deploy the USDC contract, with minting, approve, transfer and transferFrom enabled', async () => {
+  it('should deploy the USDC contract, with minting, approve, transfer, balanceOf and transferFrom enabled', async () => {
 
     const { mintUSDCTo, transferUSDC, balanceOfUSDC, approveUSDC, transferUSDCFrom } = usdc;
 
