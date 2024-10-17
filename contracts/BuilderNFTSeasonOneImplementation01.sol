@@ -44,7 +44,7 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     constructor () {}
 
  
-    function setBaseUri(string memory newBaseUri) external {
+    function setBaseUri(string memory newBaseUri) external onlyAdmin() {
         _setBaseUri(newBaseUri);
     }
 
@@ -148,6 +148,7 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
 
 
     function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdmin {
+        _validateMint(account, tokenId, scout);
         _mintTo(account, tokenId, amount, scout);
     }
 
