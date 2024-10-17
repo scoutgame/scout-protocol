@@ -16,6 +16,8 @@ library ImplementationStorage {
         mapping(uint256 => string) tokenToBuilderRegistry;
         mapping(string => uint256) builderToTokenRegistry;
         string baseUri;
+        string uriPrefix;
+        string uriSuffix;
     }
 
     bytes32 internal constant STORAGE_SLOT = keccak256("builderNFT.implementation.storage");
@@ -237,17 +239,49 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
     }
 
-    function uri(uint256 _tokenId) external pure override returns (string memory) {
+    function setUriPrefix(string memory newPrefix) external onlyAdmin {
+        _setUriPrefix(newPrefix);
+    }
+
+    function _setUriPrefix(string memory newPrefix) internal {
+        require(bytes(newPrefix).length > 0, "Empty URI prefix not allowed");
+        ImplementationStorage.layout().uriPrefix = newPrefix;
+    }
+
+    function setUriSuffix(string memory newSuffix) external onlyAdmin {
+        _setUriSuffix(newSuffix);
+    }
+
+    function _setUriSuffix(string memory newSuffix) internal {
+        ImplementationStorage.layout().uriSuffix = newSuffix;
+    }
+
+    function getUriPrefix() external view returns (string memory) {
+        return ImplementationStorage.layout().uriPrefix;
+    }
+
+    function getUriSuffix() external view returns (string memory) {
+        return ImplementationStorage.layout().uriSuffix;
+    }
+
+    function uri(uint256 _tokenId) external view override returns (string memory) {
       return _tokenURI(_tokenId);
     }
 
     // OpenSea requires tokenURI
-    function tokenURI(uint256 _tokenId) external pure returns (string memory) {
+    function tokenURI(uint256 _tokenId) external view returns (string memory) {
         return _tokenURI(_tokenId);
     }
 
-    function _tokenURI(uint256 _tokenId) internal pure returns (string memory) {
-      return string(abi.encodePacked("https://nft.scoutgame.xyz/seasons/2024-W40/beta/", _uint2str(_tokenId), "/artwork.png"));
+    function _tokenURI(uint256 _tokenId) internal view returns (string memory) {
+        ImplementationStorage.Layout storage s = ImplementationStorage.layout();
+        return string(abi.encodePacked(
+            s.uriPrefix,
+            "/",
+            _uint2str(_tokenId),
+            "/",
+            s.uriSuffix
+        ));
     }
 
     // Utility function to convert uint to string
