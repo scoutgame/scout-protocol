@@ -144,18 +144,36 @@ describe('BuilderNFTImplementation.sol', function () {
     });
 
     describe('getTokenPurchasePrice()', function () {
-      it('Returns the correct price for purchasing a given amount of tokens', async function () {
-        const { builderNft: { builderNftContract } } = await loadContractFixtures();
+      it('Returns the correct price for purchasing a given amount of tokens, taking into account current supply and bonding curve formula of 2S + 2', async function () {
+        const { builderNft: { builderNftContract, builderNftAdminAccount } } = await loadContractFixtures();
+
+        const {userAccount} = await generateWallets();
 
         const builderId = uuid();
         await builderNftContract.write.registerBuilderToken([builderId]);
 
         const tokenId = BigInt(1);
-        const amount = BigInt(10);
 
-        const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, amount]);
+        const priceForOneToken = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(1)]);
 
-        expect(price).toBeGreaterThan(BigInt(0));
+        expect(priceForOneToken).toBe(BigInt(2e6));
+
+        const priceForTwoTokens = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(2)]);
+
+        expect(priceForTwoTokens).toBe(BigInt(6e6));
+
+        const priceForThreeTokens = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(3)]);
+
+        expect(priceForThreeTokens).toBe(BigInt(12e6));
+
+        const minted = BigInt(3);
+
+        await builderNftContract.write.mintTo([userAccount.account.address, tokenId, minted, builderId], { account: builderNftAdminAccount.account });
+
+        const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(1)]);
+
+        expect(price).toBe(BigInt(8e6));
+
       });
     });
 
