@@ -17,10 +17,12 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
 
     let mode: 'realProxy' | 'stgProxy' | 'devProxy' = 'realProxy';
 
-    const choices: string[] = [];
+    const choices: string[] = [`🟢 Prod ${connector.seasonOneProxy!.slice(0, 6)}`];
 
-    if (connector.seasonOneProxy && privateKeyToAccount(privateKey).address.startsWith('0x518')) {
-      choices.push(`🟢 Prod ${connector.seasonOneProxy!.slice(0, 6)}`);
+    if (privateKeyToAccount(privateKey).address.startsWith('0x518')) {
+      console.log('🟢 You are connected with the production wallet. Please be careful with the actions you perform.');
+    } else {
+      console.log('🟡 You are connected with the test wallet')
     }
 
     if (connector.devProxy) {
