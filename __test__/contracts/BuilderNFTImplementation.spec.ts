@@ -210,7 +210,7 @@ describe('BuilderNFTImplementation.sol', function () {
 
     describe('burn()', function () {
       describe('effects', function () {
-        it('Burns the specified amount of tokens from the account', async function () {
+        it('Burns the specified amount of tokens from the account, updating holder balance and total supply of a tokenID', async function () {
           const {
             builderNft: { builderNftContract },
             usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER },
@@ -248,6 +248,9 @@ describe('BuilderNFTImplementation.sol', function () {
 
           const balanceAfter = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
           expect(balanceAfter).toBe(BigInt(5));
+
+          const totalSupply = await builderNftContract.read.totalSupply([BigInt(1)]);
+          expect(totalSupply).toBe(BigInt(5));
         });
       });
 
