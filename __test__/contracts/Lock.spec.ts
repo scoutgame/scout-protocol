@@ -60,8 +60,7 @@ describe('Lock.sol', function () {
 
   describe('Withdrawals', function () {
     describe('Validations', function () {
-
-      it("Should withdraw funds if the unlockTime has arrived and the owner calls it", async function () {
+      it('Should withdraw funds if the unlockTime has arrived and the owner calls it', async function () {
         const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
 
         // Transactions are sent using the first signer by default
@@ -88,8 +87,6 @@ describe('Lock.sol', function () {
         });
         await expect(lockAsOtherAccount.write.withdraw()).rejects.toThrow("You aren't the owner");
       });
-
-
     });
 
     describe('Events', function () {
@@ -111,7 +108,7 @@ describe('Lock.sol', function () {
         const decodedEvent = decodeEventLog({
           abi: lock.abi, // Assuming lock.abi is available
           data: logs[0].data,
-          topics: logs[0].topics,
+          topics: logs[0].topics
         });
 
         // Assert the event emitted correctly

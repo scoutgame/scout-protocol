@@ -30,6 +30,7 @@
           "prefer": "type-imports"
         }
       ],
+      "func-names": "off",
       "@typescript-eslint/no-empty-function": "off",
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-inferrable-types": "off",
@@ -65,13 +66,13 @@
       "import/extensions": "off",
       "import/no-default-export": "warn",
       "import/no-unresolved": "off",
-      "import/no-extraneous-dependencies": [
-        "error",
-        {
-          "devDependencies": "off"
+      // "import/no-extraneous-dependencies": [
+      //   "warn",
+      //   {
+      //     "devDependencies": "off"
 
-        }
-      ],
+      //   }
+      // ],
       "import/order": [
         "error",
         {

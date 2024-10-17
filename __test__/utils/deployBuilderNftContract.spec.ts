@@ -1,13 +1,14 @@
-import { NULL_ADDRESS } from "../../lib/constants";
-import { deployBuilderNftContract } from "../deployBuilderNft";
-import { deployTestUSDC } from "../deployTestUSDC";
+import { NULL_ADDRESS } from '../../lib/constants';
+import { deployBuilderNftContract } from '../deployBuilderNft';
+import { deployTestUSDC } from '../deployTestUSDC';
 
 describe('Proxy and Initialization', function () {
   it('Should set the correct admin, implementation, and payment token', async function () {
+    const { USDC } = await deployTestUSDC();
 
-    const {USDC} = await deployTestUSDC()
-
-    const { builderProxyContract, builderNftContract, builderNftAdminAccount } = await deployBuilderNftContract({USDCContractAddress: USDC.address});
+    const { builderProxyContract, builderNftContract, builderNftAdminAccount } = await deployBuilderNftContract({
+      USDCContractAddress: USDC.address
+    });
 
     const proxyAdmin = await builderProxyContract.read.admin();
     const proxyImplementation = await builderProxyContract.read.implementation();
@@ -17,5 +18,4 @@ describe('Proxy and Initialization', function () {
     expect(proxyImplementation).not.toBe(NULL_ADDRESS);
     expect(erc20Contract.toLowerCase()).toBe(USDC.address);
   });
-
-})
+});

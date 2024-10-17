@@ -8,9 +8,8 @@ export async function generateWallets() {
     adminAccount: adminAccount.extend(publicActions),
     userAccount: userAccount.extend(publicActions),
     secondUserAccount: secondUserAccount.extend(publicActions),
-    thirdUserAccount: thirdUserAccount.extend(publicActions),
-  }
+    thirdUserAccount: thirdUserAccount.extend(publicActions)
+  };
 }
-
 
 export type GeneratedWallet = Awaited<ReturnType<typeof generateWallets>>['userAccount'];
