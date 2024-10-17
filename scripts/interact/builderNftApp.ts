@@ -14,7 +14,7 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
 
     const privateKey = process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY as `0x${string}` : `0x${process.env.PRIVATE_KEY}` as `0x${string}`;
 
-    let mode: 'realProxy' | 'devProxy' = 'realProxy';
+    let mode: 'realProxy' | 'stgProxy' | 'devProxy' = 'realProxy';
 
     if (connector.devProxy) {
           // Prompt the user to choose between admin functions or user functions
@@ -22,15 +22,17 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
         {
           type: 'list',
           name: 'stgOrReal',
-          message: 'STG contract, or real contract?',
-          choices: [`Prod ${connector.seasonOneProxy?.slice(0,6)} `, `Stg ${connector.devProxy.slice(0, 6)}`],
+          message: 'Choose environment',
+          choices: [`Prod ${connector.seasonOneProxy?.slice(0,6)} `, `Stg ${connector.devProxy.slice(0, 6)}`, `Dev ${connector.testDevProxy!.slice(0, 6)}`],
         },
       ]);
 
-      if (String(stgOrReal).startsWith('Stg')) {
-        mode = 'devProxy';
+      if (String(stgOrReal).startsWith('Prod')) {
+        mode = 'realProxy';
+      } else if (String(stgOrReal).startsWith('Stg')) {
+        mode = 'stgProxy';
       } else {
-        mode = 'realProxy'
+        mode = 'devProxy'
       }
     }
 
@@ -45,7 +47,7 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
       },
     ]);
 
-    let contractAddress = mode === 'devProxy' ? connector.devProxy : connector.seasonOneProxy;
+    let contractAddress = mode === 'realProxy' ? connector.seasonOneProxy : mode === 'stgProxy' ? connector.devProxy : connector.testDevProxy;
     let abi;
 
     if (!contractAddress) {
