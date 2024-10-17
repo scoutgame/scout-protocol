@@ -1,5 +1,7 @@
 import { vars } from 'hardhat/config';
 import type { HardhatUserConfig } from 'hardhat/config';
+import '@nomicfoundation/hardhat-ethers';
+
 import '@nomicfoundation/hardhat-toolbox-viem';
 import '@nomicfoundation/hardhat-ignition-viem';
 import '@nomicfoundation/hardhat-viem';
@@ -25,7 +27,22 @@ const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
 // Gas prices fetched from blockscout. Last refreshed Sep. 18th 2024
 const config: Omit<HardhatUserConfig, 'networks'> & {networks: Record<SupportedChains, NetworksUserConfig[string]>} = {
-  solidity: '0.8.26',
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.26", // Your contracts
+      },
+      {
+        version: "0.6.12", // USDC contracts
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      },
+    ],
+  },
   networks: {
     opsepolia: {
       url: connectors.opsepolia.rpcUrl,

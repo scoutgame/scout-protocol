@@ -2,7 +2,7 @@
   "name": "hardhat-project",
   "scripts": {
     "lint": "npx eslint . --fix",
-    "test": "npx hardhat test",
+    "test": "npm run compile && npx dotenv -e .env.test.local -- npx jest test --verbose",
     "script": "npx dotenv -e .env.local -- npx tsx",
     "setkey": "npx hardhat vars set PRIVATE_KEY",
     "compile": "npx hardhat compile",
@@ -18,9 +18,11 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
     "@nomicfoundation/hardhat-ethers": "^3.0.6",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-viem": "^2.0.3",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
+    "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",
     "chai": "^4.4.1",
@@ -42,8 +44,11 @@
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@pinata/sdk": "^2.1.0",
+    "@types/jest": "^29.5.13",
+    "dotenv-cli": "^7.4.2",
     "hardhat-jest": "^1.0.8",
     "inquirer": "^11.0.1",
+    "uuid": "^10.0.0",
     "viem": "^2.21.9"
   },
   "overrides": {

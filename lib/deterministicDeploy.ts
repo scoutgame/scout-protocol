@@ -15,7 +15,7 @@ type Factory = {
   stargateFactory: Address;
 }
 
-export const factories: Record<SupportedChains, Factory> = {
+export const factories: Record<Extract<SupportedChains, 'opsepolia' | 'sepolia'>, Factory> = {
   opsepolia: {
     stargateFactory: NULL_ADDRESS,
     tokenFactory: '0xcc572382158221b0baee53d6eb35b7c82de39b18'
@@ -34,7 +34,7 @@ export function getFactoryFromHardhatRuntimeEnvironment({hre, type}: {hre: Hardh
     throw new Error('No network specified')
   }
 
-  const factory = factories[chainName as SupportedChains];
+  const factory = factories[chainName as Extract<SupportedChains, 'opsepolia' | 'sepolia'>];
 
   if (!factory) {
     throw new Error(`Unsupported chain: ${chainName}`)

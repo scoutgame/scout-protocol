@@ -134,11 +134,15 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
     if (connector.seasonOneProxy || connector.testDevProxy || connector.devProxy) {
 
       const proxyOptions = [
-        {address: connector.seasonOneProxy, env: 'prod'},
         {address: connector.devProxy, env: 'staging'},
         {address: connector.testDevProxy, env: 'dev'}
       ].filter(val => isAddress(val.address as any));
 
+      if (privateKeyToAccount(PRIVATE_KEY).address.startsWith('0x518')) {
+        proxyOptions.push({address: connector.seasonOneProxy, env: 'prod'});
+      }
+
+      console.log('Proxy options:', proxyOptions);
 
       const { selectedProxy } = await inquirer.prompt([
         {

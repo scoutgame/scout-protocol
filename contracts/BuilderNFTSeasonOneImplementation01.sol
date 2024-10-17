@@ -44,7 +44,7 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     constructor () {}
 
  
-    function setBaseUri(string memory newBaseUri) external {
+    function setBaseUri(string memory newBaseUri) external onlyAdmin() {
         _setBaseUri(newBaseUri);
     }
 
@@ -130,7 +130,25 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
       _mintTo(account, tokenId, amount, scout);
     }
 
+    function burn(address account, uint256 tokenId, uint256 amount) external onlyAdmin {
+      ImplementationStorage.Layout storage s = ImplementationStorage.layout();
+
+      // Check that the account has enough tokens to burn
+      require(s.balances[tokenId][account] >= amount, "ERC1155: burn amount exceeds balance");
+
+      // Subtract the amount from the account's balance
+      s.balances[tokenId][account] -= amount;
+
+      // Decrease the total supply of the token
+      s.totalSupply[tokenId] -= amount;
+
+      // Emit TransferSingle event with the burn details
+      emit TransferSingle(msg.sender, account, address(0), tokenId, amount);
+    } 
+
+
     function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdmin {
+        _validateMint(account, tokenId, scout);
         _mintTo(account, tokenId, amount, scout);
     }
 

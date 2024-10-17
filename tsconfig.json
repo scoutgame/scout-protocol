@@ -9,6 +9,7 @@
     "resolveJsonModule": true,
     "paths": {
       "artifacts/*": ["./artifacts/*"]
-    }
+    },
+    "types": ["jest"]
   }
 }
