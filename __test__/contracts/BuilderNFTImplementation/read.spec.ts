@@ -324,10 +324,17 @@ describe('uri()', function () {
       builderNft: { builderNftContract }
     } = await loadContractFixtures();
 
+    const prefix = 'https://nft.scoutgame.xyz/seasons/2024-W40/beta';
+    const suffix = 'artwork.png';
     const tokenId = BigInt(1);
+
+    // Set the URI prefix and suffix
+    await builderNftContract.write.setUriPrefix([prefix]);
+    await builderNftContract.write.setUriSuffix([suffix]);
+
     const uri = await builderNftContract.read.uri([tokenId]);
 
-    const expectedUri = `https://nft.scoutgame.xyz/seasons/2024-W40/beta/${tokenId}/artwork.png`;
+    const expectedUri = `${prefix}/${tokenId}/${suffix}`;
     expect(uri).toBe(expectedUri);
   });
 });
@@ -338,10 +345,17 @@ describe('tokenURI()', function () {
       builderNft: { builderNftContract }
     } = await loadContractFixtures();
 
+    const prefix = 'https://nft.scoutgame.xyz/seasons/2024-W40/beta';
+    const suffix = 'artwork.png';
     const tokenId = BigInt(1);
+
+    // Set the URI prefix and suffix
+    await builderNftContract.write.setUriPrefix([prefix]);
+    await builderNftContract.write.setUriSuffix([suffix]);
+
     const uri = await builderNftContract.read.tokenURI([tokenId]);
 
-    const expectedUri = `https://nft.scoutgame.xyz/seasons/2024-W40/beta/${tokenId}/artwork.png`;
+    const expectedUri = `${prefix}/${tokenId}/${suffix}`;
     expect(uri).toBe(expectedUri);
   });
 });
