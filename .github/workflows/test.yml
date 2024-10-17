@@ -21,7 +21,6 @@ jobs:
     - uses: actions/setup-node@v2
       with:
         node-version: '20.11.0'
-    - run: npm ci --no-audit --no-fund
-    - run: npx dotenv -e .env.test.local -- npm run compile
+    - run: npm run setkey ea120e1a3d4cf134c082808b0c2dae5bc2921da97c903e850ac0d3a0c83d9e55
     - run: npm test
 
