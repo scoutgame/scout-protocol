@@ -484,8 +484,7 @@ describe('BuilderNFTImplementation.sol', function () {
       describe('validations', function () {
         it('Reverts when trying to burn more tokens than the account has', async function () {
           const {
-            builderNft: { builderNftContract },
-            usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER },
+            builderNft: { builderNftContract, builderNftAdminAccount }
           } = await loadContractFixtures();
 
           const { secondUserAccount } = await generateWallets();
@@ -495,26 +494,16 @@ describe('BuilderNFTImplementation.sol', function () {
           await builderNftContract.write.registerBuilderToken([builderId]);
 
           const scoutId = uuid();
-          const price = await builderNftContract.read.getTokenPurchasePrice([BigInt(1), BigInt(5)]);
-
-          await mintUSDCTo({
-            account: testUserAddress,
-            amount: Number(price / USDC_DECIMALS_MULTIPLIER),
-          });
-          await approveUSDC({
-            wallet: secondUserAccount,
-            args: { spender: builderNftContract.address, amount: Number(price) },
-          });
-
+    
           // Mint tokens to the user
-          await builderNftContract.write.mint(
+          await builderNftContract.write.mintTo(
             [testUserAddress, BigInt(1), BigInt(5), scoutId],
-            { account: secondUserAccount.account }
+            { account: builderNftAdminAccount.account }
           );
 
           // Try to burn more tokens than the user has
           await expect(
-            builderNftContract.write.burn([testUserAddress, BigInt(1), BigInt(10)])
+            builderNftContract.write.burn([testUserAddress, BigInt(1), BigInt(7)])
           ).rejects.toThrow('ERC1155: burn amount exceeds balance');
         });
       });

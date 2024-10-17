@@ -174,6 +174,13 @@ describe('BuilderNFTImplementation.sol', function () {
 
         expect(price).toBe(BigInt(8e6));
 
+        await builderNftContract.write.burn([userAccount.account.address, tokenId, BigInt(2)], { account: builderNftAdminAccount.account });
+
+        const priceAfterBurn = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(1)]);
+
+        // Burned 2 tokens, 1 token remains in supply (S) so the price should be 4e6, which is 2S + 2
+        expect(priceAfterBurn).toBe(BigInt(4e6));
+
       });
     });
 
