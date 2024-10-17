@@ -119,12 +119,12 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
       console.log("Proxy contract deployed at address:", proxyAddress);
 
 
-    // console.log('Verifying proxy contract with etherscan..')
-    // try {
-    //   execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${contractAddress} ${deployArgs.join(' ')}`)
-    // } catch (err) {
-    //   console.warn('Error verifying contract', err)
-    // }
+    console.log('Verifying proxy contract with etherscan..')
+    try {
+      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${contractAddress} ${deployArgs.join(' ')}`)
+    } catch (err) {
+      console.warn('Error verifying contract', err)
+    }
 
 
       fs.writeFileSync(path.resolve(__dirname, '..', '..', 'abis', 'BuilderNFTSeasonOneUpgradeableABI.json'), JSON.stringify(proxyArtifact.abi, null, 2));

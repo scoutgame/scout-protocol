@@ -17,33 +17,37 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI')
 
     let mode: 'realProxy' | 'stgProxy' | 'devProxy' = 'realProxy';
 
-    if (connector.devProxy) {
+    const choices: string[] = [];
 
-      const choices = [`🟡 Stg ${connector.devProxy!.slice(0, 6)}`, `🟡 Dev ${connector.testDevProxy!.slice(0, 6)}`];
-
-      if (privateKeyToAccount(privateKey).address.startsWith('0x518')) {
-        choices.splice(0, 0, `🟢 Prod ${connector.seasonOneProxy!.slice(0, 6)}`);
-      }
-
-          // Prompt the user to choose between admin functions or user functions
-      const { stgOrReal } = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'stgOrReal',
-          message: 'Choose environment',
-          choices
-        },
-      ]);
-
-      if (String(stgOrReal).startsWith('🟢 Prod')) {
-        mode = 'realProxy';
-      } else if (String(stgOrReal).startsWith('🟡 Stg')) {
-        mode = 'stgProxy';
-      } else {
-        mode = 'devProxy'
-      }
+    if (connector.seasonOneProxy && privateKeyToAccount(privateKey).address.startsWith('0x518')) {
+      choices.push(`🟢 Prod ${connector.seasonOneProxy!.slice(0, 6)}`);
     }
 
+    if (connector.devProxy) {
+      choices.push(`🟡 Stg ${connector.devProxy!.slice(0, 6)}`);
+    }
+
+    if (connector.testDevProxy) {
+      choices.push(`🟡 Dev ${connector.testDevProxy!.slice(0, 6)}`);
+    }
+
+    // Prompt the user to choose between admin functions or user functions
+    const { stgOrReal } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'stgOrReal',
+        message: 'Choose environment',
+        choices
+      },
+    ]);
+
+    if (String(stgOrReal).startsWith('🟢 Prod')) {
+      mode = 'realProxy';
+    } else if (String(stgOrReal).startsWith('🟡 Stg')) {
+      mode = 'stgProxy';
+    } else {
+      mode = 'devProxy'
+    }
 
     // Prompt the user to choose between admin functions or user functions
     const { functionType } = await inquirer.prompt([
