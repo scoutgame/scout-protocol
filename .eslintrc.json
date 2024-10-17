@@ -66,13 +66,7 @@
       "import/extensions": "off",
       "import/no-default-export": "warn",
       "import/no-unresolved": "off",
-      // "import/no-extraneous-dependencies": [
-      //   "warn",
-      //   {
-      //     "devDependencies": "off"
-
-      //   }
-      // ],
+      "import/no-extraneous-dependencies": "off",
       "import/order": [
         "error",
         {

@@ -1,4 +1,5 @@
 import { viem } from 'hardhat';
+import { v4 as uuid } from 'uuid';
 import { getAddress } from 'viem';
 
 import { loadContractFixtures } from '../fixtures';
@@ -38,6 +39,40 @@ describe('BuilderNFT Proxy', function () {
 
           const updatedImplementation = await builderProxyContract.read.implementation();
           expect(updatedImplementation).toBe(getAddress(newImplementation.address));
+        });
+
+        it('Should preserve state between implementation changes', async function () {
+          const {
+            builderNft: { builderProxyContract, builderNftContract }
+          } = await loadContractFixtures();
+
+          const { userAccount } = await generateWallets();
+
+          // Create 3 builder tokens
+          await builderNftContract.write.registerBuilderToken([uuid()]);
+
+          await builderNftContract.write.registerBuilderToken([uuid()]);
+
+          await builderNftContract.write.registerBuilderToken([uuid()]);
+
+          const tokenId = BigInt(2);
+
+          const tokensBought = BigInt(7);
+
+          const scoutId = uuid();
+
+          await builderNftContract.write.mintTo([userAccount.account.address, tokenId, tokensBought, scoutId]);
+
+          const newImplementation = await viem.deployContract('BuilderNFTSeasonOneImplementation01');
+
+          await builderProxyContract.write.setImplementation([newImplementation.address]);
+
+          const updatedImplementation = await builderProxyContract.read.implementation();
+          expect(updatedImplementation).toBe(getAddress(newImplementation.address));
+
+          const balance = await builderNftContract.read.balanceOf([userAccount.account.address, tokenId]);
+
+          expect(balance).toBe(tokensBought);
         });
       });
 
