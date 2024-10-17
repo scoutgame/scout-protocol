@@ -2,7 +2,7 @@
   "name": "hardhat-project",
   "scripts": {
     "lint": "npx eslint . --fix",
-    "test": "npx hardhat test",
+    "test": "dotenv -e .env.test.local -- npx jest test",
     "script": "npx dotenv -e .env.local -- npx tsx",
     "setkey": "npx hardhat vars set PRIVATE_KEY",
     "compile": "npx hardhat compile",
