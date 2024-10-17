@@ -314,7 +314,7 @@ describe('BuilderNFTImplementation.sol', function () {
       });
 
       describe('permissions', function () {
-        it('Deny other users than admin from setting the base URI', async function () {
+        it('Only admin can set the base URI', async function () {
           const { builderNft: { builderNftContract } } = await loadContractFixtures();
 
           const { userAccount } = await generateWallets();
@@ -378,6 +378,66 @@ describe('BuilderNFTImplementation.sol', function () {
 
           const totalSupply = await builderNftContract.read.totalSupply([BigInt(1)]);
           expect(totalSupply).toBe(BigInt(5));
+        });
+      });
+
+      // Events tests for 'burn()' method
+      describe('events', function () {
+        it('Emits TransferSingle event with correct parameters when burning tokens', async function () {
+          const {
+            builderNft: { builderNftContract, builderNftAdminAccount: account },
+            usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER },
+          } = await loadContractFixtures();
+
+          const { secondUserAccount } = await generateWallets();
+          const testUserAddress = secondUserAccount.account.address;
+
+          const builderId = uuid();
+          await builderNftContract.write.registerBuilderToken([builderId]);
+
+          const scoutId = uuid();
+          const tokenId = BigInt(1);
+          const amount = BigInt(10);
+
+          const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, amount]);
+
+          await mintUSDCTo({
+            account: testUserAddress,
+            amount: Number(price / USDC_DECIMALS_MULTIPLIER),
+          });
+
+          await approveUSDC({
+            wallet: secondUserAccount,
+            args: { spender: builderNftContract.address, amount: Number(price) },
+          });
+
+          // Mint tokens to the user
+          await builderNftContract.write.mint(
+            [testUserAddress, tokenId, amount, scoutId],
+            { account: secondUserAccount.account }
+          );
+
+          // Burn tokens from the user (admin call)
+          const txResponse = await builderNftContract.write.burn([testUserAddress, tokenId, BigInt(5)]);
+
+          // Extract logs and parse events
+          const receipt = await account.getTransactionReceipt({ hash: txResponse });
+
+          const parsedLogs = parseEventLogs({
+            abi: builderNftContract.abi,
+            logs: receipt.logs,
+            eventName: ['TransferSingle'],
+          });
+
+          // Check for TransferSingle event
+          const burnEvent = parsedLogs.find((log) => log.eventName === 'TransferSingle');
+          expect(burnEvent).toBeDefined();
+
+          expect(burnEvent!.args.operator).toEqual(getAddress(account.account.address));
+          expect(burnEvent!.args.from).toEqual(getAddress(testUserAddress));
+          expect(burnEvent!.args.to).toEqual('0x0000000000000000000000000000000000000000');
+          expect(burnEvent!.args.id).toEqual(tokenId);
+          expect(burnEvent!.args.value).toEqual(BigInt(5));
         });
       });
 
@@ -480,6 +540,78 @@ describe('BuilderNFTImplementation.sol', function () {
 
           const balance = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
           expect(balance).toBe(BigInt(10));
+        });
+      });
+
+      describe('events', function () {
+        it('Emits TransferSingle event with correct parameters', async function () {
+          const { builderNft: { builderNftContract, builderNftAdminAccount: account } } = await loadContractFixtures();
+      
+          const { secondUserAccount } = await generateWallets();
+          const testUserAddress = secondUserAccount.account.address;
+      
+          const builderId = uuid();
+          await builderNftContract.write.registerBuilderToken([builderId]);
+      
+          const scoutId = uuid();
+          const tokenId = BigInt(1);
+          const amount = BigInt(10);
+      
+          // Admin mints tokens to the user
+          const txResponse = await builderNftContract.write.mintTo([testUserAddress, tokenId, amount, scoutId]);
+      
+          // Extract logs and parse events
+          const receipt = await account.getTransactionReceipt({ hash: txResponse });
+      
+          const parsedLogs = parseEventLogs({
+            abi: builderNftContract.abi,
+            logs: receipt.logs,
+            eventName: ['TransferSingle'],
+          });
+      
+          // Check for TransferSingle event
+          const transferEvent = parsedLogs.find((log) => log.eventName === 'TransferSingle');
+          expect(transferEvent).toBeDefined();
+      
+          expect(transferEvent!.args.operator).toEqual(getAddress(account.account.address));
+          expect(transferEvent!.args.from).toEqual('0x0000000000000000000000000000000000000000');
+          expect(transferEvent!.args.to).toEqual(getAddress(testUserAddress));
+          expect(transferEvent!.args.id).toEqual(tokenId);
+          expect(transferEvent!.args.value).toEqual(amount);
+        });
+      
+        it('Emits BuilderScouted event with correct parameters', async function () {
+          const { builderNft: { builderNftContract, builderNftAdminAccount: account } } = await loadContractFixtures();
+      
+          const { secondUserAccount } = await generateWallets();
+          const testUserAddress = secondUserAccount.account.address;
+      
+          const builderId = uuid();
+          await builderNftContract.write.registerBuilderToken([builderId]);
+      
+          const scoutId = uuid();
+          const tokenId = BigInt(1);
+          const amount = BigInt(10);
+      
+          // Admin mints tokens to the user
+          const txResponse = await builderNftContract.write.mintTo([testUserAddress, tokenId, amount, scoutId]);
+      
+          // Extract logs and parse events
+          const receipt = await account.getTransactionReceipt({ hash: txResponse });
+      
+          const parsedLogs = parseEventLogs({
+            abi: builderNftContract.abi,
+            logs: receipt.logs,
+            eventName: ['BuilderScouted'],
+          });
+      
+          // Check for BuilderScouted event
+          const scoutedEvent = parsedLogs.find((log) => log.eventName === 'BuilderScouted');
+          expect(scoutedEvent).toBeDefined();
+      
+          expect(scoutedEvent!.args.tokenId).toEqual(tokenId);
+          expect(scoutedEvent!.args.amount).toEqual(amount);
+          expect(scoutedEvent!.args.scout).toEqual(scoutId);
         });
       });
 
