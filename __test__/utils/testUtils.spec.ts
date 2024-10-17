@@ -1,4 +1,4 @@
-import {generateWallets} from '../deployTestUSDC'
+import {generateWallets} from '../generateWallets';
 
 describe('generateWallets', () => {
 

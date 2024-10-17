@@ -1,4 +1,4 @@
-import { getAddress } from "viem";
+import { getAddress, parseEventLogs } from "viem";
 import { loadContractFixtures } from "../fixtures";
 import { generateWallets } from "../generateWallets";
 import { v4 as uuid } from 'uuid';
@@ -15,6 +15,27 @@ describe('BuilderNFTImplementation.sol', function () {
 
           const tokenId = await builderNftContract.read.getBuilderIdForToken([BigInt(1)]);
           expect(tokenId).toBe(builderId);
+        });
+      });
+
+      describe('events', function () {
+        it('Emits BuilderTokenRegistered event new tokenId and builderId', async function () {
+          const { builderNft: { builderNftContract, builderNftAdminAccount: account } } = await loadContractFixtures();
+      
+          const builderId = uuid(); // Sample UUID
+          const txResponse = await builderNftContract.write.registerBuilderToken([builderId]);
+      
+          // Extract logs and parse events
+          const receipt = await account.getTransactionReceipt({hash: txResponse});
+
+          const parsedLogs = parseEventLogs({ abi: builderNftContract.abi, logs: receipt.logs, eventName: ['BuilderTokenRegistered'] });
+
+          const decodedEvent = parsedLogs.find((log) => log.eventName === 'BuilderTokenRegistered');
+
+          expect(decodedEvent).toBeDefined();
+
+          expect(decodedEvent!.args.tokenId).toEqual(BigInt(1));
+          expect(decodedEvent!.args.builderId).toEqual(builderId);
         });
       });
 
@@ -98,6 +119,112 @@ describe('BuilderNFTImplementation.sol', function () {
 
           const balance = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
           expect(balance).toBe(BigInt(10));
+        });
+      });
+
+      describe('events', function () {
+        it('Emits standard ERC1155 "TransferSingle" event', async function () {
+          const {
+            builderNft: { builderNftContract },
+            usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER },
+          } = await loadContractFixtures();
+      
+          const { secondUserAccount } = await generateWallets();
+          const testUserAddress = secondUserAccount.account.address;
+      
+          const builderId = uuid();
+          await builderNftContract.write.registerBuilderToken([builderId]);
+      
+          const scoutId = uuid();
+          const tokenId = BigInt(1);
+          const amount = BigInt(10);
+      
+          const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, amount]);
+      
+          await mintUSDCTo({
+            account: testUserAddress,
+            amount: Number(price / USDC_DECIMALS_MULTIPLIER),
+          });
+      
+          await approveUSDC({
+            wallet: secondUserAccount,
+            args: { spender: builderNftContract.address, amount: Number(price) },
+          });
+      
+          const txResponse = await builderNftContract.write.mint(
+            [testUserAddress, tokenId, amount, scoutId],
+            { account: secondUserAccount.account }
+          );
+      
+          // Extract logs and parse events
+          const receipt = await secondUserAccount.getTransactionReceipt({ hash: txResponse });
+      
+          const parsedLogs = parseEventLogs({
+            abi: builderNftContract.abi,
+            logs: receipt.logs,
+            eventName: ['TransferSingle'],
+          });
+      
+          // Check for TransferSingle event
+          const transferEvent = parsedLogs.find((log) => log.eventName === 'TransferSingle');
+          expect(transferEvent).toBeDefined();
+      
+          expect(transferEvent!.args.operator).toEqual(getAddress(secondUserAccount.account.address));
+          expect(transferEvent!.args.from).toEqual('0x0000000000000000000000000000000000000000');
+          expect(transferEvent!.args.to).toEqual(getAddress(testUserAddress));
+          expect(transferEvent!.args.id).toEqual(tokenId);
+          expect(transferEvent!.args.value).toEqual(amount);
+        });
+      
+        it('Emits BuilderScouted event with tokenId (number), amount of tokens purchased (), and scoutId (uuid)', async function () {
+          const {
+            builderNft: { builderNftContract },
+            usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER },
+          } = await loadContractFixtures();
+      
+          const { secondUserAccount } = await generateWallets();
+          const testUserAddress = secondUserAccount.account.address;
+      
+          const builderId = uuid();
+          await builderNftContract.write.registerBuilderToken([builderId]);
+      
+          const scoutId = uuid();
+          const tokenId = BigInt(1);
+          const amount = BigInt(10);
+      
+          const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, amount]);
+      
+          await mintUSDCTo({
+            account: testUserAddress,
+            amount: Number(price / USDC_DECIMALS_MULTIPLIER),
+          });
+      
+          await approveUSDC({
+            wallet: secondUserAccount,
+            args: { spender: builderNftContract.address, amount: Number(price) },
+          });
+      
+          const txResponse = await builderNftContract.write.mint(
+            [testUserAddress, tokenId, amount, scoutId],
+            { account: secondUserAccount.account }
+          );
+      
+          // Extract logs and parse events
+          const receipt = await secondUserAccount.getTransactionReceipt({ hash: txResponse });
+      
+          const parsedLogs = parseEventLogs({
+            abi: builderNftContract.abi,
+            logs: receipt.logs,
+            eventName: ['BuilderScouted'],
+          });
+      
+          // Check for BuilderScouted event
+          const scoutedEvent = parsedLogs.find((log) => log.eventName === 'BuilderScouted');
+          expect(scoutedEvent).toBeDefined();
+      
+          expect(scoutedEvent!.args.tokenId).toEqual(tokenId);
+          expect(scoutedEvent!.args.amount).toEqual(amount);
+          expect(scoutedEvent!.args.scout).toEqual(scoutId);
         });
       });
 

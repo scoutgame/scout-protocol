@@ -1,11 +1,12 @@
 import { viem, } from 'hardhat';
 import { Address } from 'viem';
 import { deployTestUSDC } from './deployTestUSDC';
+import { generateWallets } from './generateWallets';
 
 
 
 export async function deployBuilderNftContract({USDCContractAddress}: {USDCContractAddress?: Address} = {}) {
-  const [admin, user, otherAccount] = await viem.getWalletClients();
+  const {adminAccount: admin,  userAccount: otherAccount} = await generateWallets();
 
   const memoryUtils = await viem.deployContract('MemoryUtils');
 

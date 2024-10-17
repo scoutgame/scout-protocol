@@ -104,8 +104,6 @@ describe('Lock.sol', function () {
         // Get the logs from the receipt
         const logs = receipt.logs;
 
-        console.log({logs})
-
         // Define the event signature for the Withdrawal event (you can get this from the ABI)
         const eventSignature = 'Withdrawal(address,uint256)';
 

@@ -1,13 +1,14 @@
 import { viem } from 'hardhat';
+import { publicActions } from 'viem';
 
 export async function generateWallets() {
   const [adminAccount, userAccount, secondUserAccount, thirdUserAccount] = await viem.getWalletClients();
 
   return {
-    adminAccount,
-    userAccount,
-    secondUserAccount,
-    thirdUserAccount
+    adminAccount: adminAccount.extend(publicActions),
+    userAccount: userAccount.extend(publicActions),
+    secondUserAccount: secondUserAccount.extend(publicActions),
+    thirdUserAccount: thirdUserAccount.extend(publicActions),
   }
 }
 
