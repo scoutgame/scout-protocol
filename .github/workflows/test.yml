@@ -22,6 +22,6 @@ jobs:
       with:
         node-version: '20.11.0'
     - run: npm ci --no-audit --no-fund
-    - run: dotenv -e .env.test.local -- npm run compile
+    - run: npx dotenv -e .env.test.local -- npm run compile
     - run: npm test
 
