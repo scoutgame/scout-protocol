@@ -239,6 +239,15 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
     }
 
+    function setUriPrefixAndSuffix(string memory newPrefix, string memory newSuffix) external onlyAdmin {
+        _setUriPrefixAndSuffix(newPrefix, newSuffix);
+    }
+
+    function _setUriPrefixAndSuffix(string memory newPrefix, string memory newSuffix) internal {
+        _setUriPrefix(newPrefix);
+        _setUriSuffix(newSuffix);
+    }
+
     function setUriPrefix(string memory newPrefix) external onlyAdmin {
         _setUriPrefix(newPrefix);
     }
@@ -257,30 +266,36 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     }
 
     function getUriPrefix() external view returns (string memory) {
+        return _getUriPrefix();
+    }
+
+    function _getUriPrefix() internal view returns (string memory) {
         return ImplementationStorage.layout().uriPrefix;
     }
 
     function getUriSuffix() external view returns (string memory) {
+        return _getUriSuffix();
+    }
+
+    function _getUriSuffix() internal view returns (string memory) {
         return ImplementationStorage.layout().uriSuffix;
     }
 
     function uri(uint256 _tokenId) external view override returns (string memory) {
-      return _tokenURI(_tokenId);
+        return _tokenURI(_tokenId);
     }
 
-    // OpenSea requires tokenURI
     function tokenURI(uint256 _tokenId) external view returns (string memory) {
         return _tokenURI(_tokenId);
     }
 
     function _tokenURI(uint256 _tokenId) internal view returns (string memory) {
-        ImplementationStorage.Layout storage s = ImplementationStorage.layout();
         return string(abi.encodePacked(
-            s.uriPrefix,
+            _getUriPrefix(),
             "/",
             _uint2str(_tokenId),
             "/",
-            s.uriSuffix
+            _getUriSuffix()
         ));
     }
 
