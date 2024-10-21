@@ -768,3 +768,79 @@ describe('setUriSuffix()', function () {
     });
   });
 });
+
+describe('setUriPrefixAndSuffix()', function () {
+  describe('effects', function () {
+    it('Updates both URI prefix and suffix when called with valid values', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const newPrefix = 'https://newprefix.uri/';
+      const newSuffix = 'metadata.json';
+      await expect(builderNftContract.write.setUriPrefixAndSuffix([newPrefix, newSuffix])).resolves.toBeDefined();
+
+      const updatedPrefix = await builderNftContract.read.getUriPrefix();
+      const updatedSuffix = await builderNftContract.read.getUriSuffix();
+      expect(updatedPrefix).toBe(newPrefix);
+      expect(updatedSuffix).toBe(newSuffix);
+    });
+  });
+
+  describe('permissions', function () {
+    it('Only admin can set both URI prefix and suffix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const { userAccount } = await generateWallets();
+
+      const newPrefix = 'https://newprefix.uri/';
+      const newSuffix = 'metadata.json';
+      await expect(
+        builderNftContract.write.setUriPrefixAndSuffix([newPrefix, newSuffix], { account: userAccount.account })
+      ).rejects.toThrow('Proxy: caller is not the admin');
+
+      // Verify the prefix and suffix haven't changed
+      const currentPrefix = await builderNftContract.read.getUriPrefix();
+      const currentSuffix = await builderNftContract.read.getUriSuffix();
+      expect(currentPrefix).not.toBe(newPrefix);
+      expect(currentSuffix).not.toBe(newSuffix);
+    });
+  });
+
+  describe('validations', function () {
+    it('Reverts when called with an empty newPrefix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const initialPrefix = await builderNftContract.read.getUriPrefix();
+      const initialSuffix = await builderNftContract.read.getUriSuffix();
+
+      await expect(builderNftContract.write.setUriPrefixAndSuffix(['', 'metadata.json'])).rejects.toThrow(
+        'Empty URI prefix not allowed'
+      );
+
+      // Verify the prefix and suffix haven't changed
+      const currentPrefix = await builderNftContract.read.getUriPrefix();
+      const currentSuffix = await builderNftContract.read.getUriSuffix();
+      expect(currentPrefix).toBe(initialPrefix);
+      expect(currentSuffix).toBe(initialSuffix);
+    });
+
+    it('Allows setting an empty URI suffix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const newPrefix = 'https://newprefix.uri/';
+      await expect(builderNftContract.write.setUriPrefixAndSuffix([newPrefix, ''])).resolves.toBeDefined();
+
+      const updatedPrefix = await builderNftContract.read.getUriPrefix();
+      const updatedSuffix = await builderNftContract.read.getUriSuffix();
+      expect(updatedPrefix).toBe(newPrefix);
+      expect(updatedSuffix).toBe('');
+    });
+  });
+});
