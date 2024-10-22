@@ -135,6 +135,45 @@ describe('mint()', function () {
       const balance = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
       expect(balance).toBe(BigInt(10));
     });
+
+    it('Forwards the full fees of the mint to the proceeds receiver', async function () {
+      const {
+        builderNft: { builderNftContract, proceedsReceiverAccount },
+        usdc: { mintUSDCTo, approveUSDC, balanceOfUSDC, USDC_DECIMALS_MULTIPLIER }
+      } = await loadContractFixtures();
+
+      const { secondUserAccount } = await generateWallets();
+
+      const testUserAddress = secondUserAccount.account.address;
+
+      const builderId = uuid();
+      await builderNftContract.write.registerBuilderToken([builderId]);
+
+      const scoutId = uuid();
+
+      const price = await builderNftContract.read.getTokenPurchasePrice([BigInt(1), BigInt(10)]);
+
+      await mintUSDCTo({
+        account: secondUserAccount.account.address,
+        amount: Number(price / USDC_DECIMALS_MULTIPLIER)
+      });
+
+      await approveUSDC({
+        wallet: secondUserAccount,
+        args: { spender: builderNftContract.address, amount: Number(price) }
+      });
+
+      await builderNftContract.write.mint([testUserAddress, BigInt(1), BigInt(10), scoutId], {
+        account: secondUserAccount.account
+      });
+
+      const contractBalance = await balanceOfUSDC({ account: builderNftContract.address });
+
+      const proceedsReceiverBalance = await balanceOfUSDC({ account: proceedsReceiverAccount.account.address });
+
+      expect(contractBalance).toBe(0);
+      expect(proceedsReceiverBalance).toBe(Number(price / USDC_DECIMALS_MULTIPLIER));
+    });
   });
 
   describe('events', function () {
@@ -626,7 +665,7 @@ describe('mintTo()', function () {
   });
 
   describe('permissions', function () {
-    it('Only admin can mint tokens to an account', async function () {
+    it('Admin can mint tokens to an account', async function () {
       const {
         builderNft: { builderNftContract }
       } = await loadContractFixtures();
@@ -645,6 +684,38 @@ describe('mintTo()', function () {
           account: secondUserAccount.account
         })
       ).rejects.toThrow('Proxy: caller is not the admin');
+    });
+
+    it('Minter can mint tokens to an account', async function () {
+      const {
+        builderNft: { builderNftContract, builderNftAdminAccount }
+      } = await loadContractFixtures();
+
+      const { secondUserAccount, thirdUserAccount: minterAccount } = await generateWallets();
+      const testUserAddress = secondUserAccount.account.address;
+
+      const builderId = uuid();
+      await builderNftContract.write.registerBuilderToken([builderId]);
+
+      const scoutId = uuid();
+
+      await builderNftContract.write.setMinter([minterAccount.account.address]);
+
+      await expect(
+        builderNftContract.write.mintTo([testUserAddress, BigInt(1), BigInt(5), scoutId], {
+          account: builderNftAdminAccount.account
+        })
+      ).resolves.toBeDefined();
+
+      await expect(
+        builderNftContract.write.mintTo([testUserAddress, BigInt(1), BigInt(10), scoutId], {
+          account: minterAccount.account
+        })
+      ).resolves.toBeDefined();
+
+      const balance = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
+
+      expect(balance).toBe(BigInt(15));
     });
   });
 
@@ -666,6 +737,226 @@ describe('mintTo()', function () {
       await expect(
         builderNftContract.write.mintTo([testUserAddress, BigInt(1), BigInt(10), invalidScoutId])
       ).rejects.toThrow('Scout must be a valid UUID');
+    });
+  });
+});
+
+describe('setUriPrefix()', function () {
+  describe('effects', function () {
+    it('Updates the URI prefix when called with a valid newPrefix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const newPrefix = 'https://newprefix.uri/';
+      await expect(builderNftContract.write.setUriPrefix([newPrefix])).resolves.toBeDefined();
+
+      const updatedPrefix = await builderNftContract.read.getUriPrefix();
+      expect(updatedPrefix).toBe(newPrefix);
+    });
+  });
+
+  describe('permissions', function () {
+    it('Only admin can set the URI prefix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const { userAccount } = await generateWallets();
+
+      const newPrefix = 'https://newprefix.uri';
+      await expect(
+        builderNftContract.write.setUriPrefix([newPrefix], { account: userAccount.account })
+      ).rejects.toThrow('Proxy: caller is not the admin');
+
+      // Verify the prefix hasn't changed
+      const currentPrefix = await builderNftContract.read.getUriPrefix();
+      expect(currentPrefix).not.toBe(newPrefix);
+    });
+  });
+
+  describe('validations', function () {
+    it('Reverts when called with an empty newPrefix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const initialPrefix = await builderNftContract.read.getUriPrefix();
+
+      await expect(builderNftContract.write.setUriPrefix([''])).rejects.toThrow('Empty URI prefix not allowed');
+
+      // Verify the prefix hasn't changed
+      const currentPrefix = await builderNftContract.read.getUriPrefix();
+      expect(currentPrefix).toBe(initialPrefix);
+    });
+  });
+});
+
+describe('setUriSuffix()', function () {
+  describe('effects', function () {
+    it('Updates the URI suffix when called with a valid newSuffix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const newSuffix = 'metadata.json';
+      await expect(builderNftContract.write.setUriSuffix([newSuffix])).resolves.toBeDefined();
+
+      const updatedSuffix = await builderNftContract.read.getUriSuffix();
+      expect(updatedSuffix).toBe(newSuffix);
+    });
+  });
+
+  describe('permissions', function () {
+    it('Only admin can set the URI suffix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const { userAccount } = await generateWallets();
+
+      const newSuffix = 'metadata.json';
+      await expect(
+        builderNftContract.write.setUriSuffix([newSuffix], { account: userAccount.account })
+      ).rejects.toThrow('Proxy: caller is not the admin');
+
+      // Verify the suffix hasn't changed
+      const currentSuffix = await builderNftContract.read.getUriSuffix();
+      expect(currentSuffix).not.toBe(newSuffix);
+    });
+  });
+
+  describe('validations', function () {
+    it('Allows setting an empty URI suffix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      await expect(builderNftContract.write.setUriSuffix([''])).resolves.toBeDefined();
+
+      const updatedSuffix = await builderNftContract.read.getUriSuffix();
+      expect(updatedSuffix).toBe('');
+    });
+  });
+});
+
+describe('setUriPrefixAndSuffix()', function () {
+  describe('effects', function () {
+    it('Updates both URI prefix and suffix when called with valid values', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const newPrefix = 'https://newprefix.uri/';
+      const newSuffix = 'metadata.json';
+      await expect(builderNftContract.write.setUriPrefixAndSuffix([newPrefix, newSuffix])).resolves.toBeDefined();
+
+      const updatedPrefix = await builderNftContract.read.getUriPrefix();
+      const updatedSuffix = await builderNftContract.read.getUriSuffix();
+      expect(updatedPrefix).toBe(newPrefix);
+      expect(updatedSuffix).toBe(newSuffix);
+    });
+  });
+
+  describe('permissions', function () {
+    it('Only admin can set both URI prefix and suffix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const { userAccount } = await generateWallets();
+
+      const newPrefix = 'https://newprefix.uri/';
+      const newSuffix = 'metadata.json';
+      await expect(
+        builderNftContract.write.setUriPrefixAndSuffix([newPrefix, newSuffix], { account: userAccount.account })
+      ).rejects.toThrow('Proxy: caller is not the admin');
+
+      // Verify the prefix and suffix haven't changed
+      const currentPrefix = await builderNftContract.read.getUriPrefix();
+      const currentSuffix = await builderNftContract.read.getUriSuffix();
+      expect(currentPrefix).not.toBe(newPrefix);
+      expect(currentSuffix).not.toBe(newSuffix);
+    });
+  });
+
+  describe('validations', function () {
+    it('Reverts when called with an empty newPrefix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const initialPrefix = await builderNftContract.read.getUriPrefix();
+      const initialSuffix = await builderNftContract.read.getUriSuffix();
+
+      await expect(builderNftContract.write.setUriPrefixAndSuffix(['', 'metadata.json'])).rejects.toThrow(
+        'Empty URI prefix not allowed'
+      );
+
+      // Verify the prefix and suffix haven't changed
+      const currentPrefix = await builderNftContract.read.getUriPrefix();
+      const currentSuffix = await builderNftContract.read.getUriSuffix();
+      expect(currentPrefix).toBe(initialPrefix);
+      expect(currentSuffix).toBe(initialSuffix);
+    });
+
+    it('Allows setting an empty URI suffix', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const newPrefix = 'https://newprefix.uri/';
+      await expect(builderNftContract.write.setUriPrefixAndSuffix([newPrefix, ''])).resolves.toBeDefined();
+
+      const updatedPrefix = await builderNftContract.read.getUriPrefix();
+      const updatedSuffix = await builderNftContract.read.getUriSuffix();
+      expect(updatedPrefix).toBe(newPrefix);
+      expect(updatedSuffix).toBe('');
+    });
+  });
+});
+
+describe('setMinter()', function () {
+  describe('effects', function () {
+    it('Should set the minter address correctly', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const { userAccount } = await generateWallets();
+      const newMinter = userAccount.account.address;
+
+      await builderNftContract.write.setMinter([newMinter]);
+
+      const minter = await builderNftContract.read.getMinter();
+      expect(getAddress(minter)).toBe(getAddress(newMinter));
+    });
+  });
+
+  describe('permissions', function () {
+    it('Only admin can set the minter', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const { userAccount } = await generateWallets();
+      const newMinter = userAccount.account.address;
+
+      await expect(builderNftContract.write.setMinter([newMinter], { account: userAccount.account })).rejects.toThrow(
+        'Proxy: caller is not the admin'
+      );
+    });
+  });
+
+  describe('validations', function () {
+    it('Reverts when setting minter to zero address', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const zeroAddress = '0x0000000000000000000000000000000000000000';
+
+      await expect(builderNftContract.write.setMinter([zeroAddress])).rejects.toThrow('Invalid address');
     });
   });
 });

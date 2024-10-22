@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import inquirer from 'inquirer';
 
 // Helper to convert Solidity types to TypeScript types
@@ -14,16 +15,13 @@ function solidityTypeToTsType(solType: string): string {
 // Generate TypeScript function parameter type from ABI inputs
 function generateInputTypes(abiItem: any): string {
   const inputs = abiItem.inputs || [];
-  return inputs
-    .map((input: any) => `${input.name}: ${solidityTypeToTsType(input.type)}`)
-    .join(', ');
+  return inputs.map((input: any) => `${input.name}: ${solidityTypeToTsType(input.type)}`).join(', ');
 }
 
 function generateMethodImplementation(abiItem: any): string {
   const functionName = abiItem.name;
   const inputs = abiItem.inputs || [];
   const outputs = abiItem.outputs || [];
-  
 
   const inputNames = inputs.map((input: any) => `params.args.${input.name}`).join(', ');
 
@@ -31,7 +29,7 @@ function generateMethodImplementation(abiItem: any): string {
   function getReturnType(outputs: any[]): string {
     if (!outputs.length) return 'null';
     if (outputs.length === 1) return solidityTypeToTsType(outputs[0].type);
-    return `{ ${outputs.map((output: any, i: number) => `${output.name || 'output' + i}: ${solidityTypeToTsType(output.type)}`).join(', ')} }`;
+    return `{ ${outputs.map((output: any, i: number) => `${output.name || `output${i}`}: ${solidityTypeToTsType(output.type)}`).join(', ')} }`;
   }
 
   const isReadOperation = abiItem.stateMutability === 'view' || abiItem.stateMutability === 'pure';
@@ -39,9 +37,12 @@ function generateMethodImplementation(abiItem: any): string {
   const transactionConfig = isReadOperation ? '' : 'value?: bigint, gasPrice?: bigint';
 
   // Define the parameter type based on inputs
-  const paramsType = inputs.length > 0
-  ? `{ args: { ${generateInputTypes(abiItem)} }, ${transactionConfig} }`
-  : transactionConfig ? `{ ${transactionConfig} }` : '';
+  const paramsType =
+    inputs.length > 0
+      ? `{ args: { ${generateInputTypes(abiItem)} }, ${transactionConfig} }`
+      : transactionConfig
+        ? `{ ${transactionConfig} }`
+        : '';
 
   // Handle read methods (view/pure) with output type parsing
   if (isReadOperation) {
@@ -103,13 +104,21 @@ function generateMethodImplementation(abiItem: any): string {
 }
 
 // Main function to generate the API client
-async function generateApiClient({ abi, selectedFunctionIndices, abiPath }: { abi: any[], selectedFunctionIndices: number[]; abiPath: string }) {
-  const selectedFunctions = selectedFunctionIndices.map(index => abi[index]);
+async function generateApiClient({
+  abi,
+  selectedFunctionIndices,
+  abiPath
+}: {
+  abi: any[];
+  selectedFunctionIndices: number[];
+  abiPath: string;
+}) {
+  const selectedFunctions = selectedFunctionIndices.map((index) => abi[index]);
 
-  const apiClientName = `${abiPath.split('/').pop()?.replace('.json', '')}Client`
+  const apiClientName = `${abiPath.split('/').pop()?.replace('.json', '')}Client`;
 
   // Generate TypeScript class code
-  let classCode = `
+  const classCode = `
   import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, TransactionReceipt, Transport, WalletActions, WalletClient } from 'viem';
   import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
 
@@ -134,7 +143,7 @@ async function generateApiClient({ abi, selectedFunctionIndices, abiPath }: { ab
     private walletClient?: ReadWriteWalletClient;
     private chain: Chain;
 
-    private abi: Abi = ${JSON.stringify(selectedFunctions, null, 2)};
+    public abi: Abi = ${JSON.stringify(selectedFunctions, null, 2)};
 
     constructor({
       contractAddress,
@@ -183,7 +192,7 @@ async function generateApiClient({ abi, selectedFunctionIndices, abiPath }: { ab
 // Function to load the ABI from a file
 function loadAbiFromFile(abiFilePath: string): any[] {
   try {
-    const resolvedPath = path.resolve( abiFilePath);
+    const resolvedPath = path.resolve(abiFilePath);
     if (!fs.existsSync(resolvedPath)) {
       throw new Error(`ABI file not found at path: ${resolvedPath}`);
     }
@@ -213,8 +222,8 @@ async function main() {
       type: 'input',
       name: 'abiFilePath',
       message: 'Enter the path to the ABI file:',
-      validate: (input: string) => input.length > 0 ? true : 'ABI file path cannot be empty',
-    },
+      validate: (input: string) => (input.length > 0 ? true : 'ABI file path cannot be empty')
+    }
   ]);
 
   // Load ABI from the file
@@ -227,7 +236,7 @@ async function main() {
   }
 
   // Display available contract methods
-  console.log("Available contract methods:");
+  console.log('Available contract methods:');
   abi.forEach((method, index) => {
     console.log(`${index + 1}. ${method.name} (${method.stateMutability})`);
   });
@@ -240,21 +249,23 @@ async function main() {
       message: 'Enter the numbers of the functions you want in the API client, separated by commas:',
       validate: (input) => {
         const indices = input.split(',').map(Number);
-        return indices.every(index => index > 0 && index <= abi.length) ? true : 'Invalid function number(s)';
-      },
-    },
+        return indices.every((index) => index > 0 && index <= abi.length) ? true : 'Invalid function number(s)';
+      }
+    }
   ]);
 
   // Map selected functions and display them for confirmation
-  const selectedFunctionIndices = functionIndices.split(',').map((num: string) => parseInt(num.trim(), 10) - 1) as number[];
-  const selectedFunctions = selectedFunctionIndices.map(index => ({
+  const selectedFunctionIndices = functionIndices
+    .split(',')
+    .map((num: string) => parseInt(num.trim(), 10) - 1) as number[];
+  const selectedFunctions = selectedFunctionIndices.map((index) => ({
     index: index + 1, // +1 to display correct user-facing index
     name: abi[index].name,
     stateMutability: abi[index].stateMutability
   }));
 
   // Display selected methods to the user
-  console.log("\nYou have selected the following methods:");
+  console.log('\nYou have selected the following methods:');
   selectedFunctions.forEach((method) => {
     console.log(`${method.index}. ${method.name} (${method.stateMutability})`);
   });
@@ -264,12 +275,12 @@ async function main() {
     {
       type: 'confirm',
       name: 'confirmSelection',
-      message: 'Do you want to proceed with these methods?',
-    },
+      message: 'Do you want to proceed with these methods?'
+    }
   ]);
 
   if (!confirmSelection) {
-    console.log("\nRestarting selection process...\n");
+    console.log('\nRestarting selection process...\n');
     return main(); // Restart the process if the user says no
   }
 

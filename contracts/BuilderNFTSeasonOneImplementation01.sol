@@ -16,6 +16,8 @@ library ImplementationStorage {
         mapping(uint256 => string) tokenToBuilderRegistry;
         mapping(string => uint256) builderToTokenRegistry;
         string baseUri;
+        string uriPrefix;
+        string uriSuffix;
     }
 
     bytes32 internal constant STORAGE_SLOT = keccak256("builderNFT.implementation.storage");
@@ -41,6 +43,11 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         _;
     }
 
+    modifier onlyAdminOrMinter() {
+      require(MemoryUtils.isAdmin(msg.sender) || MemoryUtils.isMinter(msg.sender), "Proxy: caller is not the admin or minter");
+        _;
+    }
+
     constructor () {}
 
  
@@ -53,7 +60,7 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         ImplementationStorage.layout().baseUri = newBaseUri;
     }
 
-    function registerBuilderToken(string calldata builderId) external onlyAdmin() {
+    function registerBuilderToken(string calldata builderId) external onlyAdminOrMinter {
         _registerBuilderToken(builderId);
     }
 
@@ -146,8 +153,17 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
       emit TransferSingle(msg.sender, account, address(0), tokenId, amount);
     } 
 
+    function setMinter(address minter) external onlyAdmin {
+      require(minter != address(0), "Invalid address");
+      MemoryUtils.setAddress(MemoryUtils.MINTER_SLOT, minter);
+    }
 
-    function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdmin {
+    function getMinter() external view returns (address) {
+      return MemoryUtils.getAddress(MemoryUtils.MINTER_SLOT);
+    }
+
+
+    function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdminOrMinter {
         _validateMint(account, tokenId, scout);
         _mintTo(account, tokenId, amount, scout);
     }
@@ -237,17 +253,64 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
     }
 
-    function uri(uint256 _tokenId) external pure override returns (string memory) {
-      return _tokenURI(_tokenId);
+    function setUriPrefixAndSuffix(string memory newPrefix, string memory newSuffix) external onlyAdmin {
+        _setUriPrefixAndSuffix(newPrefix, newSuffix);
     }
 
-    // OpenSea requires tokenURI
-    function tokenURI(uint256 _tokenId) external pure returns (string memory) {
+    function _setUriPrefixAndSuffix(string memory newPrefix, string memory newSuffix) internal {
+        _setUriPrefix(newPrefix);
+        _setUriSuffix(newSuffix);
+    }
+
+    function setUriPrefix(string memory newPrefix) external onlyAdmin {
+        _setUriPrefix(newPrefix);
+    }
+
+    function _setUriPrefix(string memory newPrefix) internal {
+        require(bytes(newPrefix).length > 0, "Empty URI prefix not allowed");
+        ImplementationStorage.layout().uriPrefix = newPrefix;
+    }
+
+    function setUriSuffix(string memory newSuffix) external onlyAdmin {
+        _setUriSuffix(newSuffix);
+    }
+
+    function _setUriSuffix(string memory newSuffix) internal {
+        ImplementationStorage.layout().uriSuffix = newSuffix;
+    }
+
+    function getUriPrefix() external view returns (string memory) {
+        return _getUriPrefix();
+    }
+
+    function _getUriPrefix() internal view returns (string memory) {
+        return ImplementationStorage.layout().uriPrefix;
+    }
+
+    function getUriSuffix() external view returns (string memory) {
+        return _getUriSuffix();
+    }
+
+    function _getUriSuffix() internal view returns (string memory) {
+        return ImplementationStorage.layout().uriSuffix;
+    }
+
+    function uri(uint256 _tokenId) external view override returns (string memory) {
         return _tokenURI(_tokenId);
     }
 
-    function _tokenURI(uint256 _tokenId) internal pure returns (string memory) {
-      return string(abi.encodePacked("https://nft.scoutgame.xyz/seasons/2024-W40/beta/", _uint2str(_tokenId), "/artwork.png"));
+    function tokenURI(uint256 _tokenId) external view returns (string memory) {
+        return _tokenURI(_tokenId);
+    }
+
+    function _tokenURI(uint256 _tokenId) internal view returns (string memory) {
+        return string(abi.encodePacked(
+            _getUriPrefix(),
+            "/",
+            _uint2str(_tokenId),
+            "/",
+            _getUriSuffix()
+        ));
     }
 
     // Utility function to convert uint to string

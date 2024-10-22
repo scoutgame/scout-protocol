@@ -12,6 +12,7 @@ library MemoryUtils {
     bytes32 internal constant NEXT_TOKEN_ID_SLOT = keccak256("builderNFT.nextTokenId");
     bytes32 internal constant LOCK_STATUS_SLOT = keccak256("builderNFT.lockStatus");
     bytes32 internal constant ADMIN_SLOT = keccak256("builderNFT.admin");
+    bytes32 internal constant MINTER_SLOT = keccak256("builderNFT.minterSlot");
 
     bytes32 internal constant TOKEN_NAME = keccak256("token.name");
     bytes32 internal constant TOKEN_SYMBOL = keccak256("token.symbol");
@@ -90,5 +91,9 @@ library MemoryUtils {
     // Function to check if an address is the admin
     function isAdmin(address caller) internal view returns (bool) {
         return caller == getAddress(ADMIN_SLOT);
+    }
+
+    function isMinter(address caller) internal view returns (bool) {
+      return caller == getAddress(MINTER_SLOT);
     }
 }
