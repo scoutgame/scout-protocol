@@ -43,6 +43,11 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         _;
     }
 
+    modifier onlyAdminOrMinter() {
+      require(MemoryUtils.isAdmin(msg.sender) || MemoryUtils.isMinter(msg.sender), "Proxy: caller is not the admin or minter");
+        _;
+    }
+
     constructor () {}
 
  
@@ -55,7 +60,7 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         ImplementationStorage.layout().baseUri = newBaseUri;
     }
 
-    function registerBuilderToken(string calldata builderId) external onlyAdmin() {
+    function registerBuilderToken(string calldata builderId) external onlyAdminOrMinter {
         _registerBuilderToken(builderId);
     }
 
@@ -148,8 +153,17 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
       emit TransferSingle(msg.sender, account, address(0), tokenId, amount);
     } 
 
+    function setMinter(address minter) external onlyAdmin {
+      require(minter != address(0), "Invalid address");
+      MemoryUtils.setAddress(MemoryUtils.MINTER_SLOT, minter);
+    }
 
-    function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdmin {
+    function getMinter() external view returns (address) {
+      return MemoryUtils.getAddress(MemoryUtils.MINTER_SLOT);
+    }
+
+
+    function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdminOrMinter {
         _validateMint(account, tokenId, scout);
         _mintTo(account, tokenId, amount, scout);
     }

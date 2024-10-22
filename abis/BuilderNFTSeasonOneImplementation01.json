@@ -271,6 +271,19 @@
   },
   {
     "inputs": [],
+    "name": "getMinter",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "getPriceIncrement",
     "outputs": [
       {
@@ -556,6 +569,19 @@
       }
     ],
     "name": "setBaseUri",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "minter",
+        "type": "address"
+      }
+    ],
+    "name": "setMinter",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

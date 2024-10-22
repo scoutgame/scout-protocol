@@ -665,7 +665,7 @@ describe('mintTo()', function () {
   });
 
   describe('permissions', function () {
-    it('Only admin can mint tokens to an account', async function () {
+    it('Admin can mint tokens to an account', async function () {
       const {
         builderNft: { builderNftContract }
       } = await loadContractFixtures();
@@ -684,6 +684,38 @@ describe('mintTo()', function () {
           account: secondUserAccount.account
         })
       ).rejects.toThrow('Proxy: caller is not the admin');
+    });
+
+    it('Minter can mint tokens to an account', async function () {
+      const {
+        builderNft: { builderNftContract, builderNftAdminAccount }
+      } = await loadContractFixtures();
+
+      const { secondUserAccount, thirdUserAccount: minterAccount } = await generateWallets();
+      const testUserAddress = secondUserAccount.account.address;
+
+      const builderId = uuid();
+      await builderNftContract.write.registerBuilderToken([builderId]);
+
+      const scoutId = uuid();
+
+      await builderNftContract.write.setMinter([minterAccount.account.address]);
+
+      await expect(
+        builderNftContract.write.mintTo([testUserAddress, BigInt(1), BigInt(5), scoutId], {
+          account: builderNftAdminAccount.account
+        })
+      ).resolves.toBeDefined();
+
+      await expect(
+        builderNftContract.write.mintTo([testUserAddress, BigInt(1), BigInt(10), scoutId], {
+          account: minterAccount.account
+        })
+      ).resolves.toBeDefined();
+
+      const balance = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
+
+      expect(balance).toBe(BigInt(15));
     });
   });
 
@@ -880,6 +912,51 @@ describe('setUriPrefixAndSuffix()', function () {
       const updatedSuffix = await builderNftContract.read.getUriSuffix();
       expect(updatedPrefix).toBe(newPrefix);
       expect(updatedSuffix).toBe('');
+    });
+  });
+});
+
+describe('setMinter()', function () {
+  describe('effects', function () {
+    it('Should set the minter address correctly', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const { userAccount } = await generateWallets();
+      const newMinter = userAccount.account.address;
+
+      await builderNftContract.write.setMinter([newMinter]);
+
+      const minter = await builderNftContract.read.getMinter();
+      expect(getAddress(minter)).toBe(getAddress(newMinter));
+    });
+  });
+
+  describe('permissions', function () {
+    it('Only admin can set the minter', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const { userAccount } = await generateWallets();
+      const newMinter = userAccount.account.address;
+
+      await expect(builderNftContract.write.setMinter([newMinter], { account: userAccount.account })).rejects.toThrow(
+        'Proxy: caller is not the admin'
+      );
+    });
+  });
+
+  describe('validations', function () {
+    it('Reverts when setting minter to zero address', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const zeroAddress = '0x0000000000000000000000000000000000000000';
+
+      await expect(builderNftContract.write.setMinter([zeroAddress])).rejects.toThrow('Invalid address');
     });
   });
 });

@@ -381,3 +381,21 @@ describe('isValidUUID()', function () {
     expect(isValid).toBe(false);
   });
 });
+
+describe('read', function () {
+  describe('getMinter()', function () {
+    it('Should return the correct minter address', async function () {
+      const {
+        builderNft: { builderNftContract }
+      } = await loadContractFixtures();
+
+      const { userAccount } = await generateWallets();
+      const newMinter = userAccount.account.address;
+
+      await builderNftContract.write.setMinter([newMinter]);
+
+      const minter = await builderNftContract.read.getMinter();
+      expect(getAddress(minter)).toBe(getAddress(newMinter));
+    });
+  });
+});
