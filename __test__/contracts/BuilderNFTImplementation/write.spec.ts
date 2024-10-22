@@ -135,6 +135,45 @@ describe('mint()', function () {
       const balance = await builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
       expect(balance).toBe(BigInt(10));
     });
+
+    it('Forwards the full fees of the mint to the proceeds receiver', async function () {
+      const {
+        builderNft: { builderNftContract, proceedsReceiverAccount },
+        usdc: { mintUSDCTo, approveUSDC, balanceOfUSDC, USDC_DECIMALS_MULTIPLIER }
+      } = await loadContractFixtures();
+
+      const { secondUserAccount } = await generateWallets();
+
+      const testUserAddress = secondUserAccount.account.address;
+
+      const builderId = uuid();
+      await builderNftContract.write.registerBuilderToken([builderId]);
+
+      const scoutId = uuid();
+
+      const price = await builderNftContract.read.getTokenPurchasePrice([BigInt(1), BigInt(10)]);
+
+      await mintUSDCTo({
+        account: secondUserAccount.account.address,
+        amount: Number(price / USDC_DECIMALS_MULTIPLIER)
+      });
+
+      await approveUSDC({
+        wallet: secondUserAccount,
+        args: { spender: builderNftContract.address, amount: Number(price) }
+      });
+
+      await builderNftContract.write.mint([testUserAddress, BigInt(1), BigInt(10), scoutId], {
+        account: secondUserAccount.account
+      });
+
+      const contractBalance = await balanceOfUSDC({ account: builderNftContract.address });
+
+      const proceedsReceiverBalance = await balanceOfUSDC({ account: proceedsReceiverAccount.account.address });
+
+      expect(contractBalance).toBe(0);
+      expect(proceedsReceiverBalance).toBe(Number(price / USDC_DECIMALS_MULTIPLIER));
+    });
   });
 
   describe('events', function () {

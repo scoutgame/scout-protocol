@@ -5,13 +5,11 @@ import { deployTestUSDC } from './deployTestUSDC';
 import { generateWallets } from './generateWallets';
 
 export async function deployBuilderNftContract({ USDCContractAddress }: { USDCContractAddress?: Address } = {}) {
-  const { adminAccount: admin, userAccount: otherAccount } = await generateWallets();
-
-  const memoryUtils = await viem.deployContract('MemoryUtils');
+  const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
   const implementation = await viem.deployContract('BuilderNFTSeasonOneImplementation01');
 
-  const proceedsReceiver = otherAccount.account.address;
+  const proceedsReceiver = proceedsReceiverAccount.account.address;
 
   const erc20Contract = USDCContractAddress || (await deployTestUSDC().then(({ USDC }) => USDC.address));
 
@@ -32,7 +30,8 @@ export async function deployBuilderNftContract({ USDCContractAddress }: { USDCCo
     builderProxyContract: proxy,
     builderNftContract: proxyWithImplementationABI,
     builderImplementationContract: implementation,
-    builderNftAdminAccount: admin
+    builderNftAdminAccount: admin,
+    proceedsReceiverAccount
   };
 }
 
