@@ -10,7 +10,7 @@
     "deploy:protocol": "npx hardhat deployStargateProtocol --network opsepolia",
     "getclaimbalance": "npx hardhat getUnclaimedBalance --network opsepolia  --address ",
     "claimbalance": "npx hardhat claimBalance --network opsepolia --privatekey ",
-    "deploy:builders": "npm run compile && npx hardhat deployBuilderNFTSeasonOne --network",
+    "deploybuilders": "npm run compile && npx hardhat deployBuilderNFTSeasonOne --network",
     "proxy:update": "npx hardhat updateProxyImplementation --network",
     "buildernft": "npx hardhat interactBuilderNFT --network",
     "build:api": "npx tsx lib/generateApiClient.ts"
