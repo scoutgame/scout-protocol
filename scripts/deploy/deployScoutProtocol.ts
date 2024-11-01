@@ -5,7 +5,7 @@ import path from 'node:path';
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
 import inquirer from 'inquirer';
-import { createPublicClient, createWalletClient, encodeDeployData, http, parseAbiItem } from 'viem';
+import { createPublicClient, createWalletClient, encodeDeployData, http, isAddress, parseAbiItem } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
@@ -88,7 +88,77 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
   } else {
     // Deploy the proxy contract
     console.log('Proxy contract not found. Deploying a new proxy contract...');
+  }
 
+  const proxyOptions = [];
+
+  if (connector.scoutgameProtocolProxy) {
+    proxyOptions.push({ address: connector.scoutgameProtocolProxy, env: 'prod' });
+  }
+
+  if (connector.scoutgameProtocolProxyDev) {
+    proxyOptions.push({ address: connector.scoutgameProtocolProxyDev, env: 'dev' });
+  }
+
+  let deployNew = true;
+
+  // Prompt the user to update the implementation if the proxy already exists
+  if (connector.scoutgameProtocolProxy) {
+    console.log('Proxy options:', proxyOptions);
+
+    const newProxyOption = 'New Proxy';
+
+    const { selectedProxy } = await inquirer.prompt([
+      {
+        type: 'list',
+        name: 'selectedProxy',
+        message: 'Select a proxy contract to use:',
+        choices: [...proxyOptions.map((opt) => `${opt.env}:: ${opt.address!.slice(0, 6)}`), newProxyOption]
+      }
+    ]);
+
+    if (selectedProxy !== newProxyOption) {
+      deployNew = false;
+
+      const proxyToUpdate = proxyOptions.find(
+        (opt) => opt.env === ((selectedProxy as string).split('::').shift()?.trim() as string)
+      )?.address as `0x${string}`;
+
+      if (!isAddress(proxyToUpdate)) {
+        throw new Error(`Proxy ${proxyToUpdate} is not an address`);
+      }
+
+      const { updateImplementation } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'updateImplementation',
+          message: 'Do you want to update the proxy to use the new implementation?',
+          default: false
+        }
+      ]);
+
+      if (updateImplementation) {
+        console.log('Updating proxy to use the new implementation...');
+
+        const proxyAbi = [parseAbiItem('function setImplementation(address _newImplementation)')];
+
+        const txHash = await walletClient.writeContract({
+          address: connector.scoutgameProtocolProxy,
+          abi: proxyAbi,
+          functionName: 'setImplementation',
+          args: [implementationAddress]
+        });
+
+        const receipt = await client.waitForTransactionReceipt({ hash: txHash });
+        console.log('Proxy implementation updated. Transaction hash:', receipt.transactionHash);
+      } else {
+        console.log('Proxy implementation not updated.');
+        process.exit(0);
+      }
+    }
+  }
+
+  if (deployNew) {
     const proxyArtifactPath = path.resolve(
       __dirname,
       '../../artifacts/contracts/protocol/ProtocolProxy.sol/ProtocolProxy.json'
@@ -141,62 +211,6 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
       path.resolve(__dirname, '..', '..', 'abis', 'ProtocolProxy.json'),
       JSON.stringify(proxyArtifact.abi, null, 2)
     );
-  }
-
-  // Prompt the user to update the implementation if the proxy already exists
-  if (connector.scoutgameProtocolProxy) {
-    // TODO: Readd this code once we have multiple proxies
-
-    // const proxyOptions = [
-    //   { address: connector.devProxy, env: 'staging' },
-    //   { address: connector.testDevProxy, env: 'dev' }
-    // ].filter((val) => isAddress(val.address as any));
-
-    // console.log('Proxy options:', proxyOptions);
-
-    // const { selectedProxy } = await inquirer.prompt([
-    //   {
-    //     type: 'list',
-    //     name: 'selectedProxy',
-    //     message: 'Select a proxy contract to use:',
-    //     choices: proxyOptions.map((opt) => `${opt.env}:: ${opt.address!.slice(0, 6)}`)
-    //   }
-    // ]);
-
-    // const proxyToUpdate = proxyOptions.find(
-    //   (opt) => opt.env === ((selectedProxy as string).split('::').shift()?.trim() as string)
-    // )?.address as `0x${string}`;
-
-    // if (!isAddress(proxyToUpdate)) {
-    //   throw new Error(`Proxy ${proxyToUpdate} is not an address`);
-    // }
-
-    const { updateImplementation } = await inquirer.prompt([
-      {
-        type: 'confirm',
-        name: 'updateImplementation',
-        message: 'Do you want to update the proxy to use the new implementation?',
-        default: true
-      }
-    ]);
-
-    if (updateImplementation) {
-      console.log('Updating proxy to use the new implementation...');
-
-      const proxyAbi = [parseAbiItem('function setImplementation(address _newImplementation)')];
-
-      const txHash = await walletClient.writeContract({
-        address: connector.scoutgameProtocolProxy,
-        abi: proxyAbi,
-        functionName: 'setImplementation',
-        args: [implementationAddress]
-      });
-
-      const receipt = await client.waitForTransactionReceipt({ hash: txHash });
-      console.log('Proxy implementation updated. Transaction hash:', receipt.transactionHash);
-    } else {
-      console.log('Proxy implementation not updated.');
-    }
   }
 
   console.log('Deployment and update process completed.');
