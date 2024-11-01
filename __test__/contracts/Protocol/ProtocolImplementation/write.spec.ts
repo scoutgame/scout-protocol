@@ -32,63 +32,61 @@ describe('ProtocolImplementation', function () {
     await protocol.protocolContract.write.setMerkleRoot([week, `0x${rootHash}`]);
   });
 
-  describe('write', function () {
-    describe('claim', function () {
-      describe('effects', function () {
-        it('allows a user to claim tokens correctly', async function () {
-          await protocol.protocolContract.write.claim([week, BigInt(amount), proofs.map((p) => `0x${p}` as any)], {
-            account: user.account
-          });
-
-          const balance = await token.balanceOfProtocolERC20({ account: user.account.address });
-
-          expect(balance).toEqual(amount);
-
-          const claimed = await protocol.protocolContract.read.hasClaimed([week, user.account.address]);
-          expect(claimed).toBe(true);
-        });
-      });
-
-      it('denies claims if user has already claimed', async function () {
+  describe('claim', function () {
+    describe('effects', function () {
+      it('allows a user to claim tokens correctly', async function () {
         await protocol.protocolContract.write.claim([week, BigInt(amount), proofs.map((p) => `0x${p}` as any)], {
           account: user.account
         });
 
-        await expect(
-          protocol.protocolContract.write.claim([week, BigInt(amount), proofs.map((p) => `0x${p}` as any)], {
-            account: user.account
-          })
-        ).rejects.toThrow('You have already claimed for this week.');
+        const balance = await token.balanceOfProtocolERC20({ account: user.account.address });
+
+        expect(balance).toEqual(amount);
+
+        const claimed = await protocol.protocolContract.read.hasClaimed([week, user.account.address]);
+        expect(claimed).toBe(true);
+      });
+    });
+
+    it('denies claims if user has already claimed', async function () {
+      await protocol.protocolContract.write.claim([week, BigInt(amount), proofs.map((p) => `0x${p}` as any)], {
+        account: user.account
       });
 
-      describe('validations', function () {
-        it('reverts with invalid merkle proof', async function () {
-          const invalidProofs = ['0xdeadbeef'];
-          await expect(
-            protocol.protocolContract.write.claim([week, BigInt(amount), invalidProofs as any])
-          ).rejects.toThrow('Invalid Merkle proof.');
-        });
+      await expect(
+        protocol.protocolContract.write.claim([week, BigInt(amount), proofs.map((p) => `0x${p}` as any)], {
+          account: user.account
+        })
+      ).rejects.toThrow('You have already claimed for this week.');
+    });
 
-        it('reverts when merkle root is not set', async function () {
-          const newWeek = '2024-W42';
-          await expect(protocol.protocolContract.write.claim([newWeek, BigInt(amount), proofs as any])).rejects.toThrow(
-            'Merkle root for this week is not set.'
-          );
-        });
+    describe('validations', function () {
+      it('reverts with invalid merkle proof', async function () {
+        const invalidProofs = ['0xdeadbeef'];
+        await expect(
+          protocol.protocolContract.write.claim([week, BigInt(amount), invalidProofs as any])
+        ).rejects.toThrow('Invalid Merkle proof.');
+      });
 
-        it('reverts when contract balance is insufficient', async function () {
-          await expect(
-            token.transferProtocolERC20({
-              args: {
-                to: admin.account.address,
-                amount: await token.balanceOfProtocolERC20({
-                  account: protocol.protocolContract.address
-                })
-              },
-              wallet: admin
-            })
-          ).rejects.toThrow('Insufficient balance in contract.');
-        });
+      it('reverts when merkle root is not set', async function () {
+        const newWeek = '2024-W55';
+        await expect(protocol.protocolContract.write.claim([newWeek, BigInt(amount), proofs as any])).rejects.toThrow(
+          'Merkle root for this week is not set.'
+        );
+      });
+
+      it('reverts when contract balance is insufficient', async function () {
+        await expect(
+          token.transferProtocolERC20({
+            args: {
+              to: admin.account.address,
+              amount: await token.balanceOfProtocolERC20({
+                account: protocol.protocolContract.address
+              })
+            },
+            wallet: admin
+          })
+        ).rejects.toThrow('Insufficient balance in contract.');
       });
     });
   });
