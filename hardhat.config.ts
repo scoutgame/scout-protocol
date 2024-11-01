@@ -1,5 +1,6 @@
-import { vars } from 'hardhat/config';
 import type { HardhatUserConfig } from 'hardhat/config';
+import { vars } from 'hardhat/config';
+
 import '@nomicfoundation/hardhat-ethers';
 
 import '@nomicfoundation/hardhat-toolbox-viem';
@@ -18,6 +19,7 @@ import './scripts/deploy/deployLuckyStarCoin';
 import './scripts/deploy/deployStargateProtocol';
 import './scripts/deploy/deployBuilderNft';
 import './scripts/deploy/updateProxyImplementation';
+import './scripts/deploy/deployScoutGameErc20';
 
 // Interactions
 import './scripts/interact/getUnclaimedBalance';
@@ -70,7 +72,7 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
         url: connectors.basesepolia.rpcUrl,
         accounts: [PRIVATE_KEY],
         gasPrice: 4e8,
-        gas: 21e15
+        gas: 1e9
       },
       base: {
         url: connectors.basesepolia.rpcUrl,

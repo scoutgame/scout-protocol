@@ -67,6 +67,7 @@
       "import/no-default-export": "warn",
       "import/no-unresolved": "off",
       "import/no-extraneous-dependencies": "off",
+      "import/no-import-module-exports": "off",
       "import/order": [
         "error",
         {

@@ -1,7 +1,9 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Address, Chain, rpcSchema } from "viem"
-import { base, baseSepolia, optimism, optimismSepolia, sepolia } from "viem/chains";
-import { NULL_ADDRESS } from "./constants";
+import type { HardhatRuntimeEnvironment } from 'hardhat/types';
+import type { Address, Chain } from 'viem';
+import { rpcSchema } from 'viem';
+import { base, baseSepolia, optimism, optimismSepolia, sepolia } from 'viem/chains';
+
+import { NULL_ADDRESS } from './constants';
 
 // https://app.ens.domains/scoutgame.eth
 export const proceedsReceiver = '0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D';
@@ -18,9 +20,9 @@ type Connector = {
   seasonOneProxy?: Address | null;
   devProxy?: Address | null;
   testDevProxy?: Address | null;
-}
+};
 /**
- * 
+ *
  * USDC Mainnet https://developers.circle.com/stablecoins/docs/usdc-on-main-networks
  * USDC Testnet https://developers.circle.com/stablecoins/docs/usdc-on-test-networks
  */
@@ -56,7 +58,7 @@ export const connectors = {
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: NULL_ADDRESS,
-    usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+    usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
   } as Connector,
   basesepolia: {
     rpcUrl: 'https://sepolia.base.org',
@@ -83,26 +85,25 @@ export function getConnectorKey(chainId: number) {
   const key = Object.entries(connectors).find(([key, val]) => val.chain.id === chainId)?.[0];
 
   if (!key) {
-    throw new Error('Key not found')
+    throw new Error('Key not found');
   }
 
-  return key
+  return key;
 }
 
 export type SupportedChains = keyof typeof connectors;
 
 export function getConnectorFromHardhatRuntimeEnvironment(hre: HardhatRuntimeEnvironment): Connector {
-
   const chainName = hre.hardhatArguments.network;
 
   if (!chainName) {
-    throw new Error('No network specified')
+    throw new Error('No network specified');
   }
 
   const connector = connectors[chainName as SupportedChains];
 
   if (!connector) {
-    throw new Error(`Unsupported chain: ${chainName}`)
+    throw new Error(`Unsupported chain: ${chainName}`);
   }
 
   return connector;
