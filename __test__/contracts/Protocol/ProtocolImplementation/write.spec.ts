@@ -113,7 +113,21 @@ describe('ProtocolImplementation', function () {
           protocol.protocolContract.write.setMerkleRoot([week, `0x${rootHash}`], {
             account: user.account
           })
-        ).rejects.toThrow('Proxy: caller is not the admin');
+        ).rejects.toThrow('Proxy: caller is not the claim manager');
+      });
+
+      it('allows the claims manager to set the merkle root', async function () {
+        await protocol.protocolContract.write.setClaimsManager([user.account.address], {
+          account: protocol.protocolAdminAccount.account
+        });
+
+        await protocol.protocolContract.write.setMerkleRoot([week, `0x${rootHash}`], {
+          account: user.account
+        });
+
+        const merkleRoot = await protocol.protocolContract.read.getMerkleRoot([week]);
+
+        expect(merkleRoot).toEqual(`0x${rootHash}`);
       });
     });
   });

@@ -3,17 +3,13 @@ pragma solidity ^0.8.26;
 
 import "./ProtocolERC20Token.sol";
 import "./libs/MemoryUtils.sol";
+import "./ProtocolAccessControl.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/StorageSlot.sol";
 
-contract ProtocolImplementation {
+contract ProtocolImplementation is Context, ProtocolAccessControl {
     using MemoryUtils for bytes32;
-
-    // Modifier to restrict access to admin functions
-    modifier onlyAdmin() {
-        require(MemoryUtils.isAdmin(msg.sender), "Proxy: caller is not the admin");
-        _;
-    }
 
     // Allow the sender to claim their balance as ERC20 tokens
     function claim(
@@ -58,7 +54,7 @@ contract ProtocolImplementation {
     }
 
     // Function to set the Merkle root for a given week
-    function setMerkleRoot(string memory week, bytes32 merkleRoot) external onlyAdmin {
+    function setMerkleRoot(string memory week, bytes32 merkleRoot) external onlyAdminOrClaimManager {
         bytes32 slot = keccak256(abi.encodePacked(week, MemoryUtils.MERKLE_ROOTS_SLOT));
         StorageSlot.getBytes32Slot(slot).value = merkleRoot;
     }
@@ -79,14 +75,5 @@ contract ProtocolImplementation {
     function _getToken() internal view returns (ProtocolERC20Token) {
         address tokenAddress = MemoryUtils.getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
         return ProtocolERC20Token(tokenAddress);
-    }
-
-    function claimsManager() public view returns (address) {
-      return MemoryUtils.getAddress(MemoryUtils.CLAIM_MANAGER_SLOT);
-    }
-
-    function setClaimsManager(address account) public onlyAdmin {
-      require(account != address(0), "Invalid address");
-      MemoryUtils.setAddress(MemoryUtils.CLAIM_MANAGER_SLOT, account);
     }
 }

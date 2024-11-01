@@ -2,22 +2,11 @@
 pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-
+import "./ProtocolAccessControl.sol";
 import "./libs/MemoryUtils.sol";
 
-contract ProtocolProxy is Context {
-    using MemoryUtils for bytes32;
-
-  // Modifier to restrict access to admin functions
-  modifier onlyAdmin() {
-      require(MemoryUtils.isAdmin(_msgSender()), "Proxy: caller is not the admin");
-      _;
-  }
-
-  modifier onlyAdminOrClaimManager() {
-      require(MemoryUtils.isAdmin(_msgSender()) || MemoryUtils.hasRole(MemoryUtils.CLAIM_MANAGER_SLOT, _msgSender()), "Proxy: caller is not the claim manager");
-      _;
-  }
+contract ProtocolProxy is Context, ProtocolAccessControl {
+  using MemoryUtils for bytes32;
 
   constructor(
         address _implementationAddress,
@@ -48,15 +37,6 @@ contract ProtocolProxy is Context {
         require(_claimsToken != address(0), "Invalid payment token address");
         require(MemoryUtils.isContract(_claimsToken), "Payment token must be a contract");
         MemoryUtils.setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _claimsToken);
-    }
-
-    function admin() public view returns (address) {
-        return MemoryUtils.getAddress(MemoryUtils.ADMIN_SLOT);
-    }
-
-    function setAdmin(address _newAdmin) external onlyAdmin {
-        require(_newAdmin != address(0), "Invalid admin address");
-        MemoryUtils.setAddress(MemoryUtils.ADMIN_SLOT, _newAdmin);
     }
 
     fallback() external payable {
