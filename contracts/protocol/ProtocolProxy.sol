@@ -20,6 +20,7 @@ contract ProtocolProxy {
         require(_claimsTokenAddress != address(0), "Invalid payment token address");
         MemoryUtils.setAddress(MemoryUtils.ADMIN_SLOT, msg.sender);
         MemoryUtils.setAddress(MemoryUtils.IMPLEMENTATION_SLOT, _implementationAddress);
+        MemoryUtils.setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _claimsTokenAddress);
     }
 
     function implementation() public view returns (address) {
@@ -35,10 +36,10 @@ contract ProtocolProxy {
         return MemoryUtils.getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }
 
-    function setClaimsToken(address _paymentToken) external onlyAdmin {
-        require(_paymentToken != address(0), "Invalid payment token address");
-        require(MemoryUtils.isContract(_paymentToken), "Payment token must be a contract");
-        MemoryUtils.setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _paymentToken);
+    function setClaimsToken(address _claimsToken) external onlyAdmin {
+        require(_claimsToken != address(0), "Invalid payment token address");
+        require(MemoryUtils.isContract(_claimsToken), "Payment token must be a contract");
+        MemoryUtils.setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _claimsToken);
     }
 
     function admin() public view returns (address) {
