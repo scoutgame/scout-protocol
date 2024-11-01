@@ -15,7 +15,7 @@ const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
-task('deployScoutGameErc20', 'Deploys or updates the BuilderNFTSeasonOne contracts').setAction(
+task('deployScoutGameERC20', 'Deploys or updates the BuilderNFTSeasonOne contracts').setAction(
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
@@ -48,10 +48,12 @@ task('deployScoutGameErc20', 'Deploys or updates the BuilderNFTSeasonOne contrac
 
     // console.log(implementationABI)
 
+    const args = ['Points', 'POINT'];
+
     const encodedDeployData = encodeDeployData({
       abi: implementationABI,
       bytecode: implementationBytecode,
-      args: ['Points', 'POINT']
+      args
     });
 
     const deployTx = await walletClient.sendTransaction({
@@ -71,7 +73,7 @@ task('deployScoutGameErc20', 'Deploys or updates the BuilderNFTSeasonOne contrac
 
     console.log('Verifying implementation with etherscan');
     try {
-      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${erc20Address}`);
+      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${erc20Address} ${args.join(' ')}`);
     } catch (err) {
       console.warn('Error verifying contract', err);
     }

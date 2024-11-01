@@ -9,6 +9,7 @@ import '@nomicfoundation/hardhat-viem';
 import 'hardhat-jest'; // Enable support for Jest: https://www.npmjs.com/package/hardhat-jest
 
 import type { NetworksUserConfig } from 'hardhat/types';
+import { baseSepolia } from 'viem/chains';
 
 import type { SupportedChains } from './lib/connectors';
 import { connectors } from './lib/connectors';
@@ -86,7 +87,8 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
     etherscan: {
       apiKey: {
         opsepolia: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ',
-        optimism: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ'
+        optimism: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ',
+        basesepolia: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ'
       },
       customChains: [
         {
@@ -95,6 +97,14 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
           urls: {
             apiURL: 'https://optimism-sepolia.blockscout.com/api',
             browserURL: 'https://optimism-sepolia.blockscout.com'
+          }
+        },
+        {
+          network: 'basesepolia',
+          chainId: 84532,
+          urls: {
+            apiURL: 'https://base-sepolia.blockscout.com/api',
+            browserURL: 'https://base-sepolia.blockscout.com'
           }
         },
         {

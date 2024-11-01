@@ -11,8 +11,7 @@ contract ScoutGameERC20Token is Context, AccessControlEnumerable, ERC20Pausable 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant VESTING_ROLE = keccak256("VESTING_ROLE");
-    uint256 public constant DECIMALS = 6;
-    uint256 public constant INITIAL_SUPPLY = 1e9 * 10**6;
+    uint256 public constant INITIAL_SUPPLY = 1e9 * 10**18;
 
     modifier onlyAdmin() {
         require(
@@ -27,8 +26,6 @@ contract ScoutGameERC20Token is Context, AccessControlEnumerable, ERC20Pausable 
 
         _grantRole(MINTER_ROLE, _msgSender());
         _grantRole(PAUSER_ROLE, _msgSender());
-
-        decimals();
     }
 
     function mint(address to, uint256 amount) public onlyAdmin {
