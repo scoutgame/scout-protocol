@@ -1,6 +1,8 @@
-import { deployProtocolContract, type ProtocolTestFixture } from '../../../deployProtocol';
+import { setBalance } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
+
+import { type ProtocolTestFixture } from '../../../deployProtocol';
 import type { ProtocolERC20TestFixture } from '../../../deployProtocolERC20Token';
-import { deployProtocolERC20Token } from '../../../deployProtocolERC20Token';
+import { loadProtocolFixtures } from '../../../fixtures';
 import { walletFromKey, type GeneratedWallet } from '../../../generateWallets';
 
 describe('ProtocolImplementation', function () {
@@ -18,11 +20,16 @@ describe('ProtocolImplementation', function () {
   const rootHash = '9de37c56d9eeb93e34fd8764b168879ee52d3559abeb943d9d730efe002c52cc';
 
   beforeEach(async () => {
-    token = await deployProtocolERC20Token();
-    protocol = await deployProtocolContract({ ProtocolERC20Address: token.ProtocolERC20.address });
+    const fixtures = await loadProtocolFixtures();
+
+    token = fixtures.token;
+    protocol = fixtures.protocol;
     admin = protocol.protocolAdminAccount;
 
     user = await walletFromKey({ key: '57b7b9b29419b66ac8156f844a7b0eb18d94f729699b3f15a3d8817d3f5980a3' });
+
+    // Provide user with 1 eth
+    await setBalance(user.account.address, 1e18);
 
     await token.mintProtocolERC20To({ account: protocol.protocolContract.address, amount: 100_000 });
 
@@ -32,10 +39,6 @@ describe('ProtocolImplementation', function () {
   describe('claim', function () {
     describe('effects', function () {
       it('allows a user to claim tokens correctly', async function () {
-        const protocolBalance = await token.balanceOfProtocolERC20({ account: protocol.protocolContract.address });
-
-        console.log({ protocolBalance });
-
         await protocol.protocolContract.write.claim([week, BigInt(amount), proofs], {
           account: user.account
         });
@@ -49,19 +52,19 @@ describe('ProtocolImplementation', function () {
       });
     });
 
-    it('denies claims if user has already claimed', async function () {
-      await protocol.protocolContract.write.claim([week, BigInt(amount), proofs.map((p) => `0x${p}` as any)], {
-        account: user.account
+    describe('validations', function () {
+      it('denies claims if user has already claimed', async function () {
+        await protocol.protocolContract.write.claim([week, BigInt(amount), proofs], {
+          account: user.account
+        });
+
+        await expect(
+          protocol.protocolContract.write.claim([week, BigInt(amount), proofs], {
+            account: user.account
+          })
+        ).rejects.toThrow('You have already claimed for this week.');
       });
 
-      await expect(
-        protocol.protocolContract.write.claim([week, BigInt(amount), proofs.map((p) => `0x${p}` as any)], {
-          account: user.account
-        })
-      ).rejects.toThrow('You have already claimed for this week.');
-    });
-
-    describe('validations', function () {
       it('reverts with invalid merkle proof', async function () {
         const invalidProofs = [
           '0x11fef743eb2ba923c1ffe0641f5a75074645a3dbac802311e64110fe3ee522b7',
@@ -90,7 +93,7 @@ describe('ProtocolImplementation', function () {
             },
             wallet: admin
           })
-        ).rejects.toThrow('Insufficient balance in contract.');
+        ).rejects.toThrow('ERC20InsufficientBalance');
       });
     });
   });
@@ -101,8 +104,6 @@ describe('ProtocolImplementation', function () {
         await protocol.protocolContract.write.setMerkleRoot([week, `0x${rootHash}`]);
 
         const merkleRoot = await protocol.protocolContract.read.getMerkleRoot([week]);
-
-        console.log({ merkleRoot });
 
         expect(merkleRoot).toEqual(`0x${rootHash}`);
       });

@@ -17,8 +17,10 @@ export async function deployProtocolERC20Token() {
 
   const decimals = BigInt(await ProtocolERC20.read.decimals());
 
+  const decimalMultiplier = 10n ** decimals;
+
   async function mintTo({ account, amount }: { account: string; amount: number }) {
-    await ProtocolERC20.write.mint([account as Address, BigInt(amount) * decimals], {
+    await ProtocolERC20.write.mint([account as Address, BigInt(amount) * decimalMultiplier], {
       account: adminAccount.account
     });
   }
@@ -30,13 +32,13 @@ export async function deployProtocolERC20Token() {
     args: { to: Address; amount: number };
     wallet: GeneratedWallet;
   }) {
-    await ProtocolERC20.write.transfer([to, BigInt(amount) * decimals], { account: wallet.account });
+    await ProtocolERC20.write.transfer([to, BigInt(amount) * decimalMultiplier], { account: wallet.account });
   }
 
   async function balanceOf({ account }: { account: Address }) {
     const balance = await ProtocolERC20.read.balanceOf([account], { account: secondUserAccount.account });
 
-    return Number(balance / decimals);
+    return Number(balance / decimalMultiplier);
   }
 
   async function approve({
@@ -46,7 +48,7 @@ export async function deployProtocolERC20Token() {
     args: { spender: Address; amount: number };
     wallet: GeneratedWallet;
   }) {
-    await ProtocolERC20.write.approve([spender, BigInt(amount) * decimals], {
+    await ProtocolERC20.write.approve([spender, BigInt(amount) * decimalMultiplier], {
       account: wallet.account
     });
   }
@@ -58,7 +60,7 @@ export async function deployProtocolERC20Token() {
     args: { from: Address; to: Address; amount: number };
     wallet: GeneratedWallet;
   }) {
-    await ProtocolERC20.write.transferFrom([from, to, BigInt(amount) * decimals], {
+    await ProtocolERC20.write.transferFrom([from, to, BigInt(amount) * decimalMultiplier], {
       account: wallet.account
     });
   }
@@ -68,6 +70,7 @@ export async function deployProtocolERC20Token() {
     ProtocolERC20,
     ProtocolERC20AdminAccount: adminAccount,
     ProtocolERC20_DECIMALS: decimals,
+    ProtocolERC20_DECIMAL_MULTIPLIER: decimalMultiplier,
     mintProtocolERC20To: mintTo,
     transferProtocolERC20: transfer,
     balanceOfProtocolERC20: balanceOf,

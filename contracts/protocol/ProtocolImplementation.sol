@@ -43,8 +43,10 @@ contract ProtocolImplementation {
         uint256 contractBalance = _getToken().balanceOf(address(this));
         require(contractBalance >= amount, "Insufficient balance in contract.");
 
+        ProtocolERC20Token token = _getToken();
+
         // Transfer tokens to the user
-        _getToken().transfer(msg.sender, amount);
+        token.transfer(msg.sender, amount * (10 ** token.decimals()));
 
         return true;
     }
