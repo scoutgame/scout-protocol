@@ -80,4 +80,13 @@ contract ProtocolImplementation {
         address tokenAddress = MemoryUtils.getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
         return ProtocolERC20Token(tokenAddress);
     }
+
+    function claimsManager() public view returns (address) {
+      return MemoryUtils.getAddress(MemoryUtils.CLAIM_MANAGER_SLOT);
+    }
+
+    function setClaimsManager(address account) public onlyAdmin {
+      require(account != address(0), "Invalid address");
+      MemoryUtils.setAddress(MemoryUtils.CLAIM_MANAGER_SLOT, account);
+    }
 }

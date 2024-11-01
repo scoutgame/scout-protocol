@@ -1,14 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
+import "@openzeppelin/contracts/utils/Context.sol";
+
 import "./libs/MemoryUtils.sol";
 
-contract ProtocolProxy {
+contract ProtocolProxy is Context {
     using MemoryUtils for bytes32;
 
   // Modifier to restrict access to admin functions
   modifier onlyAdmin() {
-      require(MemoryUtils.isAdmin(msg.sender), "Proxy: caller is not the admin");
+      require(MemoryUtils.isAdmin(_msgSender()), "Proxy: caller is not the admin");
+      _;
+  }
+
+  modifier onlyAdminOrClaimManager() {
+      require(MemoryUtils.isAdmin(_msgSender()) || MemoryUtils.hasRole(MemoryUtils.CLAIM_MANAGER_SLOT, _msgSender()), "Proxy: caller is not the claim manager");
       _;
   }
 
@@ -18,9 +25,10 @@ contract ProtocolProxy {
     ) {
         require(_implementationAddress != address(0), "Invalid implementation address");
         require(_claimsTokenAddress != address(0), "Invalid payment token address");
-        MemoryUtils.setAddress(MemoryUtils.ADMIN_SLOT, msg.sender);
+        MemoryUtils.setAddress(MemoryUtils.ADMIN_SLOT, _msgSender());
         MemoryUtils.setAddress(MemoryUtils.IMPLEMENTATION_SLOT, _implementationAddress);
         MemoryUtils.setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _claimsTokenAddress);
+        MemoryUtils.setAddress(MemoryUtils.CLAIM_MANAGER_SLOT, _msgSender());
     }
 
     function implementation() public view returns (address) {

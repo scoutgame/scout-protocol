@@ -1,5 +1,3 @@
-import { setBalance } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
-
 import { type ProtocolTestFixture } from '../../../deployProtocol';
 import type { ProtocolERC20TestFixture } from '../../../deployProtocolERC20Token';
 import { loadProtocolFixtures } from '../../../fixtures';
@@ -26,10 +24,10 @@ describe('ProtocolImplementation', function () {
     protocol = fixtures.protocol;
     admin = protocol.protocolAdminAccount;
 
-    user = await walletFromKey({ key: '57b7b9b29419b66ac8156f844a7b0eb18d94f729699b3f15a3d8817d3f5980a3' });
-
-    // Provide user with 1 eth
-    await setBalance(user.account.address, 1e18);
+    user = await walletFromKey({
+      key: '57b7b9b29419b66ac8156f844a7b0eb18d94f729699b3f15a3d8817d3f5980a3',
+      initialEthBalance: 1
+    });
 
     await token.mintProtocolERC20To({ account: protocol.protocolContract.address, amount: 100_000 });
 
