@@ -81,15 +81,6 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     JSON.stringify(implementationArtifact.abi, null, 2)
   );
 
-  // Check if the proxy contract exists
-  let proxyAddress = connector.seasonOneProxy;
-  if (proxyAddress) {
-    console.log(`Proxy contract exists at address: ${proxyAddress}`);
-  } else {
-    // Deploy the proxy contract
-    console.log('Proxy contract not found. Deploying a new proxy contract...');
-  }
-
   const proxyOptions = [];
 
   if (connector.scoutgameProtocolProxy) {
@@ -143,7 +134,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
         const proxyAbi = [parseAbiItem('function setImplementation(address _newImplementation)')];
 
         const txHash = await walletClient.writeContract({
-          address: connector.scoutgameProtocolProxy,
+          address: proxyToUpdate,
           abi: proxyAbi,
           functionName: 'setImplementation',
           args: [implementationAddress]
@@ -189,19 +180,18 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
 
     const proxyReceipt = await client.waitForTransactionReceipt({ hash: proxyDeployTx });
 
-    const contractAddress = proxyReceipt.contractAddress;
+    const proxyAddress = proxyReceipt.contractAddress;
 
-    if (!contractAddress) {
+    if (!proxyAddress) {
       throw new Error(`Failed to deploy proxy`);
     }
 
-    proxyAddress = contractAddress;
     console.log('Proxy contract deployed at address:', proxyAddress);
 
     console.log('Verifying proxy contract with etherscan..');
     try {
       execSync(
-        `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${contractAddress} ${deployArgs.join(' ')}`
+        `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')}`
       );
     } catch (err) {
       console.warn('Error verifying contract', err);

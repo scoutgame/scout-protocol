@@ -50,7 +50,12 @@ contract ProtocolImplementation is Context, ProtocolAccessControl {
     // Function to get the Merkle root hash for a given week
     function getMerkleRoot(string memory week) public view returns (bytes32) {
         bytes32 slot = keccak256(abi.encodePacked(week, MemoryUtils.MERKLE_ROOTS_SLOT));
-        return StorageSlot.getBytes32Slot(slot).value;
+
+        bytes32 _merkleRootForWeek = StorageSlot.getBytes32Slot(slot).value;
+
+        require(_merkleRootForWeek != bytes32(0), "Merkle root for this week is not set.");
+
+        return _merkleRootForWeek;
     }
 
     // Function to set the Merkle root for a given week
