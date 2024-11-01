@@ -106,5 +106,15 @@ describe('ProtocolImplementation', function () {
         expect(merkleRoot).toEqual(`0x${rootHash}`);
       });
     });
+
+    describe('permissions', function () {
+      it('reverts when not called by admin', async function () {
+        await expect(
+          protocol.protocolContract.write.setMerkleRoot([week, `0x${rootHash}`], {
+            account: user.account
+          })
+        ).rejects.toThrow('Proxy: caller is not the admin');
+      });
+    });
   });
 });
