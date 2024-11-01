@@ -70,7 +70,8 @@ export const connectors = {
     // This is the new version of the contract with a sudo-type mint
     builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
     usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
-    scoutgameErc20Token: '0x99724de6c8c0e7104541d72a92e511de8b8c6034'
+    scoutgameErc20Token: '0xeb6dd4ca88177a15626348b73417ab077bd2934d',
+    scoutgameProtocolProxy: '0x57515373d8de0e63b287af9f438cf3a408ff268f'
   } as Connector,
   base: {
     rpcUrl: 'https://mainnet.base.org',

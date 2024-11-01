@@ -40,20 +40,16 @@ task('deployScoutGameERC20', 'Deploys or updates the BuilderNFTSeasonOne contrac
 
     const implementationArtifactPath = path.resolve(
       __dirname,
-      '../../artifacts/contracts/protocol/ScoutGameERC20Token.sol/ScoutGameERC20Token.json'
+      '../../artifacts/contracts/protocol/ProtocolERC20Token.sol/ProtocolERC20Token.json'
     );
     const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
     const implementationBytecode = implementationArtifact.bytecode;
     const implementationABI = implementationArtifact.abi;
 
-    // console.log(implementationABI)
-
-    const args = ['Points', 'POINT'];
-
     const encodedDeployData = encodeDeployData({
       abi: implementationABI,
       bytecode: implementationBytecode,
-      args
+      args: []
     });
 
     const deployTx = await walletClient.sendTransaction({
@@ -73,15 +69,19 @@ task('deployScoutGameERC20', 'Deploys or updates the BuilderNFTSeasonOne contrac
 
     console.log('Verifying implementation with etherscan');
     try {
-      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${erc20Address} ${args.join(' ')}`);
+      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${erc20Address}`);
     } catch (err) {
       console.warn('Error verifying contract', err);
     }
 
+    console.log('Writing ABI to file');
+
     fs.writeFileSync(
-      path.resolve(__dirname, '..', '..', 'abis', 'BuilderNFTSeasonOneImplementation01.json'),
+      path.resolve(__dirname, '..', '..', 'abis', 'ProtocolERC20Token.json'),
       JSON.stringify(implementationArtifact.abi, null, 2)
     );
+
+    console.log('Complete');
   }
 );
 

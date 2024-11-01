@@ -13,6 +13,8 @@
     "deploybuilders": "npm run compile && npx hardhat deployBuilderNFTSeasonOne --network",
     "proxy:update": "npx hardhat updateProxyImplementation --network",
     "scoutgame:deploy:erc20": "npx hardhat deployScoutGameERC20 --network",
+    "scoutgame:deploy:protocol": "npx hardhat deployScoutProtocol --network",
+    "scoutgame:protocol": "npx hardhat interactProtocol --network",
     "buildernft": "npx hardhat interactBuilderNFT --network",
     "build:api": "npx tsx lib/generateApiClient.ts"
   },

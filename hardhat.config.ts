@@ -3,29 +3,30 @@ import { vars } from 'hardhat/config';
 
 import '@nomicfoundation/hardhat-ethers';
 
-import '@nomicfoundation/hardhat-toolbox-viem';
 import '@nomicfoundation/hardhat-ignition-viem';
+import '@nomicfoundation/hardhat-toolbox-viem';
 import '@nomicfoundation/hardhat-viem';
 import 'hardhat-jest'; // Enable support for Jest: https://www.npmjs.com/package/hardhat-jest
 
 import type { NetworksUserConfig } from 'hardhat/types';
-import { baseSepolia } from 'viem/chains';
 
 import type { SupportedChains } from './lib/connectors';
 import { connectors } from './lib/connectors';
 
 // Deploys
+import './scripts/deploy/deployBuilderNft';
 import './scripts/deploy/deployCreate2Factory';
 import './scripts/deploy/deployLuckyStarCoin';
-import './scripts/deploy/deployStargateProtocol';
-import './scripts/deploy/deployBuilderNft';
-import './scripts/deploy/updateProxyImplementation';
 import './scripts/deploy/deployScoutGameErc20';
+import './scripts/deploy/deployScoutProtocol';
+import './scripts/deploy/deployStargateProtocol';
+import './scripts/deploy/updateProxyImplementation';
 
 // Interactions
-import './scripts/interact/getUnclaimedBalance';
-import './scripts/interact/claimBalance';
 import './scripts/interact/builderNftApp';
+import './scripts/interact/protocol';
+import './scripts/interact/claimBalance';
+import './scripts/interact/getUnclaimedBalance';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
