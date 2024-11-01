@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class ProtocolProxyClient {
+export class ProtocolImplementationClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;
@@ -52,6 +52,35 @@ export class ProtocolProxyClient {
       type: 'function'
     },
     {
+      inputs: [
+        {
+          internalType: 'string',
+          name: 'week',
+          type: 'string'
+        },
+        {
+          internalType: 'uint256',
+          name: 'amount',
+          type: 'uint256'
+        },
+        {
+          internalType: 'bytes32[]',
+          name: 'proofs',
+          type: 'bytes32[]'
+        }
+      ],
+      name: 'claim',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool'
+        }
+      ],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
       inputs: [],
       name: 'claimsManager',
       outputs: [
@@ -65,26 +94,43 @@ export class ProtocolProxyClient {
       type: 'function'
     },
     {
-      inputs: [],
-      name: 'claimsToken',
+      inputs: [
+        {
+          internalType: 'string',
+          name: 'week',
+          type: 'string'
+        }
+      ],
+      name: 'getMerkleRoot',
       outputs: [
         {
-          internalType: 'address',
+          internalType: 'bytes32',
           name: '',
-          type: 'address'
+          type: 'bytes32'
         }
       ],
       stateMutability: 'view',
       type: 'function'
     },
     {
-      inputs: [],
-      name: 'implementation',
-      outputs: [
+      inputs: [
+        {
+          internalType: 'string',
+          name: 'week',
+          type: 'string'
+        },
         {
           internalType: 'address',
-          name: '',
+          name: 'account',
           type: 'address'
+        }
+      ],
+      name: 'hasClaimed',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool'
         }
       ],
       stateMutability: 'view',
@@ -119,25 +165,17 @@ export class ProtocolProxyClient {
     {
       inputs: [
         {
-          internalType: 'address',
-          name: '_claimsToken',
-          type: 'address'
-        }
-      ],
-      name: 'setClaimsToken',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
-      inputs: [
+          internalType: 'string',
+          name: 'week',
+          type: 'string'
+        },
         {
-          internalType: 'address',
-          name: '_newImplementation',
-          type: 'address'
+          internalType: 'bytes32',
+          name: 'merkleRoot',
+          type: 'bytes32'
         }
       ],
-      name: 'setImplementation',
+      name: 'setMerkleRoot',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function'
@@ -201,6 +239,35 @@ export class ProtocolProxyClient {
     return result as string;
   }
 
+  async claim(params: {
+    args: { week: string; amount: bigint; proofs: any };
+    value?: bigint;
+    gasPrice?: bigint;
+  }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'claim',
+      args: [params.args.week, params.args.amount, params.args.proofs]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
   async claimsManager(): Promise<string> {
     const txData = encodeFunctionData({
       abi: this.abi,
@@ -224,11 +291,11 @@ export class ProtocolProxyClient {
     return result as string;
   }
 
-  async claimsToken(): Promise<string> {
+  async getMerkleRoot(params: { args: { week: string } }): Promise<any> {
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'claimsToken',
-      args: []
+      functionName: 'getMerkleRoot',
+      args: [params.args.week]
     });
 
     const { data } = await this.publicClient.call({
@@ -239,19 +306,19 @@ export class ProtocolProxyClient {
     // Decode the result based on the expected return type
     const result = decodeFunctionResult({
       abi: this.abi,
-      functionName: 'claimsToken',
+      functionName: 'getMerkleRoot',
       data: data as `0x${string}`
     });
 
     // Parse the result based on the return type
-    return result as string;
+    return result as any;
   }
 
-  async implementation(): Promise<string> {
+  async hasClaimed(params: { args: { week: string; account: string } }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'implementation',
-      args: []
+      functionName: 'hasClaimed',
+      args: [params.args.week, params.args.account]
     });
 
     const { data } = await this.publicClient.call({
@@ -262,12 +329,12 @@ export class ProtocolProxyClient {
     // Decode the result based on the expected return type
     const result = decodeFunctionResult({
       abi: this.abi,
-      functionName: 'implementation',
+      functionName: 'hasClaimed',
       data: data as `0x${string}`
     });
 
     // Parse the result based on the return type
-    return result as string;
+    return result as boolean;
   }
 
   async setAdmin(params: {
@@ -328,8 +395,8 @@ export class ProtocolProxyClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async setClaimsToken(params: {
-    args: { _claimsToken: string };
+  async setMerkleRoot(params: {
+    args: { week: string; merkleRoot: any };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -339,37 +406,8 @@ export class ProtocolProxyClient {
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'setClaimsToken',
-      args: [params.args._claimsToken]
-    });
-
-    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
-      to: getAddress(this.contractAddress),
-      data: txData,
-      value: params.value ?? BigInt(0), // Optional value for payable methods
-      gasPrice: params.gasPrice // Optional gasPrice
-    };
-
-    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
-    const tx = await this.walletClient.sendTransaction(txInput as any);
-
-    // Return the transaction receipt
-    return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
-  async setImplementation(params: {
-    args: { _newImplementation: string };
-    value?: bigint;
-    gasPrice?: bigint;
-  }): Promise<TransactionReceipt> {
-    if (!this.walletClient) {
-      throw new Error('Wallet client is required for write operations.');
-    }
-
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'setImplementation',
-      args: [params.args._newImplementation]
+      functionName: 'setMerkleRoot',
+      args: [params.args.week, params.args.merkleRoot]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {

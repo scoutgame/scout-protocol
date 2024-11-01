@@ -74,8 +74,7 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
     }
   ]);
 
-  const contractAddress = connector.scoutgameProtocolProxy;
-  // mode === 'realProxy' ? connector.seasonOneProxy : mode === 'stgProxy' ? connector.devProxy : connector.testDevProxy;
+  const contractAddress = mode === 'realProxy' ? connector.scoutgameProtocolProxy : connector.scoutgameProtocolProxyDev;
   let abi;
 
   if (!contractAddress) {
