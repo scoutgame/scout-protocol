@@ -5,10 +5,11 @@ import "@openzeppelin/contracts/utils/StorageSlot.sol";
 
 library MemoryUtils {
     // Common shared storage slots
-    bytes32 internal constant IMPLEMENTATION_SLOT = keccak256("ScoutGameProxy.implementation");
-    bytes32 internal constant CLAIMS_TOKEN_SLOT = keccak256("ScoutGameProtocol.token");
-    bytes32 internal constant ADMIN_SLOT = keccak256("ScoutGameProtocol.admin");
-    bytes32 internal constant MERKLE_ROOTS_SLOT = keccak256("ScoutGameProtocol.merkleRoots");
+    bytes32 internal constant IMPLEMENTATION_SLOT = keccak256("Proxy.implementation");
+    bytes32 internal constant CLAIMS_TOKEN_SLOT = keccak256("Protocol.token");
+    bytes32 internal constant ADMIN_SLOT = keccak256("Protocol.admin");
+    bytes32 internal constant MERKLE_ROOTS_SLOT = keccak256("Protocol.merkleRoots");
+    bytes32 internal constant CLAIMS_HISTORY_SLOT = keccak256("Protocol.claimsHistory");
 
 
     function isAdmin(address account) internal view returns (bool) {

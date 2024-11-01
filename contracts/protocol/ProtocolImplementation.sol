@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "./ScoutGameERC20Token.sol";
+import "./ProtocolERC20Token.sol";
 import "./libs/MemoryUtils.sol";
+import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
-/// @title ScoutGameProtocol
-/// @notice A schema resolver that manages unclaimed balances based on EAS attestations.
-contract ScoutGameProtocolImplementation {
+
+contract ProtocolImplementation {
     using MemoryUtils for bytes32;
 
     // Modifier to restrict access to admin functions
@@ -31,14 +31,6 @@ contract ScoutGameProtocolImplementation {
         // return true;
     }
 
-       // Function to set a Merkle root hash for a given week
-    function setMerkleRoot(string memory week, string memory merkleRoot) external onlyAdmin {
-        bytes32 slot = keccak256(abi.encodePacked(week, MemoryUtils.MERKLE_ROOTS_SLOT));  
-        assembly {
-            sstore(slot, merkleRoot)
-        }
-    }
-
     // Function to get the Merkle root hash for a given week
     function getMerkleRoot(string memory week) external view returns (string memory) {
         bytes32 slot = keccak256(abi.encodePacked(week, MemoryUtils.MERKLE_ROOTS_SLOT));
@@ -47,6 +39,24 @@ contract ScoutGameProtocolImplementation {
             merkleRoot := sload(slot)
         }
         return merkleRoot;
+    }
+
+    // Function to set the Merkle root for a given week
+    function setMerkleRoot(string memory week, string memory merkleRoot) internal {
+        bytes32 slot = keccak256(abi.encodePacked(week, MemoryUtils.MERKLE_ROOTS_SLOT));
+        StorageSlot.getStringSlot(slot).value = merkleRoot;
+    }
+
+    // Function to check if an address has claimed for a given week
+    function hasClaimed(string memory week, address account) internal view returns (bool) {
+        bytes32 slot = keccak256(abi.encodePacked(week, account, MemoryUtils.CLAIMS_HISTORY_SLOT));
+        return StorageSlot.getBooleanSlot(slot).value;
+    }
+
+    // Function to set the claim status for an address for a given week
+    function setClaimed(string memory week, address account) internal {
+        bytes32 slot = keccak256(abi.encodePacked(week, account, MemoryUtils.CLAIMS_HISTORY_SLOT));
+        StorageSlot.getBooleanSlot(slot).value = true;
     }
 
 }

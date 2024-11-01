@@ -3,7 +3,7 @@ pragma solidity ^0.8.26;
 
 import "./libs/MemoryUtils.sol";
 
-contract ScoutGameProxy {
+contract ProtocolProxy {
     using MemoryUtils for bytes32;
 
   // Modifier to restrict access to admin functions
