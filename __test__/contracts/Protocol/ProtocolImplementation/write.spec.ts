@@ -11,14 +11,11 @@ describe('ProtocolImplementation', function () {
   const week = '2024-W41';
   const amount = 100;
   const proofs = [
-    // Left
-    '3078333634343665463637313935343735333830316639643733433431356138304330653535306233323a343030',
-    // Left
-    '24caf43479f3026dcaab3542e27ca3a60bb7c2ba8dad845d81248191bd6e0032',
-    // Right
-    '3078443032393533383537323530443332454337323036346439453233323042343332393645353243303a353030'
-  ];
-  const rootHash = '62c93b02027192049fc5b6624108087af167b1e2eeecaa79b83900a03fc224df';
+    '0x88fef743eb2ba108c1ffe0641f5a75074645a3dbac802311e64110fe3ee522b7',
+    '0x72857e15059e88e5883a147e689a03b9d4cd1df50b1edcaef92cc56e279a7677',
+    '0xaecdc66c7cdd3464311f6e34612ea80b6bcdf07555ddf5e9e9481ef40a1894b0'
+  ] as const;
+  const rootHash = '9de37c56d9eeb93e34fd8764b168879ee52d3559abeb943d9d730efe002c52cc';
 
   beforeEach(async () => {
     token = await deployProtocolERC20Token();
@@ -35,7 +32,11 @@ describe('ProtocolImplementation', function () {
   describe('claim', function () {
     describe('effects', function () {
       it('allows a user to claim tokens correctly', async function () {
-        await protocol.protocolContract.write.claim([week, BigInt(amount), proofs.map((p) => `0x${p}` as any)], {
+        const protocolBalance = await token.balanceOfProtocolERC20({ account: protocol.protocolContract.address });
+
+        console.log({ protocolBalance });
+
+        await protocol.protocolContract.write.claim([week, BigInt(amount), proofs], {
           account: user.account
         });
 
@@ -62,7 +63,10 @@ describe('ProtocolImplementation', function () {
 
     describe('validations', function () {
       it('reverts with invalid merkle proof', async function () {
-        const invalidProofs = ['0xdeadbeef'];
+        const invalidProofs = [
+          '0x11fef743eb2ba923c1ffe0641f5a75074645a3dbac802311e64110fe3ee522b7',
+          '0x22fef743eb2ba923c1ffe0641f5a75074645a3dbac802311e64110fe3ee522b7'
+        ];
         await expect(
           protocol.protocolContract.write.claim([week, BigInt(amount), invalidProofs as any])
         ).rejects.toThrow('Invalid Merkle proof.');
@@ -87,6 +91,20 @@ describe('ProtocolImplementation', function () {
             wallet: admin
           })
         ).rejects.toThrow('Insufficient balance in contract.');
+      });
+    });
+  });
+
+  describe('setMerkleRoot', function () {
+    describe('effects', function () {
+      it('allows admin to set merkle root correctly', async function () {
+        await protocol.protocolContract.write.setMerkleRoot([week, `0x${rootHash}`]);
+
+        const merkleRoot = await protocol.protocolContract.read.getMerkleRoot([week]);
+
+        console.log({ merkleRoot });
+
+        expect(merkleRoot).toEqual(`0x${rootHash}`);
       });
     });
   });
