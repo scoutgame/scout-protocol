@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import "./ProtocolAccessControl.sol";
+import "./libs/ProtocolAccessControl.sol";
 import "./libs/MemoryUtils.sol";
 
 contract ProtocolProxy is Context, ProtocolAccessControl {
@@ -14,33 +14,35 @@ contract ProtocolProxy is Context, ProtocolAccessControl {
     ) {
         require(_implementationAddress != address(0), "Invalid implementation address");
         require(_claimsTokenAddress != address(0), "Invalid payment token address");
-        MemoryUtils.setAddress(MemoryUtils.ADMIN_SLOT, _msgSender());
-        MemoryUtils.setAddress(MemoryUtils.IMPLEMENTATION_SLOT, _implementationAddress);
-        MemoryUtils.setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _claimsTokenAddress);
-        MemoryUtils.setAddress(MemoryUtils.CLAIM_MANAGER_SLOT, _msgSender());
+        _setRole(MemoryUtils.ADMIN_SLOT, _msgSender());
+        _setRole(MemoryUtils.CLAIM_MANAGER_SLOT, _msgSender());
+
+
+        MemoryUtils._setAddress(MemoryUtils.IMPLEMENTATION_SLOT, _implementationAddress);
+        MemoryUtils._setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _claimsTokenAddress);
     }
 
     function implementation() public view returns (address) {
-        return MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT);
+        return MemoryUtils._getAddress(MemoryUtils.IMPLEMENTATION_SLOT);
     }
 
     function setImplementation(address _newImplementation) external onlyAdmin {
         require(_newImplementation != address(0), "Invalid implementation address");
-        MemoryUtils.setAddress(MemoryUtils.IMPLEMENTATION_SLOT, _newImplementation);
+        MemoryUtils._setAddress(MemoryUtils.IMPLEMENTATION_SLOT, _newImplementation);
     }
 
     function claimsToken() public view returns (address) {
-        return MemoryUtils.getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
+        return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }
 
     function setClaimsToken(address _claimsToken) external onlyAdmin {
         require(_claimsToken != address(0), "Invalid payment token address");
-        require(MemoryUtils.isContract(_claimsToken), "Payment token must be a contract");
-        MemoryUtils.setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _claimsToken);
+        require(MemoryUtils._isContract(_claimsToken), "Payment token must be a contract");
+        MemoryUtils._setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _claimsToken);
     }
 
     fallback() external payable {
-        address impl = MemoryUtils.getAddress(MemoryUtils.IMPLEMENTATION_SLOT);
+        address impl = implementation();
         require(impl != address(0), "Implementation not set");
 
         assembly {

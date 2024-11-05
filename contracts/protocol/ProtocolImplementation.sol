@@ -3,13 +3,19 @@ pragma solidity ^0.8.26;
 
 import "./ProtocolERC20Token.sol";
 import "./libs/MemoryUtils.sol";
-import "./ProtocolAccessControl.sol";
+import "./libs/ProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/StorageSlot.sol";
 
 contract ProtocolImplementation is Context, ProtocolAccessControl {
     using MemoryUtils for bytes32;
+
+
+    modifier onlyAdminOrClaimManager() {
+      require(_hasRole(MemoryUtils.CLAIM_MANAGER_SLOT) || _isAdmin() , "Proxy: caller is not the claim manager");
+        _;
+    }
 
     // Allow the sender to claim their balance as ERC20 tokens
     function claim(
@@ -78,7 +84,16 @@ contract ProtocolImplementation is Context, ProtocolAccessControl {
 
     // Function to get the ERC20 token instance
     function _getToken() internal view returns (ProtocolERC20Token) {
-        address tokenAddress = MemoryUtils.getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
+        address tokenAddress = MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
         return ProtocolERC20Token(tokenAddress);
+    }
+
+    function claimsManager() public view returns (address) {
+      return _roleHolder(MemoryUtils.CLAIM_MANAGER_SLOT);
+    }
+
+    function setClaimsManager(address account) external onlyAdmin {
+      require(account != address(0), "Invalid address");
+      _setRole(MemoryUtils.CLAIM_MANAGER_SLOT, account);
     }
 }
