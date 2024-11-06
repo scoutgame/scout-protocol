@@ -1,3 +1,5 @@
+import { getAddress } from 'viem';
+
 import { deployProtocolContract } from '../deployProtocol';
 import { deployProtocolERC20Token } from '../deployProtocolERC20Token';
 
@@ -14,9 +16,9 @@ describe('Proxy and Initialization', function () {
     const proxyImplementationAddress = await protocolProxyContract.read.implementation();
     const erc20ContractAddress = await protocolProxyContract.read.claimsToken();
 
-    expect(proxyAdminAddress.toLowerCase()).toBe(protocolAdminAccount.account.address);
-    expect(proxyImplementationAddress.toLowerCase()).toBe(protocolImplementationContract.address);
-    expect(protocolImplementationContract.address).not.toBe(protocolProxyContract.address);
-    expect(erc20ContractAddress.toLowerCase()).toBe(ProtocolERC20.address);
+    expect(proxyAdminAddress).toBe(protocolAdminAccount.account.address);
+    expect(proxyImplementationAddress).toBe(getAddress(protocolImplementationContract.address));
+    expect(protocolImplementationContract.address).not.toBe(getAddress(protocolProxyContract.address));
+    expect(erc20ContractAddress).toBe(getAddress(ProtocolERC20.address));
   });
 });

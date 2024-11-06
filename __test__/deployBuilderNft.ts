@@ -7,17 +7,21 @@ import { generateWallets } from './generateWallets';
 export async function deployBuilderNftContract({ USDCContractAddress }: { USDCContractAddress?: Address } = {}) {
   const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
-  const implementation = await viem.deployContract('BuilderNFTSeasonOneImplementation01');
+  const implementation = await viem.deployContract('BuilderNFTSeasonOneImplementation01', [], {
+    client: { wallet: admin }
+  });
 
   const proceedsReceiver = proceedsReceiverAccount.account.address;
 
   const erc20Contract = USDCContractAddress || (await deployTestUSDC().then(({ USDC }) => USDC.address));
 
-  const proxy = await viem.deployContract('BuilderNFTSeasonOneUpgradeable', [
-    implementation.address,
-    erc20Contract as Address,
-    proceedsReceiver
-  ]);
+  const proxy = await viem.deployContract(
+    'BuilderNFTSeasonOneUpgradeable',
+    [implementation.address, erc20Contract as Address, proceedsReceiver],
+    {
+      client: { wallet: admin }
+    }
+  );
 
   // Make the implementation ABI available to the proxy
   const proxyWithImplementationABI = await viem.getContractAt(

@@ -2,14 +2,15 @@ import { viem } from 'hardhat';
 import { parseEventLogs } from 'viem';
 
 import { NULL_ADDRESS } from '../lib/constants';
-import type { BuilderEventAttestation } from '../lib/eas';
+import type { ContributionReceiptAttestation } from '../lib/eas';
 import {
-  builderEventEASSchema,
-  decodeBuilderEventAttestation,
-  encodeBuilderEventAttestation,
+  contributionReceiptEASSchema,
+  decodeContributionReceiptAttestation,
+  encodeContributionReceiptAttestation,
   NULL_EAS_REF_UID
 } from '../lib/eas';
 
+import type { GeneratedWallet } from './generateWallets';
 import { generateWallets } from './generateWallets';
 
 export async function deployEASContracts() {
@@ -30,7 +31,7 @@ export async function deployEASContracts() {
   );
 
   const contributionReceiptSchemaTx = await EASSchemaRegistryContract.write.register(
-    [builderEventEASSchema, ProtocolEASResolverContract.address, true],
+    [contributionReceiptEASSchema, ProtocolEASResolverContract.address, true],
     {
       account: attesterWallet.account
     }
@@ -46,7 +47,13 @@ export async function deployEASContracts() {
 
   const contributionReceiptSchemaId = parsedLogs[0].args.uid;
 
-  async function attestContributionReceipt({ data }: { data: BuilderEventAttestation }): Promise<string> {
+  async function attestContributionReceipt({
+    data,
+    wallet
+  }: {
+    data: ContributionReceiptAttestation;
+    wallet?: GeneratedWallet;
+  }): Promise<`0x${string}`> {
     const attestArgs: Parameters<typeof EASAttestationContract.write.attest>[0] = [
       {
         schema: contributionReceiptSchemaId,
@@ -56,12 +63,14 @@ export async function deployEASContracts() {
           recipient: NULL_ADDRESS,
           refUID: NULL_EAS_REF_UID,
           expirationTime: BigInt(0),
-          data: encodeBuilderEventAttestation(data)
+          data: encodeContributionReceiptAttestation(data)
         }
       }
     ];
 
-    const attestationTx = await EASAttestationContract.write.attest(attestArgs, { account: attesterWallet.account });
+    const attestationTx = await EASAttestationContract.write.attest(attestArgs, {
+      account: wallet?.account ?? attesterWallet.account
+    });
 
     const _receipt = await attesterWallet.getTransactionReceipt({ hash: attestationTx });
 
@@ -76,10 +85,10 @@ export async function deployEASContracts() {
     return attestationUid;
   }
 
-  async function getContributionReceipt(attestationUid: string): Promise<BuilderEventAttestation> {
+  async function getContributionReceipt(attestationUid: string): Promise<ContributionReceiptAttestation> {
     const onchainAttestationData = await EASAttestationContract.read.getAttestation([attestationUid as `0x${string}`]);
 
-    const decodedData = decodeBuilderEventAttestation(onchainAttestationData.data);
+    const decodedData = decodeContributionReceiptAttestation(onchainAttestationData.data);
 
     return decodedData;
   }

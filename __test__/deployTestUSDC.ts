@@ -16,7 +16,8 @@ export async function deployTestUSDC({ minterWallet }: { minterWallet?: Generate
   });
 
   const libraries = {
-    'contracts/FiatTokenV2_2/contracts/util/SignatureCheckerFiatProxy.sol:SignatureCheckerFiatProxy': SignatureCheckerFiatProxy.address
+    'contracts/FiatTokenV2_2/contracts/util/SignatureCheckerFiatProxy.sol:SignatureCheckerFiatProxy':
+      SignatureCheckerFiatProxy.address
   };
 
   // Step 3: Deploy the USDC Implementation Contract (FiatTokenV2_2)
