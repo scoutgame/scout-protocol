@@ -17,7 +17,11 @@ library MemoryUtils {
     // 3. Roles
     bytes32 internal constant ADMIN_SLOT = keccak256("Protocol.admin");
     bytes32 internal constant CLAIM_MANAGER_SLOT = keccak256("Protocol.claimsManager");
+
     bytes32 internal constant EAS_ATTESTER_SLOT = keccak256("Protocol.easAttester");
+    bytes32 internal constant SECONDARY_EAS_ATTESTER_SLOT = keccak256("Protocol.easAttester");
+
+
     function _isContract(address account) internal view returns (bool) {
       return account.code.length > 0;
     }

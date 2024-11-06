@@ -44,6 +44,7 @@
   },
   "dependencies": {
     "@ethereum-attestation-service/eas-contracts": "^1.7.1",
+    "@ethereum-attestation-service/eas-sdk": "^2.7.0",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@pinata/sdk": "^2.1.0",

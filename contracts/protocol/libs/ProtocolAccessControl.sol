@@ -20,7 +20,7 @@ contract ProtocolAccessControl is Context {
     }
 
     function _setRole(bytes32 role, address account) internal {
-      require(account != address(0), "Invalid account");
+      require(account != address(0), "Invalid account. Cannot be empty");
 
       address _currentHolder = _roleHolder(role);
 

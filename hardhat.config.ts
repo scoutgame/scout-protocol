@@ -1,8 +1,7 @@
-import type { HardhatUserConfig } from 'hardhat/config';
 import { vars } from 'hardhat/config';
+import type { HardhatUserConfig } from 'hardhat/config';
 
 import '@nomicfoundation/hardhat-ethers';
-
 import '@nomicfoundation/hardhat-ignition-viem';
 import '@nomicfoundation/hardhat-toolbox-viem';
 import '@nomicfoundation/hardhat-viem';
@@ -36,7 +35,13 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
     solidity: {
       compilers: [
         {
-          version: '0.8.26' // Your contracts
+          version: '0.8.26', // Your contracts
+          settings: {
+            optimizer: {
+              enabled: true,
+              runs: 200
+            }
+          }
         },
         {
           version: '0.6.12', // USDC contracts
