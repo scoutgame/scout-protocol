@@ -51,9 +51,9 @@ contract ProtocolEASResolver is SchemaResolver, Context, ProtocolAccessControl {
 
       address _currentAttester = attesterWallet();
 
-      MemoryUtils._setAddress(MemoryUtils.SECONDARY_EAS_ATTESTER_SLOT, _msgSender());
+      MemoryUtils._setAddress(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
 
-      MemoryUtils._setAddress(MemoryUtils.EAS_ATTESTER_SLOT, _msgSender());
+      MemoryUtils._setAddress(MemoryUtils.SECONDARY_EAS_ATTESTER_SLOT, _currentAttester);
     }
 
     function attesterWallet() public view returns (address) {

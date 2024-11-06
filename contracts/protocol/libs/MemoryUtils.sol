@@ -19,7 +19,7 @@ library MemoryUtils {
     bytes32 internal constant CLAIM_MANAGER_SLOT = keccak256("Protocol.claimsManager");
 
     bytes32 internal constant EAS_ATTESTER_SLOT = keccak256("Protocol.easAttester");
-    bytes32 internal constant SECONDARY_EAS_ATTESTER_SLOT = keccak256("Protocol.easAttester");
+    bytes32 internal constant SECONDARY_EAS_ATTESTER_SLOT = keccak256("Protocol.easAttesterSecondary");
 
 
     function _isContract(address account) internal view returns (bool) {

@@ -20,10 +20,10 @@ describe('ProtocolImplementation', function () {
     });
   });
 
-  describe('setAdmin', function () {
+  describe('transferAdmin', function () {
     describe('effects', function () {
       it('allows admin to transfer admin', async function () {
-        await protocol.protocolContract.write.setAdmin([user.account.address], {
+        await protocol.protocolContract.write.transferAdmin([user.account.address], {
           account: admin.account
         });
 
@@ -33,30 +33,30 @@ describe('ProtocolImplementation', function () {
 
         // Make sure the old admin is no longer an admin
         await expect(
-          protocol.protocolContract.write.setAdmin([user.account.address], {
+          protocol.protocolContract.write.transferAdmin([user.account.address], {
             account: admin.account
           })
-        ).rejects.toThrow('Proxy: caller is not the admin');
+        ).rejects.toThrow('Caller is not the admin');
       });
     });
 
     describe('permissions', function () {
       it('reverts when not called by admin', async function () {
         await expect(
-          protocol.protocolContract.write.setAdmin([user.account.address], {
+          protocol.protocolContract.write.transferAdmin([user.account.address], {
             account: user.account
           })
-        ).rejects.toThrow('Proxy: caller is not the admin');
+        ).rejects.toThrow('Caller is not the admin');
       });
     });
 
     describe('validations', function () {
       it('reverts when setting to zero address', async function () {
         await expect(
-          protocol.protocolContract.write.setAdmin(['0x0000000000000000000000000000000000000000'], {
+          protocol.protocolContract.write.transferAdmin(['0x0000000000000000000000000000000000000000'], {
             account: admin.account
           })
-        ).rejects.toThrow('Invalid admin address');
+        ).rejects.toThrow('Invalid account. Cannot be empty');
       });
     });
   });
@@ -80,7 +80,7 @@ describe('ProtocolImplementation', function () {
           protocol.protocolContract.write.setClaimsManager([user.account.address], {
             account: user.account
           })
-        ).rejects.toThrow('Proxy: caller is not the admin');
+        ).rejects.toThrow('Caller is not the admin');
       });
     });
 

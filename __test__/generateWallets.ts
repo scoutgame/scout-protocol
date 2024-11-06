@@ -2,14 +2,35 @@ import { setBalance } from '@nomicfoundation/hardhat-toolbox-viem/network-helper
 import { viem } from 'hardhat';
 import type { Address } from 'viem';
 import { publicActions } from 'viem';
-import { privateKeyToAccount } from 'viem/accounts';
+import { privateKeyToAccount, generatePrivateKey } from 'viem/accounts';
 
 export type GeneratedWalletConfig = {
   initialEthBalance?: number;
 };
 
-export async function generateWallets({ initialEthBalance }: GeneratedWalletConfig = {}) {
-  const [adminAccount, userAccount, secondUserAccount, thirdUserAccount] = await viem.getWalletClients();
+export async function generateWallets({ initialEthBalance = 1 }: GeneratedWalletConfig = { initialEthBalance: 1 }) {
+  const [adminAccount, userAccount, secondUserAccount, thirdUserAccount] = await Promise.all([
+    viem
+      .getWalletClients({
+        account: privateKeyToAccount(generatePrivateKey())
+      })
+      .then(([client]) => client.extend(publicActions)),
+    viem
+      .getWalletClients({
+        account: privateKeyToAccount(generatePrivateKey())
+      })
+      .then(([client]) => client.extend(publicActions)),
+    viem
+      .getWalletClients({
+        account: privateKeyToAccount(generatePrivateKey())
+      })
+      .then(([client]) => client.extend(publicActions)),
+    viem
+      .getWalletClients({
+        account: privateKeyToAccount(generatePrivateKey())
+      })
+      .then(([client]) => client.extend(publicActions))
+  ]);
 
   if (initialEthBalance) {
     const balance = BigInt(initialEthBalance * 1e18);
