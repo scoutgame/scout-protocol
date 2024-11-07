@@ -44,7 +44,7 @@
     "typechain": "^8.3.2"
   },
   "dependencies": {
-    "@charmverse/core": "^0.94.1-rc-weekly-claims.7",
+    "@charmverse/core": "^0.94.1-rc-weekly-claims.10",
     "@ethereum-attestation-service/eas-contracts": "^1.7.1",
     "@ethereum-attestation-service/eas-sdk": "^2.7.0",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
