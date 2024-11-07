@@ -35,10 +35,12 @@ export async function generateWallets({ initialEthBalance = 1 }: GeneratedWallet
   if (initialEthBalance) {
     const balance = BigInt(initialEthBalance * 1e18);
 
-    setBalance(userAccount.account.address, balance);
-    setBalance(secondUserAccount.account.address, balance);
-    setBalance(thirdUserAccount.account.address, balance);
-    setBalance(adminAccount.account.address, balance);
+    await Promise.all([
+      setBalance(userAccount.account.address, balance),
+      setBalance(secondUserAccount.account.address, balance),
+      setBalance(thirdUserAccount.account.address, balance),
+      setBalance(adminAccount.account.address, balance)
+    ]);
   }
 
   return {
