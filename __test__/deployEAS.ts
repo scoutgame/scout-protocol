@@ -1,7 +1,7 @@
 import {
   decodeGithubContributionReceiptAttestation,
   encodeGithubContributionReceiptAttestation,
-  githubContributionReceiptEASSchema,
+  githubContributionSchemaDefinition,
   NULL_EAS_REF_UID,
   NULL_EVM_ADDRESS
 } from '@charmverse/core/protocol';
@@ -30,7 +30,7 @@ export async function deployEASContracts() {
   );
 
   const githubContributionReceiptSchemaTx = await EASSchemaRegistryContract.write.register(
-    [githubContributionReceiptEASSchema, ProtocolEASResolverContract.address, true],
+    [githubContributionSchemaDefinition.schema, ProtocolEASResolverContract.address, true],
     {
       account: attester.account
     }

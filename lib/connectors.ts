@@ -19,6 +19,8 @@ type Connector = {
   seasonOneProxy?: Address | null;
   devProxy?: Address | null;
   testDevProxy?: Address | null;
+  easBaseUrl?: string;
+  easAttestationContract?: Address | null;
   scoutgameErc20TokenDev?: Address | null;
   scoutgameProtocolProxyDev?: Address | null;
   scoutgameErc20Token?: Address | null;
@@ -75,7 +77,9 @@ export const connectors = {
     scoutgameErc20Token: '0x26d76d564910c063d0953d8636add5027c0337ce',
     scoutgameProtocolProxy: '0x57515373d8de0e63b287af9f438cf3a408ff268f',
     scoutgameErc20TokenDev: '0xeB6dd4Ca88177A15626348b73417AB077Bd2934D',
-    scoutgameProtocolProxyDev: '0x33b36c0c32aabaabd9d153c636e81c30e12c434c'
+    scoutgameProtocolProxyDev: '0x33b36c0c32aabaabd9d153c636e81c30e12c434c',
+    easAttestationContract: '0x4200000000000000000000000000000000000021',
+    easBaseUrl: 'https://base-sepolia.easscan.org'
   } as Connector,
   base: {
     rpcUrl: 'https://mainnet.base.org',
@@ -84,7 +88,9 @@ export const connectors = {
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x278cc8861cfc93ea47c9e89b1876d0def2037c27',
-    usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+    usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    easAttestationContract: '0x4200000000000000000000000000000000000021',
+    easBaseUrl: 'https://base.easscan.org'
   } as Connector
 } as const;
 
@@ -114,4 +120,26 @@ export function getConnectorFromHardhatRuntimeEnvironment(hre: HardhatRuntimeEnv
   }
 
   return connector;
+}
+
+export function getEasUrl({
+  chain,
+  type,
+  uid
+}: {
+  chain: SupportedChains;
+  type: 'schemas_list' | 'schema' | 'attestion';
+  uid?: string;
+}) {
+  const baseUrl = connectors[chain].easBaseUrl || '';
+
+  if (type === 'schemas_list') {
+    return `${baseUrl}/schemas`;
+  } else if (type === 'schema') {
+    return `${baseUrl}/schema/view/${uid}`;
+  } else if (type === 'attestion') {
+    return `${baseUrl}/attestation/view/${uid}`;
+  }
+
+  throw new Error('Invalid type');
 }

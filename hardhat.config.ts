@@ -12,16 +12,18 @@ import type { NetworksUserConfig } from 'hardhat/types';
 import type { SupportedChains } from './lib/connectors';
 import { connectors } from './lib/connectors';
 
-// Deploys
+// Deploys ------------------------------
 import './scripts/deploy/deployBuilderNft';
 import './scripts/deploy/deployCreate2Factory';
 import './scripts/deploy/deployLuckyStarCoin';
+// Scout Game Protocol
 import './scripts/deploy/deployScoutGameErc20';
 import './scripts/deploy/deployScoutProtocol';
 import './scripts/deploy/deployStargateProtocol';
+import './scripts/deploy/deployEASSchemas';
 import './scripts/deploy/updateProxyImplementation';
 
-// Interactions
+// Interactions ------------------------------
 import './scripts/interact/builderNftApp';
 import './scripts/interact/protocol';
 import './scripts/interact/claimBalance';

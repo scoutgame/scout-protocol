@@ -13,6 +13,7 @@
     "deploybuilders": "npm run compile && npx hardhat deployBuilderNFTSeasonOne --network",
     "proxy:update": "npx hardhat updateProxyImplementation --network",
     "scout:deploy:erc20": "npx hardhat deployScoutGameERC20 --network",
+    "scout:deploy:schemas": "npx hardhat deployEASSchemas --network",
     "scout:deploy:protocol": "npx hardhat deployScoutProtocol --network",
     "scout:protocol": "npx hardhat interactProtocol --network",
     "buildernft": "npx hardhat interactBuilderNFT --network",
@@ -43,7 +44,7 @@
     "typechain": "^8.3.2"
   },
   "dependencies": {
-    "@charmverse/core": "^0.94.1-rc-weekly-claims.4",
+    "@charmverse/core": "^0.94.1-rc-weekly-claims.7",
     "@ethereum-attestation-service/eas-contracts": "^1.7.1",
     "@ethereum-attestation-service/eas-sdk": "^2.7.0",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
