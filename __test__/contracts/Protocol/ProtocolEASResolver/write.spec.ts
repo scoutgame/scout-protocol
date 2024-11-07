@@ -1,8 +1,11 @@
+import {
+  decodeGithubContributionReceiptAttestation,
+  NULL_EAS_REF_UID,
+  NULL_EVM_ADDRESS,
+  type GithubContributionReceiptAttestation
+} from '@charmverse/core/protocol';
 import { getAddress } from 'viem';
 
-import { NULL_ADDRESS } from '../../../../lib/constants';
-import type { ContributionReceiptAttestation } from '../../../../lib/eas';
-import { decodeContributionReceiptAttestation } from '../../../../lib/eas';
 import type { EASTestFixture } from '../../../deployEAS';
 import { loadEASFixtures } from '../../../fixtures';
 import { generateWallets, type GeneratedWallet } from '../../../generateWallets';
@@ -62,7 +65,7 @@ describe('ProtocolEASResolver', function () {
     describe('validations', function () {
       it('reverts when input is invalid', async function () {
         await expect(
-          eas.ProtocolEASResolverContract.write.setAttesterWallet([NULL_ADDRESS], {
+          eas.ProtocolEASResolverContract.write.setAttesterWallet([NULL_EVM_ADDRESS], {
             account: easResolverAdmin.account
           })
         ).rejects.toThrow('Invalid attester wallet address');
@@ -114,7 +117,7 @@ describe('ProtocolEASResolver', function () {
     describe('validations', function () {
       it('reverts when input is invalid', async function () {
         await expect(
-          eas.ProtocolEASResolverContract.write.rolloverAttesterWallet([NULL_ADDRESS], {
+          eas.ProtocolEASResolverContract.write.rolloverAttesterWallet([NULL_EVM_ADDRESS], {
             account: easResolverAdmin.account
           })
         ).rejects.toThrow('Invalid attester wallet address');
@@ -162,7 +165,7 @@ describe('ProtocolEASResolver', function () {
     describe('validations', function () {
       it('reverts when input is invalid', async function () {
         await expect(
-          eas.ProtocolEASResolverContract.write.transferAdmin([NULL_ADDRESS], {
+          eas.ProtocolEASResolverContract.write.transferAdmin([NULL_EVM_ADDRESS], {
             account: easResolverAdmin.account
           })
         ).rejects.toThrow('Invalid account. Cannot be empty');
@@ -171,9 +174,9 @@ describe('ProtocolEASResolver', function () {
   });
 
   describe('onAttest', function () {
-    const data: ContributionReceiptAttestation = {
+    const data: GithubContributionReceiptAttestation = {
       description: 'test',
-      userRefUID: '0x1',
+      userRefUID: NULL_EAS_REF_UID,
       metadataUrl: 'https://www.example.com',
       url: 'https://github.com/ethereum/ethereum-org-website/pull/100',
       type: 'merged_pr',
@@ -189,7 +192,7 @@ describe('ProtocolEASResolver', function () {
 
         const attestation = await eas.EASAttestationContract.read.getAttestation([attestationUid]);
 
-        const decoded = decodeContributionReceiptAttestation(attestation.data);
+        const decoded = decodeGithubContributionReceiptAttestation(attestation.data);
 
         expect(decoded).toMatchObject(data);
       });
@@ -201,7 +204,7 @@ describe('ProtocolEASResolver', function () {
 
         const attestation = await eas.EASAttestationContract.read.getAttestation([attestationUid]);
 
-        const decoded = decodeContributionReceiptAttestation(attestation.data);
+        const decoded = decodeGithubContributionReceiptAttestation(attestation.data);
 
         expect(decoded).toMatchObject(data);
       });
