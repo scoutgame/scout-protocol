@@ -1,39 +1,51 @@
-import type { ProtocolTestFixture } from '../../../deployProtocol';
-import { loadProtocolFixtures } from '../../../fixtures';
-import type { GeneratedWallet } from '../../../generateWallets';
-import { walletFromKey } from '../../../generateWallets';
+import { viem } from 'hardhat';
+import { keccak256, toBytes, parseEventLogs } from 'viem';
 
-describe('ProtocolImplementation', function () {
-  let protocol: ProtocolTestFixture;
+import { generateWallets, type GeneratedWallet } from '../../../generateWallets';
+
+export const ADMIN_SLOT = keccak256(toBytes('Protocol.admin'));
+export const CLAIM_MANAGER_SLOT = keccak256(toBytes('Protocol.claimsManager'));
+
+export const EAS_ATTESTER_SLOT = keccak256(toBytes('Protocol.easAttester'));
+export const SECONDARY_EAS_ATTESTER_SLOT = keccak256(toBytes('Protocol.easAttesterSecondary'));
+
+async function deployTestAccessControl() {
+  const { adminAccount, userAccount } = await generateWallets();
+
+  const testAccessControlContract = await viem.deployContract('TestProtocolAccessControl', [], {
+    client: { wallet: adminAccount }
+  });
+
+  return {
+    adminAccount,
+    userAccount,
+    testAccessControlContract
+  };
+}
+
+describe('ProtocolAccessControl', function () {
+  let testAccessControlContract: Awaited<ReturnType<typeof deployTestAccessControl>>['testAccessControlContract'];
   let admin: GeneratedWallet;
   let user: GeneratedWallet;
 
   beforeEach(async () => {
-    const fixtures = await loadProtocolFixtures();
-
-    protocol = fixtures.protocol;
-    admin = protocol.protocolAdminAccount;
-
-    user = await walletFromKey({
-      key: '57b7b9b29419b66ac8156f844a7b0eb18d94f729699b3f15a3d8817d3f5980a3',
-      initialEthBalance: 1
-    });
+    ({ adminAccount: admin, userAccount: user, testAccessControlContract } = await deployTestAccessControl());
   });
 
   describe('transferAdmin', function () {
     describe('effects', function () {
       it('allows admin to transfer admin', async function () {
-        await protocol.protocolContract.write.transferAdmin([user.account.address], {
+        await testAccessControlContract.write.transferAdmin([user.account.address], {
           account: admin.account
         });
 
-        const newAdmin = await protocol.protocolContract.read.admin();
+        const newAdmin = await testAccessControlContract.read.admin();
 
         expect(newAdmin).toEqual(user.account.address);
 
         // Make sure the old admin is no longer an admin
         await expect(
-          protocol.protocolContract.write.transferAdmin([user.account.address], {
+          testAccessControlContract.write.transferAdmin([user.account.address], {
             account: admin.account
           })
         ).rejects.toThrow('Caller is not the admin');
@@ -43,7 +55,7 @@ describe('ProtocolImplementation', function () {
     describe('permissions', function () {
       it('reverts when not called by admin', async function () {
         await expect(
-          protocol.protocolContract.write.transferAdmin([user.account.address], {
+          testAccessControlContract.write.transferAdmin([user.account.address], {
             account: user.account
           })
         ).rejects.toThrow('Caller is not the admin');
@@ -53,7 +65,7 @@ describe('ProtocolImplementation', function () {
     describe('validations', function () {
       it('reverts when setting to zero address', async function () {
         await expect(
-          protocol.protocolContract.write.transferAdmin(['0x0000000000000000000000000000000000000000'], {
+          testAccessControlContract.write.transferAdmin(['0x0000000000000000000000000000000000000000'], {
             account: admin.account
           })
         ).rejects.toThrow('Invalid account. Cannot be empty');
@@ -61,36 +73,64 @@ describe('ProtocolImplementation', function () {
     });
   });
 
-  describe('setClaimsManager', function () {
+  describe('setRole', function () {
     describe('effects', function () {
-      it('allows admin to set claims manager correctly', async function () {
-        await protocol.protocolContract.write.setClaimsManager([user.account.address], {
+      it('sets a role to a new account', async function () {
+        await testAccessControlContract.write.setRole([ADMIN_SLOT, user.account.address], {
           account: admin.account
         });
 
-        const claimsManager = await protocol.protocolContract.read.claimsManager();
+        const holder = await testAccessControlContract.read.roleHolder([ADMIN_SLOT]);
 
-        expect(claimsManager).toEqual(user.account.address);
+        expect(holder).toEqual(user.account.address);
       });
     });
 
-    describe('permissions', function () {
-      it('reverts when not called by admin', async function () {
-        await expect(
-          protocol.protocolContract.write.setClaimsManager([user.account.address], {
-            account: user.account
-          })
-        ).rejects.toThrow('Caller is not the admin');
+    describe('events', function () {
+      it('emits a RoleTransferred event with roleName, previous and new holder if the new holder is different from the previous one', async function () {
+        const transferRoleTx = await testAccessControlContract.write.setRole([ADMIN_SLOT, user.account.address], {
+          account: admin.account
+        });
+
+        const receipt = await user.getTransactionReceipt({ hash: transferRoleTx });
+
+        const logs = parseEventLogs({
+          abi: testAccessControlContract.abi,
+          logs: receipt.logs,
+          eventName: 'RoleTransferred'
+        });
+
+        const event = logs[0];
+
+        expect(event.args).toMatchObject({
+          roleName: 'Admin',
+          previousHolder: admin.account.address,
+          newHolder: user.account.address
+        });
+
+        const secondTransferRoleTx = await testAccessControlContract.write.setRole([ADMIN_SLOT, user.account.address], {
+          account: user.account
+        });
+
+        const secondReceipt = await user.getTransactionReceipt({ hash: secondTransferRoleTx });
+
+        const secondLogs = parseEventLogs({
+          abi: testAccessControlContract.abi,
+          logs: secondReceipt.logs,
+          eventName: 'RoleTransferred'
+        });
+
+        expect(secondLogs).toHaveLength(0);
       });
     });
 
     describe('validations', function () {
       it('reverts when setting to zero address', async function () {
         await expect(
-          protocol.protocolContract.write.setClaimsManager(['0x0000000000000000000000000000000000000000'], {
+          testAccessControlContract.write.setRole([EAS_ATTESTER_SLOT, '0x0000000000000000000000000000000000000000'], {
             account: admin.account
           })
-        ).rejects.toThrow('Invalid address');
+        ).rejects.toThrow('Invalid account. Cannot be empty');
       });
     });
   });

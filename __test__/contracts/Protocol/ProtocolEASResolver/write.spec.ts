@@ -21,7 +21,7 @@ describe('ProtocolEASResolver', function () {
 
     ({ userAccount: user } = await generateWallets());
 
-    easAttesterWallet = eas.attesterWallet;
+    easAttesterWallet = eas.attester;
 
     easResolverAdmin = eas.easResolverAdminWallet;
   });
@@ -34,7 +34,7 @@ describe('ProtocolEASResolver', function () {
           account: easResolverAdmin.account
         });
 
-        const newAttester = await eas.ProtocolEASResolverContract.read.attesterWallet();
+        const newAttester = await eas.ProtocolEASResolverContract.read.attester();
 
         expect(newAttester).toEqual(getAddress(userAccount.account.address));
       });
@@ -68,24 +68,24 @@ describe('ProtocolEASResolver', function () {
           eas.ProtocolEASResolverContract.write.setAttesterWallet([NULL_EVM_ADDRESS], {
             account: easResolverAdmin.account
           })
-        ).rejects.toThrow('Invalid attester wallet address');
+        ).rejects.toThrow('Invalid account. Cannot be empty');
       });
     });
   });
 
   describe('rolloverAttesterWallet', function () {
     describe('effects', function () {
-      it('updates the attester wallets correctly and sets the current assester as secondary attester', async function () {
+      it('updates the attester wallets correctly and sets the current attester as secondary attester', async function () {
         const { userAccount } = await generateWallets();
 
-        const attesterBeforeChange = await eas.ProtocolEASResolverContract.read.attesterWallet();
+        const attesterBeforeChange = await eas.ProtocolEASResolverContract.read.attester();
 
         await eas.ProtocolEASResolverContract.write.rolloverAttesterWallet([userAccount.account.address], {
           account: easResolverAdmin.account
         });
 
-        const newAttester = await eas.ProtocolEASResolverContract.read.attesterWallet();
-        const secondaryAttester = await eas.ProtocolEASResolverContract.read.secondaryAttesterWallet();
+        const newAttester = await eas.ProtocolEASResolverContract.read.attester();
+        const secondaryAttester = await eas.ProtocolEASResolverContract.read.secondaryAttester();
 
         expect(newAttester).toEqual(getAddress(userAccount.account.address));
         expect(secondaryAttester).toEqual(getAddress(attesterBeforeChange));
@@ -120,7 +120,7 @@ describe('ProtocolEASResolver', function () {
           eas.ProtocolEASResolverContract.write.rolloverAttesterWallet([NULL_EVM_ADDRESS], {
             account: easResolverAdmin.account
           })
-        ).rejects.toThrow('Invalid attester wallet address');
+        ).rejects.toThrow('Invalid account. Cannot be empty');
       });
     });
   });

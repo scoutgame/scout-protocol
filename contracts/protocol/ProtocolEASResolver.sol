@@ -29,7 +29,7 @@ contract ProtocolEASResolver is SchemaResolver, Context, ProtocolAccessControl {
         Attestation calldata attestation,
         uint256 /*value*/
     ) internal override returns (bool) {
-        require(attestation.attester == attesterWallet() || attestation.attester == secondaryAttesterWallet(), "Invalid attester");
+        require(attestation.attester == attester() || attestation.attester == secondaryAttester(), "Invalid attester");
         return true;
     }
 
@@ -42,25 +42,21 @@ contract ProtocolEASResolver is SchemaResolver, Context, ProtocolAccessControl {
     }
 
     function setAttesterWallet(address _attesterWallet) external onlyAdmin {
-      require(_attesterWallet != address(0), "Invalid attester wallet address");
-      MemoryUtils._setAddress(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
+      _setRole(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
     }
 
     function rolloverAttesterWallet(address _attesterWallet) external onlyAdmin {
-      require(_attesterWallet != address(0), "Invalid attester wallet address");
+      address _currentAttester = attester();
 
-      address _currentAttester = attesterWallet();
-
-      MemoryUtils._setAddress(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
-
-      MemoryUtils._setAddress(MemoryUtils.SECONDARY_EAS_ATTESTER_SLOT, _currentAttester);
+      _setRole(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
+      _setRole(MemoryUtils.SECONDARY_EAS_ATTESTER_SLOT, _currentAttester);
     }
 
-    function attesterWallet() public view returns (address) {
+    function attester() public view returns (address) {
       return MemoryUtils._getAddress(MemoryUtils.EAS_ATTESTER_SLOT);
     }
 
-    function secondaryAttesterWallet() public view returns (address) {
+    function secondaryAttester() public view returns (address) {
       return MemoryUtils._getAddress(MemoryUtils.SECONDARY_EAS_ATTESTER_SLOT);
     }
 }

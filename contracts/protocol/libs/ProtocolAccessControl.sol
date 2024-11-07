@@ -7,7 +7,7 @@ import "./MemoryUtils.sol";
 contract ProtocolAccessControl is Context {
     using MemoryUtils for bytes32;
 
-    event RoleTransferred(string roleName, address indexed previousAdmin, address indexed newAdmin);
+    event RoleTransferred(string roleName, address indexed previousHolder, address indexed newHolder);
 
     modifier onlyAdmin() {
       require(_isAdmin(), "Caller is not the admin");
@@ -24,9 +24,11 @@ contract ProtocolAccessControl is Context {
 
       address _currentHolder = _roleHolder(role);
 
-      require(_currentHolder != account, "New role holder cannot be the same as the current holder");
-
-      MemoryUtils._setAddress(role, account);
+      // Update the role only if it's different
+      if (_currentHolder != account) {
+          MemoryUtils._setAddress(role, account);
+          emit RoleTransferred(MemoryUtils._getRoleName(role), _currentHolder, account);
+      }
     }
 
     function _isAdmin() internal view returns (bool) {
@@ -38,11 +40,7 @@ contract ProtocolAccessControl is Context {
     }
 
     function transferAdmin(address _newAdmin) external onlyAdmin {
-      address _previousAdmin = admin();
-
       _setRole(MemoryUtils.ADMIN_SLOT, _newAdmin);
-
-      emit RoleTransferred("Admin", _previousAdmin, _newAdmin);
     }
 
     function _roleHolder(bytes32 role) internal view returns (address) {

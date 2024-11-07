@@ -13,7 +13,7 @@ import type { GeneratedWallet } from './generateWallets';
 import { generateWallets } from './generateWallets';
 
 export async function deployEASContracts() {
-  const { adminAccount: admin, userAccount: attesterWallet } = await generateWallets();
+  const { adminAccount: admin, userAccount: attester } = await generateWallets();
 
   const EASSchemaRegistryContract = await viem.deployContract('SchemaRegistry', []);
 
@@ -23,7 +23,7 @@ export async function deployEASContracts() {
 
   const ProtocolEASResolverContract = await viem.deployContract(
     'ProtocolEASResolver',
-    [EASAttestationContract.address, attesterWallet.account.address],
+    [EASAttestationContract.address, attester.account.address],
     {
       client: { wallet: admin }
     }
@@ -32,11 +32,11 @@ export async function deployEASContracts() {
   const githubContributionReceiptSchemaTx = await EASSchemaRegistryContract.write.register(
     [githubContributionReceiptEASSchema, ProtocolEASResolverContract.address, true],
     {
-      account: attesterWallet.account
+      account: attester.account
     }
   );
 
-  const receipt = await attesterWallet.getTransactionReceipt({ hash: githubContributionReceiptSchemaTx });
+  const receipt = await attester.getTransactionReceipt({ hash: githubContributionReceiptSchemaTx });
 
   const parsedLogs = parseEventLogs({
     abi: EASSchemaRegistryContract.abi,
@@ -68,10 +68,10 @@ export async function deployEASContracts() {
     ];
 
     const attestationTx = await EASAttestationContract.write.attest(attestArgs, {
-      account: wallet?.account ?? attesterWallet.account
+      account: wallet?.account ?? attester.account
     });
 
-    const _receipt = await attesterWallet.getTransactionReceipt({ hash: attestationTx });
+    const _receipt = await attester.getTransactionReceipt({ hash: attestationTx });
 
     const _parsedLogs = parseEventLogs({
       abi: EASAttestationContract.abi,
@@ -97,7 +97,7 @@ export async function deployEASContracts() {
     EASAttestationContract,
     ProtocolEASResolverContract,
     easResolverAdminWallet: admin,
-    attesterWallet,
+    attester,
     githubContributionReceiptSchemaId,
     attestContributionReceipt,
     getContributionReceipt

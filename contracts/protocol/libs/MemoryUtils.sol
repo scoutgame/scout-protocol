@@ -22,6 +22,21 @@ library MemoryUtils {
     bytes32 internal constant SECONDARY_EAS_ATTESTER_SLOT = keccak256("Protocol.easAttesterSecondary");
 
 
+    function _getRoleName(bytes32 role) internal pure returns (string memory) {
+      if (role == ADMIN_SLOT) {
+          return "Admin";
+      } else if (role == CLAIM_MANAGER_SLOT) {
+          return "Claim Manager";
+      } else if (role == EAS_ATTESTER_SLOT) {
+          return "EAS Attester";
+      } else if (role == SECONDARY_EAS_ATTESTER_SLOT) {
+          return "Secondary EAS Attester";
+      } else {
+          return "Unknown Role";
+      }
+    }
+
+
     function _isContract(address account) internal view returns (bool) {
       return account.code.length > 0;
     }
@@ -52,4 +67,5 @@ library MemoryUtils {
     function _setBool(bytes32 slot, bool value) internal {
       StorageSlot.getBooleanSlot(slot).value = value;
     }
+
 }
