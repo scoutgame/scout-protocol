@@ -8,7 +8,8 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "paths": {
-      "artifacts/*": ["./artifacts/*"]
+      "artifacts/*": ["./artifacts/*"],
+      "@charmverse/core/protocol": ["./node_modules/@charmverse/core/dist/cjs/protocol"],
     },
     "types": ["jest"]
   }

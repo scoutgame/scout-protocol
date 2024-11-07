@@ -1,14 +1,15 @@
-import { v4 as uuid } from 'uuid';
+import { NULL_EAS_REF_UID, type GithubContributionReceiptAttestation } from '@charmverse/core/protocol';
 
-import type { ContributionReceiptAttestation } from '../../lib/eas';
 import { deployEASContracts } from '../deployEAS';
 
 describe('deployEAS', function () {
   it('should deploy EAS contract along with the builder event schema and Protocol Resolver', async function () {
     const { attestContributionReceipt, getContributionReceipt } = await deployEASContracts();
 
-    const data: ContributionReceiptAttestation = {
-      scoutId: uuid(),
+    const data: GithubContributionReceiptAttestation = {
+      userRefUID: NULL_EAS_REF_UID,
+      description: 'Example',
+      metadataUrl: 'https://example.com/metadataUrl',
       url: 'https://example.com',
       type: 'merged_pr',
       value: 100
