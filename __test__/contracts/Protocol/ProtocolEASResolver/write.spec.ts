@@ -1,8 +1,8 @@
 import {
-  decodeGithubContributionReceiptAttestation,
+  decodeContributionReceiptAttestation,
   NULL_EAS_REF_UID,
   NULL_EVM_ADDRESS,
-  type GithubContributionReceiptAttestation
+  type ContributionReceiptAttestation
 } from '@charmverse/core/protocol';
 import { getAddress } from 'viem';
 
@@ -174,7 +174,7 @@ describe('ProtocolEASResolver', function () {
   });
 
   describe('onAttest', function () {
-    const data: GithubContributionReceiptAttestation = {
+    const data: ContributionReceiptAttestation = {
       description: 'test',
       userRefUID: NULL_EAS_REF_UID,
       metadataUrl: 'https://www.example.com',
@@ -192,7 +192,7 @@ describe('ProtocolEASResolver', function () {
 
         const attestation = await eas.EASAttestationContract.read.getAttestation([attestationUid]);
 
-        const decoded = decodeGithubContributionReceiptAttestation(attestation.data);
+        const decoded = decodeContributionReceiptAttestation(attestation.data);
 
         expect(decoded).toMatchObject(data);
       });
@@ -204,7 +204,7 @@ describe('ProtocolEASResolver', function () {
 
         const attestation = await eas.EASAttestationContract.read.getAttestation([attestationUid]);
 
-        const decoded = decodeGithubContributionReceiptAttestation(attestation.data);
+        const decoded = decodeContributionReceiptAttestation(attestation.data);
 
         expect(decoded).toMatchObject(data);
       });

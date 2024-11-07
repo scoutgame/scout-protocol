@@ -1,11 +1,11 @@
 import {
-  decodeGithubContributionReceiptAttestation,
-  encodeGithubContributionReceiptAttestation,
-  githubContributionSchemaDefinition,
+  decodeContributionReceiptAttestation,
+  encodeContributionReceiptAttestation,
+  contributionSchemaDefinition,
   NULL_EAS_REF_UID,
   NULL_EVM_ADDRESS
 } from '@charmverse/core/protocol';
-import type { GithubContributionReceiptAttestation } from '@charmverse/core/protocol';
+import type { ContributionReceiptAttestation } from '@charmverse/core/protocol';
 import { viem } from 'hardhat';
 import { parseEventLogs } from 'viem';
 
@@ -29,14 +29,14 @@ export async function deployEASContracts() {
     }
   );
 
-  const githubContributionReceiptSchemaTx = await EASSchemaRegistryContract.write.register(
-    [githubContributionSchemaDefinition.schema, ProtocolEASResolverContract.address, true],
+  const contributionReceiptSchemaTx = await EASSchemaRegistryContract.write.register(
+    [contributionSchemaDefinition.schema, ProtocolEASResolverContract.address, true],
     {
       account: attester.account
     }
   );
 
-  const receipt = await attester.getTransactionReceipt({ hash: githubContributionReceiptSchemaTx });
+  const receipt = await attester.getTransactionReceipt({ hash: contributionReceiptSchemaTx });
 
   const parsedLogs = parseEventLogs({
     abi: EASSchemaRegistryContract.abi,
@@ -44,25 +44,25 @@ export async function deployEASContracts() {
     eventName: ['Registered']
   });
 
-  const githubContributionReceiptSchemaId = parsedLogs[0].args.uid;
+  const contributionReceiptSchemaId = parsedLogs[0].args.uid;
 
   async function attestContributionReceipt({
     data,
     wallet
   }: {
-    data: GithubContributionReceiptAttestation;
+    data: ContributionReceiptAttestation;
     wallet?: GeneratedWallet;
   }): Promise<`0x${string}`> {
     const attestArgs: Parameters<typeof EASAttestationContract.write.attest>[0] = [
       {
-        schema: githubContributionReceiptSchemaId,
+        schema: contributionReceiptSchemaId,
         data: {
           value: BigInt(0),
           revocable: true,
           recipient: NULL_EVM_ADDRESS,
           refUID: NULL_EAS_REF_UID,
           expirationTime: BigInt(0),
-          data: encodeGithubContributionReceiptAttestation(data)
+          data: encodeContributionReceiptAttestation(data)
         }
       }
     ];
@@ -84,10 +84,10 @@ export async function deployEASContracts() {
     return attestationUid;
   }
 
-  async function getContributionReceipt(attestationUid: string): Promise<GithubContributionReceiptAttestation> {
+  async function getContributionReceipt(attestationUid: string): Promise<ContributionReceiptAttestation> {
     const onchainAttestationData = await EASAttestationContract.read.getAttestation([attestationUid as `0x${string}`]);
 
-    const decodedData = decodeGithubContributionReceiptAttestation(onchainAttestationData.data);
+    const decodedData = decodeContributionReceiptAttestation(onchainAttestationData.data);
 
     return decodedData;
   }
@@ -98,7 +98,7 @@ export async function deployEASContracts() {
     ProtocolEASResolverContract,
     easResolverAdminWallet: admin,
     attester,
-    githubContributionReceiptSchemaId,
+    contributionReceiptSchemaId,
     attestContributionReceipt,
     getContributionReceipt
   };
