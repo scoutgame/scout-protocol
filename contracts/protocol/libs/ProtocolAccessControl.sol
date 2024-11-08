@@ -9,11 +9,53 @@ contract ProtocolAccessControl is Context {
 
     event RoleTransferred(string roleName, address indexed previousHolder, address indexed newHolder);
 
+    // ERC-3643 https://docs.erc3643.org/erc-3643/smart-contracts-library/permissioned-tokens/tokens-interface
+    event Paused(address _callerAddress);
+
+    event Unpaused(address _callerAddress);
+
     modifier onlyAdmin() {
       require(_isAdmin(), "Caller is not the admin");
       _;
     }
 
+    modifier onlyPauserOrAdmin() {
+      require(_hasRole(MemoryUtils.PAUSER_SLOT) || _isAdmin(), "Caller is not the pauser or admin");
+      _;
+    }
+
+    modifier onlyWhenNotPaused() {
+      require(!isPaused(), "Contract is paused");
+      _;
+    }
+
+    // External functions ----------
+    function admin() public view returns (address) {
+      return MemoryUtils._getAddress(MemoryUtils.ADMIN_SLOT);
+    }
+
+    function transferAdmin(address _newAdmin) external onlyAdmin {
+      _setRole(MemoryUtils.ADMIN_SLOT, _newAdmin);
+    }
+
+    function pause() external onlyPauserOrAdmin {
+      require(isPaused() == false, "Contract is already paused");
+      MemoryUtils._setBool(MemoryUtils.IS_PAUSED_SLOT, true);
+      emit Paused(_msgSender());
+    }
+
+    function unPause() external onlyAdmin {
+      require(isPaused() == true, "Contract is not paused");
+      MemoryUtils._setBool(MemoryUtils.IS_PAUSED_SLOT, false);
+      emit Unpaused(_msgSender());
+    }
+
+    function isPaused() public view returns (bool) {
+      return MemoryUtils._getBool(MemoryUtils.IS_PAUSED_SLOT);
+    }
+
+
+    // Internal functions ----------
     function _hasRole(bytes32 role) internal view returns (bool) {
       address _account = _msgSender();
       return _account == _roleHolder(role);
@@ -35,13 +77,6 @@ contract ProtocolAccessControl is Context {
       return _hasRole(MemoryUtils.ADMIN_SLOT);
     }
 
-    function admin() public view returns (address) {
-      return MemoryUtils._getAddress(MemoryUtils.ADMIN_SLOT);
-    }
-
-    function transferAdmin(address _newAdmin) external onlyAdmin {
-      _setRole(MemoryUtils.ADMIN_SLOT, _newAdmin);
-    }
 
     function _roleHolder(bytes32 role) internal view returns (address) {
       return MemoryUtils._getAddress(role);

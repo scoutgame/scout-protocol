@@ -26,7 +26,7 @@ contract ScoutProtocolProxy is Context, ProtocolAccessControl {
         return MemoryUtils._getAddress(MemoryUtils.IMPLEMENTATION_SLOT);
     }
 
-    function setImplementation(address _newImplementation) external onlyAdmin {
+    function setImplementation(address _newImplementation) external onlyAdmin onlyWhenNotPaused {
         require(_newImplementation != address(0), "Invalid implementation address");
         MemoryUtils._setAddress(MemoryUtils.IMPLEMENTATION_SLOT, _newImplementation);
     }
@@ -35,7 +35,7 @@ contract ScoutProtocolProxy is Context, ProtocolAccessControl {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }
 
-    function setClaimsToken(address _claimsToken) external onlyAdmin {
+    function setClaimsToken(address _claimsToken) external onlyAdmin onlyWhenNotPaused {
         require(_claimsToken != address(0), "Invalid payment token address");
         require(MemoryUtils._isContract(_claimsToken), "Payment token must be a contract");
         MemoryUtils._setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _claimsToken);

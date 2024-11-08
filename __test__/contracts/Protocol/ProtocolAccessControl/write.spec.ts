@@ -1,5 +1,5 @@
 import { viem } from 'hardhat';
-import { keccak256, toBytes, parseEventLogs } from 'viem';
+import { keccak256, parseEventLogs, toBytes } from 'viem';
 
 import { generateWallets, type GeneratedWallet } from '../../../generateWallets';
 
@@ -132,6 +132,107 @@ describe('ProtocolAccessControl', function () {
           })
         ).rejects.toThrow('Invalid account. Cannot be empty');
       });
+    });
+  });
+
+  describe('pause', function () {
+    describe('effects', function () {
+      it('allows pauser or admin to pause the contract', async function () {
+        await testAccessControlContract.write.pause({ account: admin.account });
+
+        const paused = await testAccessControlContract.read.isPaused();
+        expect(paused).toEqual(true);
+      });
+    });
+
+    describe('permissions', function () {
+      it('reverts when called by non-pauser and non-admin', async function () {
+        await expect(testAccessControlContract.write.pause({ account: user.account })).rejects.toThrow(
+          'Caller is not the pauser or admin'
+        );
+      });
+    });
+
+    describe('events', function () {
+      it('emits Paused event when paused', async function () {
+        const pauseTx = await testAccessControlContract.write.pause({ account: admin.account });
+
+        const receipt = await admin.getTransactionReceipt({ hash: pauseTx });
+
+        const logs = parseEventLogs({
+          abi: testAccessControlContract.abi,
+          logs: receipt.logs,
+          eventName: 'Paused'
+        });
+
+        const event = logs[0];
+
+        expect(event.args).toMatchObject({
+          _callerAddress: admin.account.address
+        });
+      });
+    });
+  });
+
+  describe('unPause', function () {
+    beforeEach(async () => {
+      await testAccessControlContract.write.pause({ account: admin.account });
+    });
+
+    describe('effects', function () {
+      it('allows admin to unpause the contract', async function () {
+        await testAccessControlContract.write.unPause({ account: admin.account });
+
+        const paused = await testAccessControlContract.read.isPaused();
+        expect(paused).toEqual(false);
+      });
+    });
+
+    describe('permissions', function () {
+      it('reverts when called by non-admin', async function () {
+        await expect(testAccessControlContract.write.unPause({ account: user.account })).rejects.toThrow(
+          'Caller is not the admin'
+        );
+      });
+    });
+
+    describe('events', function () {
+      it('emits Unpaused event when unpaused', async function () {
+        const unpauseTx = await testAccessControlContract.write.unPause({ account: admin.account });
+
+        const receipt = await admin.getTransactionReceipt({ hash: unpauseTx });
+
+        const logs = parseEventLogs({
+          abi: testAccessControlContract.abi,
+          logs: receipt.logs,
+          eventName: 'Unpaused'
+        });
+
+        const event = logs[0];
+
+        expect(event.args).toMatchObject({
+          _callerAddress: admin.account.address
+        });
+      });
+    });
+  });
+
+  describe('testPaused', function () {
+    it('reverts when the contract is paused', async function () {
+      await testAccessControlContract.write.pause({ account: admin.account });
+
+      await expect(testAccessControlContract.read.testPaused({ account: admin.account })).rejects.toThrow(
+        'Contract is paused'
+      );
+    });
+
+    it('succeeds when the contract is not paused', async function () {
+      const paused = await testAccessControlContract.read.isPaused();
+      if (paused) {
+        await testAccessControlContract.write.unPause({ account: admin.account });
+      }
+
+      await testAccessControlContract.read.testPaused({ account: admin.account });
     });
   });
 });

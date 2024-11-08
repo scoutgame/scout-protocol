@@ -17,4 +17,8 @@ contract TestProtocolAccessControl is ProtocolAccessControl {
   function roleHolder(bytes32 role) external view returns (address) {
     return _roleHolder(role);
   }
+
+  function testPaused() onlyWhenNotPaused external view returns (bool) {
+    return true;
+  }
 }

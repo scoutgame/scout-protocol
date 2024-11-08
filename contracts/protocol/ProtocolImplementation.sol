@@ -22,7 +22,7 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         string memory week,
         uint256 amount,
         bytes32[] calldata proofs
-    ) public returns (bool) {
+    ) public onlyWhenNotPaused returns (bool)  {
         // Check if the user has already claimed for the given week
         require(!hasClaimed(week, msg.sender), "You have already claimed for this week.");
 
@@ -65,7 +65,7 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
     }
 
     // Function to set the Merkle root for a given week
-    function setMerkleRoot(string memory week, bytes32 merkleRoot) external onlyAdminOrClaimManager {
+    function setMerkleRoot(string memory week, bytes32 merkleRoot) external onlyAdminOrClaimManager onlyWhenNotPaused {
         bytes32 slot = keccak256(abi.encodePacked(week, MemoryUtils.MERKLE_ROOTS_SLOT));
         StorageSlot.getBytes32Slot(slot).value = merkleRoot;
     }

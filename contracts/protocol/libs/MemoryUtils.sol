@@ -17,10 +17,13 @@ library MemoryUtils {
     // 3. Roles
     bytes32 internal constant ADMIN_SLOT = keccak256("Protocol.admin");
     bytes32 internal constant CLAIM_MANAGER_SLOT = keccak256("Protocol.claimsManager");
+    bytes32 internal constant PAUSER_SLOT = keccak256("Protocol.pauser");
 
     bytes32 internal constant EAS_ATTESTER_SLOT = keccak256("Protocol.easAttester");
     bytes32 internal constant SECONDARY_EAS_ATTESTER_SLOT = keccak256("Protocol.easAttesterSecondary");
 
+    // 4. State
+    bytes32 internal constant IS_PAUSED_SLOT = keccak256("Protocol.isPaused");
 
     function _getRoleName(bytes32 role) internal pure returns (string memory) {
       if (role == ADMIN_SLOT) {
@@ -31,12 +34,16 @@ library MemoryUtils {
           return "EAS Attester";
       } else if (role == SECONDARY_EAS_ATTESTER_SLOT) {
           return "Secondary EAS Attester";
+      } else if (role == PAUSER_SLOT) {
+          return "Pauser";
       } else {
           return "Unknown Role";
       }
     }
 
 
+
+    // Internal functions ----------
     function _isContract(address account) internal view returns (bool) {
       return account.code.length > 0;
     }
