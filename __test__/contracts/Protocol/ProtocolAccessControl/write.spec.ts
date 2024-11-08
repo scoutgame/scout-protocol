@@ -9,8 +9,10 @@ export const CLAIM_MANAGER_SLOT = keccak256(toBytes('Protocol.claimsManager'));
 export const EAS_ATTESTER_SLOT = keccak256(toBytes('Protocol.easAttester'));
 export const SECONDARY_EAS_ATTESTER_SLOT = keccak256(toBytes('Protocol.easAttesterSecondary'));
 
+export const PAUSER_SLOT = keccak256(toBytes('Protocol.pauser'));
+
 async function deployTestAccessControl() {
-  const { adminAccount, userAccount } = await generateWallets();
+  const { adminAccount, userAccount, secondUserAccount } = await generateWallets();
 
   const testAccessControlContract = await viem.deployContract('TestProtocolAccessControl', [], {
     client: { wallet: adminAccount }
@@ -19,6 +21,7 @@ async function deployTestAccessControl() {
   return {
     adminAccount,
     userAccount,
+    secondUserAccount,
     testAccessControlContract
   };
 }
@@ -27,9 +30,15 @@ describe('ProtocolAccessControl', function () {
   let testAccessControlContract: Awaited<ReturnType<typeof deployTestAccessControl>>['testAccessControlContract'];
   let admin: GeneratedWallet;
   let user: GeneratedWallet;
+  let pauser: GeneratedWallet;
 
   beforeEach(async () => {
-    ({ adminAccount: admin, userAccount: user, testAccessControlContract } = await deployTestAccessControl());
+    ({
+      adminAccount: admin,
+      userAccount: user,
+      testAccessControlContract,
+      secondUserAccount: pauser
+    } = await deployTestAccessControl());
   });
 
   describe('transferAdmin', function () {
@@ -137,7 +146,7 @@ describe('ProtocolAccessControl', function () {
 
   describe('pause', function () {
     describe('effects', function () {
-      it('allows pauser or admin to pause the contract', async function () {
+      it('marks the contract as paused', async function () {
         await testAccessControlContract.write.pause({ account: admin.account });
 
         const paused = await testAccessControlContract.read.isPaused();
@@ -146,6 +155,13 @@ describe('ProtocolAccessControl', function () {
     });
 
     describe('permissions', function () {
+      it('can be paused by the pauser role ', async function () {
+        await testAccessControlContract.write.setPauser([pauser.account.address], { account: admin.account });
+        await testAccessControlContract.write.pause({ account: pauser.account });
+
+        const paused = await testAccessControlContract.read.isPaused();
+        expect(paused).toEqual(true);
+      });
       it('reverts when called by non-pauser and non-admin', async function () {
         await expect(testAccessControlContract.write.pause({ account: user.account })).rejects.toThrow(
           'Caller is not the pauser or admin'
@@ -233,6 +249,61 @@ describe('ProtocolAccessControl', function () {
       }
 
       await testAccessControlContract.read.testPaused({ account: admin.account });
+    });
+  });
+
+  describe('setPauser', function () {
+    describe('effects', function () {
+      it('allows admin to set a new pauser', async function () {
+        await testAccessControlContract.write.setPauser([pauser.account.address], {
+          account: admin.account
+        });
+
+        const newPauser = await testAccessControlContract.read.pauser();
+        expect(newPauser).toEqual(pauser.account.address);
+      });
+    });
+
+    describe('permissions', function () {
+      it('reverts when not called by admin', async function () {
+        await expect(
+          testAccessControlContract.write.setPauser([pauser.account.address], {
+            account: user.account
+          })
+        ).rejects.toThrow('Caller is not the admin');
+      });
+    });
+
+    describe('validations', function () {
+      it('reverts when setting to zero address', async function () {
+        await expect(
+          testAccessControlContract.write.setPauser(['0x0000000000000000000000000000000000000000'], {
+            account: admin.account
+          })
+        ).rejects.toThrow('Invalid account. Cannot be empty');
+      });
+    });
+
+    describe('events', function () {
+      it('emits a RoleTransferred event when pauser is changed', async function () {
+        const tx = await testAccessControlContract.write.setPauser([pauser.account.address], {
+          account: admin.account
+        });
+
+        const receipt = await admin.getTransactionReceipt({ hash: tx });
+        const logs = parseEventLogs({
+          abi: testAccessControlContract.abi,
+          logs: receipt.logs,
+          eventName: 'RoleTransferred'
+        });
+
+        const event = logs[0];
+        expect(event.args).toMatchObject({
+          roleName: 'Pauser',
+          previousHolder: '0x0000000000000000000000000000000000000000',
+          newHolder: pauser.account.address
+        });
+      });
     });
   });
 });

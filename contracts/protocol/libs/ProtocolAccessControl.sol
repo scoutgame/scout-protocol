@@ -54,6 +54,14 @@ contract ProtocolAccessControl is Context {
       return MemoryUtils._getBool(MemoryUtils.IS_PAUSED_SLOT);
     }
 
+    function pauser() public view returns (address) {
+      return MemoryUtils._getAddress(MemoryUtils.PAUSER_SLOT);
+    }
+
+    function setPauser(address _newPauser) external onlyAdmin {
+      _setRole(MemoryUtils.PAUSER_SLOT, _newPauser);
+    }
+
 
     // Internal functions ----------
     function _hasRole(bytes32 role) internal view returns (bool) {

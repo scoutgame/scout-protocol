@@ -75,6 +75,20 @@ describe('ScoutProtocolImplementation', function () {
       });
     });
 
+    describe('permissions', function () {
+      it('reverts when the contract is paused', async function () {
+        // Pause the contract
+        await protocol.protocolContract.write.pause({ account: admin.account });
+
+        // Attempt to claim while paused
+        await expect(
+          protocol.protocolContract.write.claim([week, BigInt(userClaim.amount), proofs], {
+            account: user.account
+          })
+        ).rejects.toThrow('Contract is paused');
+      });
+    });
+
     describe('validations', function () {
       it('denies claims if user has already claimed', async function () {
         await protocol.protocolContract.write.claim([week, BigInt(userClaim.amount), proofs], {
@@ -133,6 +147,18 @@ describe('ScoutProtocolImplementation', function () {
     });
 
     describe('permissions', function () {
+      it('reverts when the contract is paused', async function () {
+        // Pause the contract
+        await protocol.protocolContract.write.pause({ account: admin.account });
+
+        // Attempt to set merkle root while paused
+        await expect(
+          protocol.protocolContract.write.setMerkleRoot([week, `0x${merkleTree.rootHash}`], {
+            account: admin.account
+          })
+        ).rejects.toThrow('Contract is paused');
+      });
+
       it('reverts when not called by admin', async function () {
         await expect(
           protocol.protocolContract.write.setMerkleRoot([week, `0x${merkleTree.rootHash}`], {
