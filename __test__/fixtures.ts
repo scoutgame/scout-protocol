@@ -3,7 +3,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpe
 import { deployBuilderNftContract } from './deployBuilderNft';
 import { deployEASContracts } from './deployEAS';
 import { deployProtocolContract } from './deployProtocol';
-import { deployProtocolERC20Token } from './deployProtocolERC20Token';
+import { deployScoutTokenERC20 } from './deployScoutTokenERC20';
 import { deployTestUSDC } from './deployTestUSDC';
 
 export async function deployContractFixtures() {
@@ -18,7 +18,7 @@ export async function loadContractFixtures() {
 }
 
 async function deployProtocolFixtures() {
-  const token = await deployProtocolERC20Token();
+  const token = await deployScoutTokenERC20();
   const protocol = await deployProtocolContract({ ProtocolERC20Address: token.ProtocolERC20.address });
   const eas = await deployEASContracts();
 

@@ -2,11 +2,11 @@ import type { ProvableClaim } from '@charmverse/core/protocol';
 import { generateMerkleTree, getMerkleProofs } from '@charmverse/core/protocol';
 
 import { type ProtocolTestFixture } from '../../../deployProtocol';
-import type { ProtocolERC20TestFixture } from '../../../deployProtocolERC20Token';
+import type { ProtocolERC20TestFixture } from '../../../deployScoutTokenERC20';
 import { loadProtocolFixtures } from '../../../fixtures';
 import { generateWallets, type GeneratedWallet } from '../../../generateWallets';
 
-describe('ProtocolImplementation', function () {
+describe('ScoutProtocolImplementation', function () {
   let protocol: ProtocolTestFixture;
   let token: ProtocolERC20TestFixture;
   let admin: GeneratedWallet;

@@ -22,9 +22,9 @@ type Connector = {
   easBaseUrl?: string;
   easAttestationContract?: Address | null;
   scoutgameErc20TokenDev?: Address | null;
-  scoutgameProtocolProxyDev?: Address | null;
+  scoutgameScoutProtocolProxyDev?: Address | null;
   scoutgameErc20Token?: Address | null;
-  scoutgameProtocolProxy?: Address | null;
+  scoutgameScoutProtocolProxy?: Address | null;
 };
 /**
  *
@@ -75,9 +75,9 @@ export const connectors = {
     builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
     usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
     scoutgameErc20Token: '0x26d76d564910c063d0953d8636add5027c0337ce',
-    scoutgameProtocolProxy: '0x53C7441F6FacE31FE6A2f8f0A327B7A40b7B9AA3',
+    scoutgameScoutProtocolProxy: '0x53C7441F6FacE31FE6A2f8f0A327B7A40b7B9AA3',
     scoutgameErc20TokenDev: '0xeB6dd4Ca88177A15626348b73417AB077Bd2934D',
-    scoutgameProtocolProxyDev: '0x32a0818a9994ca8e1bf617119880760d2d5cd910',
+    scoutgameScoutProtocolProxyDev: '0x32a0818a9994ca8e1bf617119880760d2d5cd910',
     easAttestationContract: '0x4200000000000000000000000000000000000021',
     easBaseUrl: 'https://base-sepolia.easscan.org'
   } as Connector,

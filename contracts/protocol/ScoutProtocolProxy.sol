@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "./libs/ProtocolAccessControl.sol";
 import "./libs/MemoryUtils.sol";
 
-contract ProtocolProxy is Context, ProtocolAccessControl {
+contract ScoutProtocolProxy is Context, ProtocolAccessControl {
   using MemoryUtils for bytes32;
 
   constructor(

@@ -40,7 +40,7 @@ task('deployScoutGameERC20', 'Deploys or updates the BuilderNFTSeasonOne contrac
 
     const implementationArtifactPath = path.resolve(
       __dirname,
-      '../../artifacts/contracts/protocol/ProtocolERC20Token.sol/ProtocolERC20Token.json'
+      '../../artifacts/contracts/protocol/ScoutTokenERC20.sol/ScoutTokenERC20.json'
     );
     const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
     const implementationBytecode = implementationArtifact.bytecode;
@@ -77,7 +77,7 @@ task('deployScoutGameERC20', 'Deploys or updates the BuilderNFTSeasonOne contrac
     console.log('Writing ABI to file');
 
     fs.writeFileSync(
-      path.resolve(__dirname, '..', '..', 'abis', 'ProtocolERC20Token.json'),
+      path.resolve(__dirname, '..', '..', 'abis', 'ScoutTokenERC20.json'),
       JSON.stringify(implementationArtifact.abi, null, 2)
     );
 

@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
-contract ProtocolERC20Token is Context, AccessControlEnumerable, ERC20Pausable {
+contract ScoutTokenERC20 is Context, AccessControlEnumerable, ERC20Pausable {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant VESTING_ROLE = keccak256("VESTING_ROLE");
@@ -21,7 +21,7 @@ contract ProtocolERC20Token is Context, AccessControlEnumerable, ERC20Pausable {
         _;
     }
 
-    constructor() ERC20("Points", "PTS") {
+    constructor() ERC20("Scout Token", "$SCOUT") {
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
 
         _grantRole(MINTER_ROLE, _msgSender());

@@ -40,7 +40,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
 
   const implementationArtifactPath = path.resolve(
     __dirname,
-    '../../artifacts/contracts/protocol/ProtocolImplementation.sol/ProtocolImplementation.json'
+    '../../artifacts/contracts/protocol/ScoutProtocolImplementation.sol/ScoutProtocolImplementation.json'
   );
   const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
   const implementationBytecode = implementationArtifact.bytecode;
@@ -77,24 +77,24 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
   }
 
   fs.writeFileSync(
-    path.resolve(__dirname, '..', '..', 'abis', 'ProtocolImplementation.json'),
+    path.resolve(__dirname, '..', '..', 'abis', 'ScoutProtocolImplementation.json'),
     JSON.stringify(implementationArtifact.abi, null, 2)
   );
 
   const proxyOptions = [];
 
-  if (connector.scoutgameProtocolProxy) {
-    proxyOptions.push({ address: connector.scoutgameProtocolProxy, env: 'prod' });
+  if (connector.scoutgameScoutProtocolProxy) {
+    proxyOptions.push({ address: connector.scoutgameScoutProtocolProxy, env: 'prod' });
   }
 
-  if (connector.scoutgameProtocolProxyDev) {
-    proxyOptions.push({ address: connector.scoutgameProtocolProxyDev, env: 'dev' });
+  if (connector.scoutgameScoutProtocolProxyDev) {
+    proxyOptions.push({ address: connector.scoutgameScoutProtocolProxyDev, env: 'dev' });
   }
 
   let deployNew = true;
 
   // Prompt the user to update the implementation if the proxy already exists
-  if (connector.scoutgameProtocolProxy) {
+  if (connector.scoutgameScoutProtocolProxy) {
     console.log('Proxy options:', proxyOptions);
 
     const newProxyOption = 'New Proxy';
@@ -152,7 +152,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
   if (deployNew) {
     const proxyArtifactPath = path.resolve(
       __dirname,
-      '../../artifacts/contracts/protocol/ProtocolProxy.sol/ProtocolProxy.json'
+      '../../artifacts/contracts/protocol/ScoutProtocolProxy.sol/ScoutProtocolProxy.json'
     );
     const proxyArtifact = JSON.parse(fs.readFileSync(proxyArtifactPath, 'utf8'));
     const proxyBytecode = proxyArtifact.bytecode;
@@ -198,7 +198,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     }
 
     fs.writeFileSync(
-      path.resolve(__dirname, '..', '..', 'abis', 'ProtocolProxy.json'),
+      path.resolve(__dirname, '..', '..', 'abis', 'ScoutProtocolProxy.json'),
       JSON.stringify(proxyArtifact.abi, null, 2)
     );
   }

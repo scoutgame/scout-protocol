@@ -4,14 +4,14 @@ import type { Address } from 'viem';
 import type { GeneratedWallet } from './generateWallets';
 import { generateWallets } from './generateWallets';
 
-export async function deployProtocolERC20Token() {
+export async function deployScoutTokenERC20() {
   const { adminAccount, secondUserAccount } = await generateWallets();
 
-  const ProtocolERC20Deployed = await viem.deployContract('ProtocolERC20Token', [], {
+  const ProtocolERC20Deployed = await viem.deployContract('ScoutTokenERC20', [], {
     client: { wallet: adminAccount }
   });
 
-  const ProtocolERC20 = await viem.getContractAt('ProtocolERC20Token', ProtocolERC20Deployed.address, {
+  const ProtocolERC20 = await viem.getContractAt('ScoutTokenERC20', ProtocolERC20Deployed.address, {
     client: { wallet: adminAccount }
   });
 
@@ -79,4 +79,4 @@ export async function deployProtocolERC20Token() {
   };
 }
 
-export type ProtocolERC20TestFixture = Awaited<ReturnType<typeof deployProtocolERC20Token>>;
+export type ProtocolERC20TestFixture = Awaited<ReturnType<typeof deployScoutTokenERC20>>;

@@ -6,7 +6,6 @@ import { task } from 'hardhat/config';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
 import { privateKeyToAccount } from 'viem/accounts';
 
-import { ProtocolProxyClient } from '../../lib/apiClients/ProtocolProxyClient';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 import { getWalletClient } from '../../lib/getWalletClient';
 import { interactWithContract } from '../../lib/interactWithContract';
@@ -16,7 +15,7 @@ dotenv.config();
 task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').setAction(async (taskArgs, hre) => {
   const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
-  if (!connector.scoutgameProtocolProxy) {
+  if (!connector.scoutgameScoutProtocolProxy) {
     throw new Error('Proxy contract address not found in connector');
   }
 
@@ -26,21 +25,21 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
 
   let mode: 'realProxy' | 'devProxy' = 'realProxy';
 
-  const choices: string[] = [`🟢 Prod ${connector.scoutgameProtocolProxy!.slice(0, 6)}`];
+  const choices: string[] = [`🟢 Prod ${connector.scoutgameScoutProtocolProxy!.slice(0, 6)}`];
 
-  if (connector.scoutgameProtocolProxyDev) {
-    choices.push(`🟡 Dev ${connector.scoutgameProtocolProxyDev.slice(0, 6)}`);
+  if (connector.scoutgameScoutProtocolProxyDev) {
+    choices.push(`🟡 Dev ${connector.scoutgameScoutProtocolProxyDev.slice(0, 6)}`);
   }
 
-  const protocolProxyClient = new ProtocolProxyClient({
+  const ScoutProtocolProxyClient = new ScoutProtocolProxyClient({
     chain: connector.chain,
-    contractAddress: connector.scoutgameProtocolProxy,
+    contractAddress: connector.scoutgameScoutProtocolProxy,
     walletClient: getWalletClient({ chain: connector.chain, privateKey, rpcUrl: connector.rpcUrl })
   });
 
   const currentAccount = privateKeyToAccount(privateKey);
 
-  const currentAdmin = await protocolProxyClient.admin();
+  const currentAdmin = await ScoutProtocolProxyClient.admin();
 
   if (currentAccount.address === currentAdmin) {
     console.log('ℹ️ You are connected with the production wallet. Please be careful with the actions you perform.');
@@ -74,7 +73,8 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
     }
   ]);
 
-  const contractAddress = mode === 'realProxy' ? connector.scoutgameProtocolProxy : connector.scoutgameProtocolProxyDev;
+  const contractAddress =
+    mode === 'realProxy' ? connector.scoutgameScoutProtocolProxy : connector.scoutgameScoutProtocolProxyDev;
   let abi;
 
   if (!contractAddress) {
@@ -86,7 +86,7 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
 
     const proxyArtifactPath = path.resolve(
       __dirname,
-      '../../artifacts/contracts/protocol/ProtocolProxy.sol/ProtocolProxy.json'
+      '../../artifacts/contracts/protocol/ScoutProtocolProxy.sol/ScoutProtocolProxy.json'
     );
     const proxyArtifact = JSON.parse(fs.readFileSync(proxyArtifactPath, 'utf8'));
     abi = proxyArtifact.abi;
@@ -97,7 +97,7 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
     }
     const implementationArtifactPath = path.resolve(
       __dirname,
-      '../../artifacts/contracts/protocol/ProtocolImplementation.sol/ProtocolImplementation.json'
+      '../../artifacts/contracts/protocol/ScoutProtocolImplementation.sol/ScoutProtocolImplementation.json'
     );
     const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
     abi = implementationArtifact.abi;

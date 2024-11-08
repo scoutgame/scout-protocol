@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class ProtocolImplementationClient {
+export class ScoutProtocolImplementationClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;

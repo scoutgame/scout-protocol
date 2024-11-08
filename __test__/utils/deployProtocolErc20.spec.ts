@@ -1,12 +1,12 @@
-import { deployProtocolERC20Token } from '../deployProtocolERC20Token';
-import type { ProtocolERC20TestFixture } from '../deployProtocolERC20Token';
+import { deployScoutTokenERC20 } from '../deployScoutTokenERC20';
+import type { ProtocolERC20TestFixture } from '../deployScoutTokenERC20';
 import { generateWallets } from '../generateWallets';
 
-describe('deployProtocolERC20Token', () => {
+describe('deployScoutTokenERC20', () => {
   let ProtocolERC20: ProtocolERC20TestFixture;
 
   beforeAll(async () => {
-    ProtocolERC20 = await deployProtocolERC20Token();
+    ProtocolERC20 = await deployScoutTokenERC20();
   });
 
   it('should deploy the ProtocolERC20 contract, with minting, approve, transfer, balanceOf and transferFrom enabled', async () => {

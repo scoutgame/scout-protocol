@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "./ProtocolERC20Token.sol";
+import "./ScoutTokenERC20.sol";
 import "./libs/MemoryUtils.sol";
 import "./libs/ProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/StorageSlot.sol";
 
-contract ProtocolImplementation is Context, ProtocolAccessControl {
+contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
     using MemoryUtils for bytes32;
 
 
@@ -45,7 +45,7 @@ contract ProtocolImplementation is Context, ProtocolAccessControl {
         uint256 contractBalance = _getToken().balanceOf(address(this));
         require(contractBalance >= amount, "Insufficient balance in contract.");
 
-        ProtocolERC20Token token = _getToken();
+        ScoutTokenERC20 token = _getToken();
 
         // Transfer tokens to the user
         token.transfer(msg.sender, amount * (10 ** token.decimals()));
@@ -83,9 +83,9 @@ contract ProtocolImplementation is Context, ProtocolAccessControl {
     }
 
     // Function to get the ERC20 token instance
-    function _getToken() internal view returns (ProtocolERC20Token) {
+    function _getToken() internal view returns (ScoutTokenERC20) {
         address tokenAddress = MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
-        return ProtocolERC20Token(tokenAddress);
+        return ScoutTokenERC20(tokenAddress);
     }
 
     function claimsManager() public view returns (address) {
