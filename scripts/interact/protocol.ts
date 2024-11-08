@@ -6,6 +6,7 @@ import { task } from 'hardhat/config';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
 import { privateKeyToAccount } from 'viem/accounts';
 
+import { ScoutProtocolProxyClient as _ScoutProtocolProxyClient } from '../../lib/apiClients/ProtocolProxyClient';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 import { getWalletClient } from '../../lib/getWalletClient';
 import { interactWithContract } from '../../lib/interactWithContract';
@@ -31,7 +32,7 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
     choices.push(`🟡 Dev ${connector.scoutgameScoutProtocolProxyDev.slice(0, 6)}`);
   }
 
-  const ScoutProtocolProxyClient = new ScoutProtocolProxyClient({
+  const ScoutProtocolProxyClient = new _ScoutProtocolProxyClient({
     chain: connector.chain,
     contractAddress: connector.scoutgameScoutProtocolProxy,
     walletClient: getWalletClient({ chain: connector.chain, privateKey, rpcUrl: connector.rpcUrl })
