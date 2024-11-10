@@ -98,7 +98,7 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
     }
     const implementationArtifactPath = path.resolve(
       __dirname,
-      '../../artifacts/contracts/protocol/ScoutProtocolImplementation.sol/ScoutProtocolImplementation.json'
+      '../../artifacts/contracts/protocol/ProtocolImplementation.sol/ScoutProtocolImplementation.json'
     );
     const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
     abi = implementationArtifact.abi;

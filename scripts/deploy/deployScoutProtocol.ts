@@ -40,7 +40,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
 
   const implementationArtifactPath = path.resolve(
     __dirname,
-    '../../artifacts/contracts/protocol/ScoutProtocolImplementation.sol/ScoutProtocolImplementation.json'
+    '../../artifacts/contracts/protocol/ProtocolImplementation.sol/ScoutProtocolImplementation.json'
   );
   const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
   const implementationBytecode = implementationArtifact.bytecode;
@@ -158,7 +158,15 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     const proxyBytecode = proxyArtifact.bytecode;
     const proxyABI = proxyArtifact.abi;
 
-    const paymentTokenAddress = connector.scoutgameErc20Token; // ERC20 token address
+    const { paymentTokenAddress } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'paymentTokenAddress',
+        message: 'Enter the address for scout protocol ERC20 token',
+        validate: (input) => (isAddress(input) ? true : 'Invalid address')
+      }
+    ]);
+
     if (!paymentTokenAddress) {
       throw new Error('Payment token address (Scout ERC20 contract) not specified in the connector');
     }

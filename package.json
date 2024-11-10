@@ -16,6 +16,7 @@
     "scout:deploy:schemas": "npx hardhat deployEASSchemas --network",
     "scout:deploy:protocol": "npx hardhat deployScoutProtocol --network",
     "scout:protocol": "npx hardhat interactProtocol --network",
+    "scout:erc20": "npx hardhat interactProtocolERC20Token --network",
     "buildernft": "npx hardhat interactBuilderNFT --network",
     "build:api": "npx tsx lib/generateApiClient.ts"
   },

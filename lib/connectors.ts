@@ -74,10 +74,10 @@ export const connectors = {
     // This is the new version of the contract with a sudo-type mint
     builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
     usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
-    scoutgameErc20Token: '0x26d76d564910c063d0953d8636add5027c0337ce',
-    scoutgameScoutProtocolProxy: '0x53C7441F6FacE31FE6A2f8f0A327B7A40b7B9AA3',
-    scoutgameErc20TokenDev: '0xeB6dd4Ca88177A15626348b73417AB077Bd2934D',
-    scoutgameScoutProtocolProxyDev: '0x32a0818a9994ca8e1bf617119880760d2d5cd910',
+    scoutgameErc20Token: '0x3fb476010cc55aca277e48e5a1f25fc096a21cc6',
+    scoutgameScoutProtocolProxy: '0x2271eac711b718110996c2a5dceb3d50eca942b2',
+    scoutgameErc20TokenDev: '0x8a392ed8dafd051998fcba376468c6e2992b92f0',
+    scoutgameScoutProtocolProxyDev: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
     easAttestationContract: '0x4200000000000000000000000000000000000021',
     easBaseUrl: 'https://base-sepolia.easscan.org'
   } as Connector,

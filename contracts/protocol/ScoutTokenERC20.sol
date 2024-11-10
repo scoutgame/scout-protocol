@@ -28,6 +28,18 @@ contract ScoutTokenERC20 is Context, AccessControlEnumerable, ERC20Pausable {
         _grantRole(PAUSER_ROLE, _msgSender());
     }
 
+    function admin() public view returns (address) {
+        return getRoleMember(DEFAULT_ADMIN_ROLE, 0);
+    }
+
+    function transferAdmin(address _newAdmin) external onlyAdmin {
+        
+        address _currentAdmin = admin();
+
+        _revokeRole(DEFAULT_ADMIN_ROLE, _currentAdmin); 
+        _grantRole(DEFAULT_ADMIN_ROLE, _newAdmin);
+    }
+
     function mint(address to, uint256 amount) public onlyAdmin {
         _mint(to, amount);
     }
