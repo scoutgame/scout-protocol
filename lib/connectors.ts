@@ -21,8 +21,10 @@ type Connector = {
   testDevProxy?: Address | null;
   easBaseUrl?: string;
   easAttestationContract?: Address | null;
+  scoutgameEASResolver?: Address | null;
   scoutgameErc20TokenDev?: Address | null;
   scoutgameScoutProtocolProxyDev?: Address | null;
+  scoutgameEASResolverDev?: Address | null;
   scoutgameErc20Token?: Address | null;
   scoutgameScoutProtocolProxy?: Address | null;
 };
@@ -74,8 +76,10 @@ export const connectors = {
     // This is the new version of the contract with a sudo-type mint
     builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
     usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    scoutgameEASResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
     scoutgameErc20Token: '0x3fb476010cc55aca277e48e5a1f25fc096a21cc6',
     scoutgameScoutProtocolProxy: '0x2271eac711b718110996c2a5dceb3d50eca942b2',
+    scoutgameEASResolverDev: '0xb9115c33820ce213449c38949c4e1927787ad902',
     scoutgameErc20TokenDev: '0x8a392ed8dafd051998fcba376468c6e2992b92f0',
     scoutgameScoutProtocolProxyDev: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
     easAttestationContract: '0x4200000000000000000000000000000000000021',
