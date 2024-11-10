@@ -3,13 +3,9 @@ import { keccak256, parseEventLogs, toBytes } from 'viem';
 
 import { generateWallets, type GeneratedWallet } from '../../../generateWallets';
 
-export const ADMIN_SLOT = keccak256(toBytes('Protocol.admin'));
-export const CLAIM_MANAGER_SLOT = keccak256(toBytes('Protocol.claimsManager'));
+export const ADMIN_SLOT = keccak256(toBytes('common.admin'));
 
 export const EAS_ATTESTER_SLOT = keccak256(toBytes('Protocol.easAttester'));
-export const SECONDARY_EAS_ATTESTER_SLOT = keccak256(toBytes('Protocol.easAttesterSecondary'));
-
-export const PAUSER_SLOT = keccak256(toBytes('Protocol.pauser'));
 
 async function deployTestAccessControl() {
   const { adminAccount, userAccount, secondUserAccount } = await generateWallets();

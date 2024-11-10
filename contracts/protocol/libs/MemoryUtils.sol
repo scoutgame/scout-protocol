@@ -10,20 +10,21 @@ library MemoryUtils {
     bytes32 internal constant IMPLEMENTATION_SLOT = bytes32(uint256(keccak256("eip1967.proxy.implementation")) - 1);
 
     // 2. Claims
-    bytes32 internal constant CLAIMS_TOKEN_SLOT = keccak256("Protocol.token");
-    bytes32 internal constant CLAIMS_HISTORY_SLOT = keccak256("Protocol.claimsHistory");
-    bytes32 internal constant MERKLE_ROOTS_SLOT = keccak256("Protocol.merkleRoots");
+    bytes32 internal constant CLAIMS_TOKEN_SLOT = keccak256("protocol.token");
+    bytes32 internal constant CLAIMS_HISTORY_SLOT = keccak256("protocol.claimsHistory");
+    bytes32 internal constant MERKLE_ROOTS_SLOT = keccak256("protocol.merkleRoots");
 
     // 3. Roles
-    bytes32 internal constant ADMIN_SLOT = keccak256("Protocol.admin");
-    bytes32 internal constant CLAIM_MANAGER_SLOT = keccak256("Protocol.claimsManager");
-    bytes32 internal constant PAUSER_SLOT = keccak256("Protocol.pauser");
+    bytes32 internal constant ADMIN_SLOT = keccak256("common.admin");
+    bytes32 internal constant PAUSER_SLOT = keccak256("common.pauser");
 
-    bytes32 internal constant EAS_ATTESTER_SLOT = keccak256("Protocol.easAttester");
-    bytes32 internal constant SECONDARY_EAS_ATTESTER_SLOT = keccak256("Protocol.easAttesterSecondary");
+    bytes32 internal constant CLAIM_MANAGER_SLOT = keccak256("protocol.claimsManager");
+
+    bytes32 internal constant EAS_ATTESTER_SLOT = keccak256("easResolver.attester");
+    bytes32 internal constant SECONDARY_EAS_ATTESTER_SLOT = keccak256("easResolver.secondaryAttester");
 
     // 4. State
-    bytes32 internal constant IS_PAUSED_SLOT = keccak256("Protocol.isPaused");
+    bytes32 internal constant IS_PAUSED_SLOT = keccak256("common.isPaused");
 
     function _getRoleName(bytes32 role) internal pure returns (string memory) {
       if (role == ADMIN_SLOT) {

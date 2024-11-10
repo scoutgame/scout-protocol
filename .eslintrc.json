@@ -119,7 +119,7 @@
       "no-restricted-exports": "off",
       "no-restricted-syntax": "off",
       "no-underscore-dangle": "off",
-      "no-unused-vars": "off",
+      "no-unused-vars": "warn",
       "no-use-before-define": [
         "error",
         {

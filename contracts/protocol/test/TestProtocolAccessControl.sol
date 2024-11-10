@@ -21,4 +21,8 @@ contract TestProtocolAccessControl is ProtocolAccessControl {
   function testPaused() onlyWhenNotPaused external view returns (bool) {
     return true;
   }
+
+  function testAdminStorageSlot(bytes32 slot) external view returns (bytes32) {
+    return MemoryUtils.ADMIN_SLOT;
+  }
 }
