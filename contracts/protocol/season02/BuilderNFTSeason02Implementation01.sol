@@ -494,13 +494,4 @@ contract BuilderNFTSeason02Implementation is
     function updatePriceIncrement(uint256 newIncrement) external onlyAdmin {
         MemoryUtils._setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, newIncrement);
     }
-
-    function updateERC20Contract(address newContract) external onlyAdmin {
-        require(newContract != address(0), "Invalid address");
-        MemoryUtils._setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, newContract);
-    }
-
-    function getERC20Contract() external view returns (address) {
-        return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
-    }
 }
