@@ -50,11 +50,6 @@ library BuilderNFTStorage {
         uint256 tokenId
     ) internal view returns (string memory) {
         string memory _builderId = layout().tokenToBuilderRegistry[tokenId];
-
-        if (bytes(_builderId).length == 0) {
-            revert("Token id not found");
-        }
-
         return _builderId;
     }
 
@@ -69,11 +64,6 @@ library BuilderNFTStorage {
         string memory builder
     ) internal view returns (uint256) {
         uint256 _tokenId = layout().builderToTokenRegistry[builder];
-
-        if (_tokenId == 0) {
-            revert("Builder not found");
-        }
-
         return _tokenId;
     }
 

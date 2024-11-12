@@ -37,7 +37,7 @@ contract BuilderNFTSeason02Implementation is
     modifier onlyAdminOrMinter() {
         require(
             _isAdmin() || _hasRole(MemoryUtils.MINTER_SLOT),
-            "Proxy: caller is not the admin or minter"
+            "Caller is not the admin or minter"
         );
         _;
     }
