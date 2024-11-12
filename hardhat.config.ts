@@ -27,6 +27,7 @@ import './scripts/deploy/updateProxyImplementation';
 import './scripts/interact/builderNftApp';
 import './scripts/interact/scoutProtocol';
 import './scripts/interact/scoutProtocolToken';
+import './scripts/interact/scoutProtocolResolver';
 import './scripts/interact/claimBalance';
 import './scripts/interact/getUnclaimedBalance';
 

@@ -5,7 +5,7 @@ import { generateWallets, type GeneratedWallet } from '../../../generateWallets'
 
 export const ADMIN_SLOT = keccak256(toBytes('common.admin'));
 
-export const EAS_ATTESTER_SLOT = keccak256(toBytes('Protocol.easAttester'));
+export const EAS_ATTESTER_SLOT = keccak256(toBytes('easResolver.attester'));
 
 async function deployTestAccessControl() {
   const { adminAccount, userAccount, secondUserAccount } = await generateWallets();
