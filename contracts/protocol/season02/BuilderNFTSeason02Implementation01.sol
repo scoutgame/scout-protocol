@@ -6,6 +6,7 @@ import "../libs/ProtocolAccessControl.sol";
 import "../libs/BuilderNFTStorage.sol";
 import "../libs/StringUtils.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
@@ -43,42 +44,7 @@ contract BuilderNFTSeason02Implementation is
 
     constructor() {}
 
-    function setBaseUri(
-        string memory _prefix,
-        string memory _suffix
-    ) external onlyAdmin {
-        require(bytes(_prefix).length > 0, "Empty base URI prefix not allowed");
-        require(bytes(_suffix).length > 0, "Empty base URI suffix not allowed");
-        BuilderNFTStorage.setUriPrefix(_prefix);
-        BuilderNFTStorage.setUriSuffix(_suffix);
-    }
-
-    function registerBuilderToken(
-        string calldata builderId
-    ) external onlyAdminOrMinter {
-        require(
-            StringUtils._isValidUUID(builderId),
-            "Builder ID must be a valid UUID"
-        );
-        require(
-            BuilderNFTStorage.getBuilderToTokenRegistry(builderId) == 0,
-            "Builder already registered"
-        );
-
-        uint256 _nextTokenId = BuilderNFTStorage.getNextTokenId();
-
-        // Update mappings in storage
-        BuilderNFTStorage.setBuilderToTokenRegistry(builderId, _nextTokenId);
-        (builderId, _nextTokenId);
-        BuilderNFTStorage.setTokenToBuilderRegistry(_nextTokenId, builderId);
-
-        // Emit BuilderTokenRegistered event
-        emit BuilderTokenRegistered(_nextTokenId, builderId);
-
-        // Increment the next token ID
-        BuilderNFTStorage.incrementNextTokenId();
-    }
-
+    // ERC1155 methods grouped together
     function balanceOf(
         address account,
         uint256 tokenId
@@ -107,35 +73,252 @@ contract BuilderNFTSeason02Implementation is
         return batchBalances;
     }
 
-    function setApprovalForAll(address operator, bool approved) external {
-        revert("Approval not allowed for soulbound tokens");
+    function setApprovalForAll(
+        address operator,
+        bool approved
+    ) external override {
+        require(
+            operator != _msgSender(),
+            "ERC1155: setting approval status for self"
+        );
+
+        BuilderNFTStorage.setApprovalForAll(_msgSender(), operator, approved);
+
+        emit ApprovalForAll(_msgSender(), operator, approved);
     }
 
     function isApprovedForAll(
-        address,
-        address
-    ) external pure override returns (bool) {
-        return false; // Approvals are not allowed for soulbound tokens
+        address account,
+        address operator
+    ) public view override returns (bool) {
+        return BuilderNFTStorage.isApprovedForAll(account, operator);
     }
 
     function safeTransferFrom(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes memory
-    ) external pure override {
-        revert("Transfers not allowed for soulbound tokens");
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount,
+        bytes memory data
+    ) external override {
+        require(
+            from == _msgSender() || isApprovedForAll(from, _msgSender()),
+            "ERC1155: caller is not owner nor approved"
+        );
+        require(to != address(0), "ERC1155: transfer to the zero address");
+
+        _beforeTokenTransfer(
+            _msgSender(),
+            from,
+            to,
+            _asSingletonUintArray(tokenId),
+            _asSingletonUintArray(amount),
+            data
+        );
+
+        uint256 fromBalance = BuilderNFTStorage.getBalance(from, tokenId);
+        require(
+            fromBalance >= amount,
+            "ERC1155: insufficient balance for transfer"
+        );
+
+        BuilderNFTStorage.decreaseBalance(from, tokenId, amount);
+        BuilderNFTStorage.increaseBalance(to, tokenId, amount);
+
+        emit TransferSingle(_msgSender(), from, to, tokenId, amount);
+
+        _doSafeTransferAcceptanceCheck(
+            _msgSender(),
+            from,
+            to,
+            tokenId,
+            amount,
+            data
+        );
     }
 
     function safeBatchTransferFrom(
-        address,
-        address,
-        uint256[] memory,
-        uint256[] memory,
-        bytes memory
-    ) external pure override {
-        revert("Batch transfers not allowed for soulbound tokens");
+        address from,
+        address to,
+        uint256[] memory tokenIds,
+        uint256[] memory amounts,
+        bytes memory data
+    ) external override {
+        require(
+            from == _msgSender() || isApprovedForAll(from, _msgSender()),
+            "ERC1155: transfer caller is not owner nor approved"
+        );
+        require(to != address(0), "ERC1155: transfer to the zero address");
+        require(
+            tokenIds.length == amounts.length,
+            "ERC1155: ids and amounts length mismatch"
+        );
+
+        _beforeTokenTransfer(_msgSender(), from, to, tokenIds, amounts, data);
+
+        for (uint256 i = 0; i < tokenIds.length; ++i) {
+            uint256 id = tokenIds[i];
+            uint256 amount = amounts[i];
+
+            uint256 fromBalance = BuilderNFTStorage.getBalance(from, id);
+            require(
+                fromBalance >= amount,
+                "ERC1155: insufficient balance for transfer"
+            );
+
+            BuilderNFTStorage.decreaseBalance(from, id, amount);
+            BuilderNFTStorage.increaseBalance(to, id, amount);
+        }
+
+        emit TransferBatch(_msgSender(), from, to, tokenIds, amounts);
+
+        _doSafeBatchTransferAcceptanceCheck(
+            _msgSender(),
+            from,
+            to,
+            tokenIds,
+            amounts,
+            data
+        );
+    }
+
+    function uri(
+        uint256 _tokenId
+    ) external view override returns (string memory) {
+        return _tokenURI(_tokenId);
+    }
+
+    function _asSingletonAddressArray(
+        address element
+    ) private pure returns (address[] memory) {
+        address[] memory addrArray = new address[](1);
+        addrArray[0] = element;
+        return addrArray;
+    }
+
+    function _asSingletonUintArray(
+        uint256 element
+    ) private pure returns (uint256[] memory) {
+        uint256[] memory uintArray = new uint256[](1);
+        uintArray[0] = element;
+        return uintArray;
+    }
+
+    function _beforeTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory tokenIds,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual {
+        // Hook that can be overridden
+    }
+
+    function _doSafeTransferAcceptanceCheck(
+        address operator,
+        address from,
+        address to,
+        uint256 tokenId,
+        uint256 amount,
+        bytes memory data
+    ) private {
+        if (MemoryUtils._isContract(to)) {
+            try
+                IERC1155Receiver(to).onERC1155Received(
+                    operator,
+                    from,
+                    tokenId,
+                    amount,
+                    data
+                )
+            returns (bytes4 response) {
+                if (response != IERC1155Receiver.onERC1155Received.selector) {
+                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                }
+            } catch Error(string memory reason) {
+                revert(reason);
+            } catch {
+                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+            }
+        }
+    }
+
+    function _doSafeBatchTransferAcceptanceCheck(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory tokenIds,
+        uint256[] memory amounts,
+        bytes memory data
+    ) private {
+        if (MemoryUtils._isContract(to)) {
+            try
+                IERC1155Receiver(to).onERC1155BatchReceived(
+                    operator,
+                    from,
+                    tokenIds,
+                    amounts,
+                    data
+                )
+            returns (bytes4 response) {
+                if (
+                    response != IERC1155Receiver.onERC1155BatchReceived.selector
+                ) {
+                    revert("ERC1155: ERC1155Receiver rejected tokens");
+                }
+            } catch Error(string memory reason) {
+                revert(reason);
+            } catch {
+                revert("ERC1155: transfer to non ERC1155Receiver implementer");
+            }
+        }
+    }
+
+    // Implement ERC165
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override(ERC165, IERC165) returns (bool) {
+        return
+            interfaceId == type(IERC1155).interfaceId ||
+            interfaceId == type(IERC1155MetadataURI).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
+
+    // Rest of the contract methods
+    function setBaseUri(
+        string memory _prefix,
+        string memory _suffix
+    ) external onlyAdmin {
+        require(bytes(_prefix).length > 0, "Empty base URI prefix not allowed");
+        require(bytes(_suffix).length > 0, "Empty base URI suffix not allowed");
+        BuilderNFTStorage.setUriPrefix(_prefix);
+        BuilderNFTStorage.setUriSuffix(_suffix);
+    }
+
+    function registerBuilderToken(
+        string calldata builderId
+    ) external onlyAdminOrMinter {
+        require(
+            StringUtils._isValidUUID(builderId),
+            "Builder ID must be a valid UUID"
+        );
+        require(
+            BuilderNFTStorage.getBuilderToTokenRegistry(builderId) == 0,
+            "Builder already registered"
+        );
+
+        uint256 _nextTokenId = BuilderNFTStorage.getNextTokenId();
+
+        // Update mappings in storage
+        BuilderNFTStorage.setBuilderToTokenRegistry(builderId, _nextTokenId);
+        BuilderNFTStorage.setTokenToBuilderRegistry(_nextTokenId, builderId);
+
+        // Emit BuilderTokenRegistered event
+        emit BuilderTokenRegistered(_nextTokenId, builderId);
+
+        // Increment the next token ID
+        BuilderNFTStorage.incrementNextTokenId();
     }
 
     function mint(
@@ -175,12 +358,10 @@ contract BuilderNFTSeason02Implementation is
             .balanceOf(_proceedsReceiver);
 
         require(
-            _proceedsReceiverBalanceAfterTransfer + _price ==
-                _proceedsReceiverBalance,
+            _proceedsReceiverBalanceAfterTransfer ==
+                _proceedsReceiverBalance + _price,
             "Transfer failed"
         );
-
-        uint256 nftBalance = BuilderNFTStorage.getBalance(account, tokenId);
 
         BuilderNFTStorage.increaseBalance(account, tokenId, amount);
 
@@ -192,6 +373,10 @@ contract BuilderNFTSeason02Implementation is
     }
 
     function burn(address account, uint256 tokenId, uint256 amount) external {
+        require(
+            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            "ERC1155: caller is not owner nor approved"
+        );
         BuilderNFTStorage.decreaseBalance(account, tokenId, amount);
         // Emit TransferSingle event with the burn details
         emit TransferSingle(_msgSender(), account, address(0), tokenId, amount);
@@ -206,14 +391,9 @@ contract BuilderNFTSeason02Implementation is
         return MemoryUtils._getAddress(MemoryUtils.MINTER_SLOT);
     }
 
-    function _validateMint(
-        address account,
-        uint256 tokenId,
-        string calldata scout
-    ) internal view {}
-
-    function setERC20() external onlyAdmin {
-        MemoryUtils._setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, _msgSender());
+    function setERC20(address newERC20) external onlyAdmin {
+        require(newERC20 != address(0), "Invalid address");
+        MemoryUtils._setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, newERC20);
     }
 
     function ERC20() external view returns (address) {
@@ -277,12 +457,6 @@ contract BuilderNFTSeason02Implementation is
         BuilderNFTStorage.setUriSuffix(newSuffix);
     }
 
-    function uri(
-        uint256 _tokenId
-    ) external view override returns (string memory) {
-        return _tokenURI(_tokenId);
-    }
-
     function tokenURI(uint256 _tokenId) external view returns (string memory) {
         return _tokenURI(_tokenId);
     }
@@ -326,7 +500,7 @@ contract BuilderNFTSeason02Implementation is
         MemoryUtils._setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, newContract);
     }
 
-    function getERC20Contract() external view returns (uint256) {
-        return MemoryUtils._getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
+    function getERC20Contract() external view returns (address) {
+        return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }
 }

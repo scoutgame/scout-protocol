@@ -7,6 +7,8 @@ library BuilderNFTStorage {
         mapping(uint256 => uint256) totalSupply;
         mapping(uint256 => string) tokenToBuilderRegistry;
         mapping(string => uint256) builderToTokenRegistry;
+        // Mapping from account to operator approvals
+        mapping(address => mapping(address => bool)) _operatorApprovals;
         uint256 nextTokenId;
         string uriPrefix;
         string uriSuffix;
@@ -121,5 +123,20 @@ library BuilderNFTStorage {
         uint256 tokenId
     ) internal view returns (uint256) {
         return layout().balances[tokenId][account];
+    }
+
+    function isApprovedForAll(
+        address account,
+        address operator
+    ) internal view returns (bool) {
+        return layout()._operatorApprovals[account][operator];
+    }
+
+    function setApprovalForAll(
+        address account,
+        address operator,
+        bool approved
+    ) internal {
+        layout()._operatorApprovals[account][operator] = approved;
     }
 }
