@@ -16,7 +16,7 @@
     PublicActions<transport, chain, account> & WalletActions<chain, account>
   >;
 
-  export class BuilderNFTSeasonOneImplementation01Client {
+  export class ProtocolERC20TokenClient {
 
     private contractAddress: Address;
     private publicClient: PublicClient;
@@ -25,8 +25,26 @@
 
     public abi: Abi = [
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
-    "name": "getMinter",
+    "name": "admin",
     "outputs": [
       {
         "internalType": "address",
@@ -74,10 +92,36 @@
     }
 
     
-    async getMinter(): Promise<string> {
+    async mint(params: { args: { to: string, amount: BigInt }, value?: bigint, gasPrice?: bigint }): Promise<TransactionReceipt> {
+      if (!this.walletClient) {
+        throw new Error('Wallet client is required for write operations.');
+      }
+      
       const txData = encodeFunctionData({
         abi: this.abi,
-        functionName: "getMinter",
+        functionName: "mint",
+        args: [params.args.to, params.args.amount],
+      });
+
+      const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+        to: getAddress(this.contractAddress),
+        data: txData,
+        value: params.value ?? BigInt(0), // Optional value for payable methods
+        gasPrice: params.gasPrice, // Optional gasPrice
+      };
+
+      // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+      const tx = await this.walletClient.sendTransaction(txInput as any);
+
+      // Return the transaction receipt
+      return this.walletClient.waitForTransactionReceipt({ hash: tx });
+    }
+    
+
+    async admin(): Promise<string> {
+      const txData = encodeFunctionData({
+        abi: this.abi,
+        functionName: "admin",
         args: [],
       });
 
@@ -89,7 +133,7 @@
       // Decode the result based on the expected return type
       const result = decodeFunctionResult({
         abi: this.abi,
-        functionName: "getMinter",
+        functionName: "admin",
         data: data as `0x${string}`,
       });
 

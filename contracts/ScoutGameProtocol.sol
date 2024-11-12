@@ -12,9 +12,6 @@ contract ScoutGameProtocol is SchemaResolver {
     ScoutToken public token;
     mapping(address => uint256) private _unclaimedBalances;
 
-    // Define a constant for 18 decimals
-    uint256 constant DECIMALS = 10 ** 18;
-
     constructor(IEAS eas, address _token) SchemaResolver(eas) {
         token = ScoutToken(_token);
     }
@@ -25,7 +22,7 @@ contract ScoutGameProtocol is SchemaResolver {
         Attestation calldata attestation,
         uint256 /*value*/
     ) internal override returns (bool) {
-        uint256 addedBalance = 10 * DECIMALS;
+        uint256 addedBalance = 10 * token.decimals();
         _unclaimedBalances[attestation.recipient] += addedBalance;
         return true;
     }

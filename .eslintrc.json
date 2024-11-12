@@ -67,6 +67,7 @@
       "import/no-default-export": "warn",
       "import/no-unresolved": "off",
       "import/no-extraneous-dependencies": "off",
+      "import/no-import-module-exports": "off",
       "import/order": [
         "error",
         {
@@ -118,7 +119,7 @@
       "no-restricted-exports": "off",
       "no-restricted-syntax": "off",
       "no-underscore-dangle": "off",
-      "no-unused-vars": "off",
+      "no-unused-vars": "warn",
       "no-use-before-define": [
         "error",
         {

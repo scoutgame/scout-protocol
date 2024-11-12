@@ -11,12 +11,13 @@ export async function deployTestUSDC({ minterWallet }: { minterWallet?: Generate
   const minter = minterWallet || fallbackMinter;
 
   // Step 2: Deploy required libraries
-  const SignatureChecker = await viem.deployContract('SignatureChecker', undefined, {
+  const SignatureCheckerFiatProxy = await viem.deployContract('SignatureCheckerFiatProxy', undefined, {
     client: { wallet: adminAccount }
   });
 
   const libraries = {
-    'contracts/FiatTokenV2_2/contracts/util/SignatureChecker.sol:SignatureChecker': SignatureChecker.address
+    'contracts/FiatTokenV2_2/contracts/util/SignatureCheckerFiatProxy.sol:SignatureCheckerFiatProxy':
+      SignatureCheckerFiatProxy.address
   };
 
   // Step 3: Deploy the USDC Implementation Contract (FiatTokenV2_2)

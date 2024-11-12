@@ -25,9 +25,9 @@ import { IERC1271 } from "../interface/IERC1271.sol";
  * @dev Signature verification helper that can be used instead of `ECRecover.recover` to seamlessly support both ECDSA
  * signatures from externally owned accounts (EOAs) as well as ERC1271 signatures from smart contract wallets.
  *
- * Adapted from https://github.com/OpenZeppelin/openzeppelin-contracts/blob/21bb89ef5bfc789b9333eb05e3ba2b7b284ac77c/contracts/utils/cryptography/SignatureChecker.sol
+ * Adapted from https://github.com/OpenZeppelin/openzeppelin-contracts/blob/21bb89ef5bfc789b9333eb05e3ba2b7b284ac77c/contracts/utils/cryptography/SignatureCheckerFiatProxy.sol
  */
-library SignatureChecker {
+library SignatureCheckerFiatProxy {
     /**
      * @dev Checks if a signature is valid for a given signer and data hash. If the signer is a smart contract, the
      * signature is validated against that smart contract using ERC1271, otherwise it's validated using `ECRecover.recover`.

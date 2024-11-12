@@ -1,7 +1,8 @@
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Address, Chain, rpcSchema } from "viem"
-import { base, baseSepolia, optimism, optimismSepolia, sepolia } from "viem/chains";
-import { NULL_ADDRESS } from "./constants";
+import type { HardhatRuntimeEnvironment } from 'hardhat/types';
+import type { Address, Chain } from 'viem';
+import { base, baseSepolia, optimism, optimismSepolia, sepolia } from 'viem/chains';
+
+import { NULL_ADDRESS } from './constants';
 
 // https://app.ens.domains/scoutgame.eth
 export const proceedsReceiver = '0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D';
@@ -18,9 +19,17 @@ type Connector = {
   seasonOneProxy?: Address | null;
   devProxy?: Address | null;
   testDevProxy?: Address | null;
-}
+  easBaseUrl?: string;
+  easAttestationContract?: Address | null;
+  scoutgameEASResolver?: Address | null;
+  scoutgameErc20TokenDev?: Address | null;
+  scoutgameScoutProtocolProxyDev?: Address | null;
+  scoutgameEASResolverDev?: Address | null;
+  scoutgameErc20Token?: Address | null;
+  scoutgameScoutProtocolProxy?: Address | null;
+};
 /**
- * 
+ *
  * USDC Mainnet https://developers.circle.com/stablecoins/docs/usdc-on-main-networks
  * USDC Testnet https://developers.circle.com/stablecoins/docs/usdc-on-test-networks
  */
@@ -56,7 +65,7 @@ export const connectors = {
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: NULL_ADDRESS,
-    usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+    usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
   } as Connector,
   basesepolia: {
     rpcUrl: 'https://sepolia.base.org',
@@ -66,7 +75,15 @@ export const connectors = {
     stargateProtocolContract: NULL_ADDRESS,
     // This is the new version of the contract with a sudo-type mint
     builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
-    usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e'
+    usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    scoutgameEASResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
+    scoutgameErc20Token: '0x3fb476010cc55aca277e48e5a1f25fc096a21cc6',
+    scoutgameScoutProtocolProxy: '0x2271eac711b718110996c2a5dceb3d50eca942b2',
+    scoutgameEASResolverDev: '0xb9115c33820ce213449c38949c4e1927787ad902',
+    scoutgameErc20TokenDev: '0x8a392ed8dafd051998fcba376468c6e2992b92f0',
+    scoutgameScoutProtocolProxyDev: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
+    easAttestationContract: '0x4200000000000000000000000000000000000021',
+    easBaseUrl: 'https://base-sepolia.easscan.org'
   } as Connector,
   base: {
     rpcUrl: 'https://mainnet.base.org',
@@ -75,35 +92,58 @@ export const connectors = {
     luckyStarCoinContract: NULL_ADDRESS,
     stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x278cc8861cfc93ea47c9e89b1876d0def2037c27',
-    usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913'
+    usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+    easAttestationContract: '0x4200000000000000000000000000000000000021',
+    easBaseUrl: 'https://base.easscan.org'
   } as Connector
 } as const;
 
 export function getConnectorKey(chainId: number) {
-  const key = Object.entries(connectors).find(([key, val]) => val.chain.id === chainId)?.[0];
+  const key = Object.entries(connectors).find(([, val]) => val.chain.id === chainId)?.[0];
 
   if (!key) {
-    throw new Error('Key not found')
+    throw new Error('Key not found');
   }
 
-  return key
+  return key;
 }
 
 export type SupportedChains = keyof typeof connectors;
 
 export function getConnectorFromHardhatRuntimeEnvironment(hre: HardhatRuntimeEnvironment): Connector {
-
   const chainName = hre.hardhatArguments.network;
 
   if (!chainName) {
-    throw new Error('No network specified')
+    throw new Error('No network specified');
   }
 
   const connector = connectors[chainName as SupportedChains];
 
   if (!connector) {
-    throw new Error(`Unsupported chain: ${chainName}`)
+    throw new Error(`Unsupported chain: ${chainName}`);
   }
 
   return connector;
+}
+
+export function getEasUrl({
+  chain,
+  type,
+  uid
+}: {
+  chain: SupportedChains;
+  type: 'schemas_list' | 'schema' | 'attestion';
+  uid?: string;
+}) {
+  const baseUrl = connectors[chain].easBaseUrl || '';
+
+  if (type === 'schemas_list') {
+    return `${baseUrl}/schemas`;
+  } else if (type === 'schema') {
+    return `${baseUrl}/schema/view/${uid}`;
+  } else if (type === 'attestion') {
+    return `${baseUrl}/attestation/view/${uid}`;
+  }
+
+  throw new Error('Invalid type');
 }

@@ -2,7 +2,7 @@
   "name": "hardhat-project",
   "scripts": {
     "lint": "npx eslint . --fix",
-    "test": "npm run compile && npx dotenv -e .env.test.local -- npx jest test --verbose",
+    "test": "npm run compile && npx dotenv -e .env.test.local -- npx jest test --verbose --testTimeout 20000",
     "script": "npx dotenv -e .env.local -- npx tsx",
     "setkey": "npx hardhat vars set PRIVATE_KEY",
     "compile": "npx hardhat compile",
@@ -12,6 +12,12 @@
     "claimbalance": "npx hardhat claimBalance --network opsepolia --privatekey ",
     "deploybuilders": "npm run compile && npx hardhat deployBuilderNFTSeasonOne --network",
     "proxy:update": "npx hardhat updateProxyImplementation --network",
+    "scout:deploy:erc20": "npx hardhat deployScoutGameERC20 --network",
+    "scout:deploy:schemas": "npx hardhat deployEASSchemas --network",
+    "scout:deploy:protocol": "npx hardhat deployScoutProtocol --network",
+    "scout:protocol": "npx hardhat interactProtocol --network",
+    "scout:erc20": "npx hardhat interactProtocolERC20Token --network",
+    "scout:easresolver": "npx hardhat interactProtocolEASResolver --network",
     "buildernft": "npx hardhat interactBuilderNFT --network",
     "build:api": "npx tsx lib/generateApiClient.ts"
   },
@@ -20,7 +26,7 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.6",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-viem": "^2.0.3",
-    "@openzeppelin/contracts": "^5.1.0",
+    "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@types/uuid": "^10.0.0",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
@@ -40,7 +46,9 @@
     "typechain": "^8.3.2"
   },
   "dependencies": {
+    "@charmverse/core": "^0.94.1-rc-weekly-claims.10",
     "@ethereum-attestation-service/eas-contracts": "^1.7.1",
+    "@ethereum-attestation-service/eas-sdk": "^2.7.0",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@pinata/sdk": "^2.1.0",

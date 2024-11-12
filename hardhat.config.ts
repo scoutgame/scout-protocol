@@ -1,9 +1,9 @@
 import { vars } from 'hardhat/config';
 import type { HardhatUserConfig } from 'hardhat/config';
-import '@nomicfoundation/hardhat-ethers';
 
-import '@nomicfoundation/hardhat-toolbox-viem';
+import '@nomicfoundation/hardhat-ethers';
 import '@nomicfoundation/hardhat-ignition-viem';
+import '@nomicfoundation/hardhat-toolbox-viem';
 import '@nomicfoundation/hardhat-viem';
 import 'hardhat-jest'; // Enable support for Jest: https://www.npmjs.com/package/hardhat-jest
 
@@ -12,17 +12,24 @@ import type { NetworksUserConfig } from 'hardhat/types';
 import type { SupportedChains } from './lib/connectors';
 import { connectors } from './lib/connectors';
 
-// Deploys
+// Deploys ------------------------------
+import './scripts/deploy/deployBuilderNft';
 import './scripts/deploy/deployCreate2Factory';
 import './scripts/deploy/deployLuckyStarCoin';
+// Scout Game Protocol
+import './scripts/deploy/deployScoutGameErc20';
+import './scripts/deploy/deployScoutProtocol';
 import './scripts/deploy/deployStargateProtocol';
-import './scripts/deploy/deployBuilderNft';
+import './scripts/deploy/deployEASSchemas';
 import './scripts/deploy/updateProxyImplementation';
 
-// Interactions
-import './scripts/interact/getUnclaimedBalance';
-import './scripts/interact/claimBalance';
+// Interactions ------------------------------
 import './scripts/interact/builderNftApp';
+import './scripts/interact/scoutProtocol';
+import './scripts/interact/scoutProtocolToken';
+import './scripts/interact/scoutProtocolResolver';
+import './scripts/interact/claimBalance';
+import './scripts/interact/getUnclaimedBalance';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
@@ -32,7 +39,13 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
     solidity: {
       compilers: [
         {
-          version: '0.8.26' // Your contracts
+          version: '0.8.26', // Your contracts
+          settings: {
+            optimizer: {
+              enabled: true,
+              runs: 200
+            }
+          }
         },
         {
           version: '0.6.12', // USDC contracts
@@ -70,7 +83,7 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
         url: connectors.basesepolia.rpcUrl,
         accounts: [PRIVATE_KEY],
         gasPrice: 4e8,
-        gas: 21e15
+        gas: 1e9
       },
       base: {
         url: connectors.basesepolia.rpcUrl,
@@ -84,7 +97,8 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
     etherscan: {
       apiKey: {
         opsepolia: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ',
-        optimism: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ'
+        optimism: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ',
+        basesepolia: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ'
       },
       customChains: [
         {
@@ -93,6 +107,14 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
           urls: {
             apiURL: 'https://optimism-sepolia.blockscout.com/api',
             browserURL: 'https://optimism-sepolia.blockscout.com'
+          }
+        },
+        {
+          network: 'basesepolia',
+          chainId: 84532,
+          urls: {
+            apiURL: 'https://base-sepolia.blockscout.com/api',
+            browserURL: 'https://base-sepolia.blockscout.com'
           }
         },
         {

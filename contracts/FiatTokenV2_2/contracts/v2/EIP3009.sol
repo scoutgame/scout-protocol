@@ -20,7 +20,7 @@ pragma solidity 0.6.12;
 
 import { AbstractFiatTokenV2 } from "./AbstractFiatTokenV2.sol";
 import { EIP712Domain } from "./EIP712Domain.sol";
-import { SignatureChecker } from "../util/SignatureChecker.sol";
+import { SignatureCheckerFiatProxy } from "../util/SignatureCheckerFiatProxy.sol";
 import { MessageHashUtils } from "../util/MessageHashUtils.sol";
 
 /**
@@ -279,7 +279,7 @@ abstract contract EIP3009 is AbstractFiatTokenV2, EIP712Domain {
         bytes memory signature
     ) private view {
         require(
-            SignatureChecker.isValidSignatureNow(
+            SignatureCheckerFiatProxy.isValidSignatureNow(
                 signer,
                 MessageHashUtils.toTypedDataHash(_domainSeparator(), dataHash),
                 signature

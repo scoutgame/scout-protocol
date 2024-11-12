@@ -16,7 +16,7 @@
     PublicActions<transport, chain, account> & WalletActions<chain, account>
   >;
 
-  export class BuilderNFTSeasonOneImplementation01Client {
+  export class ScoutProtocolEASResolverClient {
 
     private contractAddress: Address;
     private publicClient: PublicClient;
@@ -26,7 +26,7 @@
     public abi: Abi = [
   {
     "inputs": [],
-    "name": "getMinter",
+    "name": "admin",
     "outputs": [
       {
         "internalType": "address",
@@ -74,10 +74,10 @@
     }
 
     
-    async getMinter(): Promise<string> {
+    async admin(): Promise<string> {
       const txData = encodeFunctionData({
         abi: this.abi,
-        functionName: "getMinter",
+        functionName: "admin",
         args: [],
       });
 
@@ -89,7 +89,7 @@
       // Decode the result based on the expected return type
       const result = decodeFunctionResult({
         abi: this.abi,
-        functionName: "getMinter",
+        functionName: "admin",
         data: data as `0x${string}`,
       });
 

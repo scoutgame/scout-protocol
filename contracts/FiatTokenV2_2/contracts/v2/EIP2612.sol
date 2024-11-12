@@ -21,7 +21,7 @@ pragma solidity 0.6.12;
 import { AbstractFiatTokenV2 } from "./AbstractFiatTokenV2.sol";
 import { EIP712Domain } from "./EIP712Domain.sol";
 import { MessageHashUtils } from "../util/MessageHashUtils.sol";
-import { SignatureChecker } from "../util/SignatureChecker.sol";
+import { SignatureCheckerFiatProxy } from "../util/SignatureCheckerFiatProxy.sol";
 
 /**
  * @title EIP-2612
@@ -100,7 +100,7 @@ abstract contract EIP2612 is AbstractFiatTokenV2, EIP712Domain {
             )
         );
         require(
-            SignatureChecker.isValidSignatureNow(
+            SignatureCheckerFiatProxy.isValidSignatureNow(
                 owner,
                 typedDataHash,
                 signature

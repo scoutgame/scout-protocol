@@ -6,51 +6,61 @@ import { task } from 'hardhat/config';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
 import { privateKeyToAccount } from 'viem/accounts';
 
+import { ScoutProtocolProxyClient as _ScoutProtocolProxyClient } from '../../lib/apiClients/ProtocolProxyClient';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
+import { getWalletClient } from '../../lib/getWalletClient';
 import { interactWithContract } from '../../lib/interactWithContract';
 
 dotenv.config();
 
-task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI').setAction(async (taskArgs, hre) => {
+task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').setAction(async (taskArgs, hre) => {
   const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
+
+  if (!connector.scoutgameScoutProtocolProxy) {
+    throw new Error('Proxy contract address not found in connector');
+  }
 
   const privateKey = process.env.PRIVATE_KEY?.startsWith('0x')
     ? (process.env.PRIVATE_KEY as `0x${string}`)
     : (`0x${process.env.PRIVATE_KEY}` as `0x${string}`);
 
-  let mode: 'realProxy' | 'stgProxy' | 'devProxy' = 'realProxy';
+  let mode: 'realProxy' | 'devProxy' = 'realProxy';
 
-  const choices: string[] = [`🟢 Prod ${connector.seasonOneProxy!.slice(0, 6)}`];
+  const choices: string[] = [`🟢 Prod ${connector.scoutgameScoutProtocolProxy!.slice(0, 6)}`];
 
-  if (privateKeyToAccount(privateKey).address.startsWith('0x518')) {
-    console.log('🟢 You are connected with the production wallet. Please be careful with the actions you perform.');
+  if (connector.scoutgameScoutProtocolProxyDev) {
+    choices.push(`🟡 Dev ${connector.scoutgameScoutProtocolProxyDev.slice(0, 6)}`);
+  }
+
+  const ScoutProtocolProxyClient = new _ScoutProtocolProxyClient({
+    chain: connector.chain,
+    contractAddress: connector.scoutgameScoutProtocolProxy,
+    walletClient: getWalletClient({ chain: connector.chain, privateKey, rpcUrl: connector.rpcUrl })
+  });
+
+  const currentAccount = privateKeyToAccount(privateKey);
+
+  const currentAdmin = await ScoutProtocolProxyClient.admin();
+
+  if (currentAccount.address === currentAdmin) {
+    console.log('ℹ️ You are connected with the production wallet. Please be careful with the actions you perform.');
   } else {
     console.log('🟡 You are connected with the test wallet');
   }
 
-  if (connector.devProxy) {
-    choices.push(`🟡 Stg ${connector.devProxy!.slice(0, 6)}`);
-  }
-
-  if (connector.testDevProxy) {
-    choices.push(`🟡 Dev ${connector.testDevProxy!.slice(0, 6)}`);
-  }
-
   // Prompt the user to choose between admin functions or user functions
-  const { stgOrReal } = await inquirer.prompt([
+  const { devOrReal } = await inquirer.prompt([
     {
       type: 'list',
-      name: 'stgOrReal',
+      name: 'devOrReal',
       message: 'Choose environment',
       choices
     }
   ]);
 
-  if (String(stgOrReal).startsWith('🟢 Prod')) {
+  if (String(devOrReal).startsWith('🟢 Prod')) {
     mode = 'realProxy';
-  } else if (String(stgOrReal).startsWith('🟡 Stg')) {
-    mode = 'stgProxy';
-  } else {
+  } else if (String(devOrReal).startsWith('🟡 Dev')) {
     mode = 'devProxy';
   }
 
@@ -65,7 +75,7 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI').setActio
   ]);
 
   const contractAddress =
-    mode === 'realProxy' ? connector.seasonOneProxy : mode === 'stgProxy' ? connector.devProxy : connector.testDevProxy;
+    mode === 'realProxy' ? connector.scoutgameScoutProtocolProxy : connector.scoutgameScoutProtocolProxyDev;
   let abi;
 
   if (!contractAddress) {
@@ -77,7 +87,7 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI').setActio
 
     const proxyArtifactPath = path.resolve(
       __dirname,
-      '../../artifacts/contracts/BuilderNFTSeasonOneUpgradeable.sol/BuilderNFTSeasonOneUpgradeable.json'
+      '../../artifacts/contracts/protocol/ScoutProtocolProxy.sol/ScoutProtocolProxy.json'
     );
     const proxyArtifact = JSON.parse(fs.readFileSync(proxyArtifactPath, 'utf8'));
     abi = proxyArtifact.abi;
@@ -88,7 +98,7 @@ task('interactBuilderNFT', 'Interact with BuilderNFT contract via CLI').setActio
     }
     const implementationArtifactPath = path.resolve(
       __dirname,
-      '../../artifacts/contracts/BuilderNFTSeasonOneImplementation01.sol/BuilderNFTSeasonOneImplementation01.json'
+      '../../artifacts/contracts/protocol/ProtocolImplementation.sol/ScoutProtocolImplementation.json'
     );
     const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
     abi = implementationArtifact.abi;
