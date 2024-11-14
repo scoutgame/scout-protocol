@@ -1,107 +1,118 @@
+import type {
+  Abi,
+  Account,
+  Address,
+  Chain,
+  Client,
+  PublicActions,
+  PublicClient,
+  RpcSchema,
+  TransactionReceipt,
+  Transport,
+  WalletActions,
+  WalletClient
+} from 'viem';
+import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
 
-  import type { Abi, Account, Address, Chain, Client, PublicActions, PublicClient, RpcSchema, TransactionReceipt, Transport, WalletActions, WalletClient } from 'viem';
-  import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
+// ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
+//  https://github.com/wevm/viem/discussions/1463#discussioncomment-7504732
+type ReadWriteWalletClient<
+  transport extends Transport = Transport,
+  chain extends Chain | undefined = Chain | undefined,
+  account extends Account | undefined = Account | undefined
+> = Client<
+  transport,
+  chain,
+  account,
+  RpcSchema,
+  PublicActions<transport, chain, account> & WalletActions<chain, account>
+>;
 
-  // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
-  //  https://github.com/wevm/viem/discussions/1463#discussioncomment-7504732
-  type ReadWriteWalletClient<
-    transport extends Transport = Transport,
-    chain extends Chain | undefined = Chain | undefined,
-    account extends Account | undefined = Account | undefined,
-  > = Client<
-    transport,
-    chain,
-    account,
-    RpcSchema,
-    PublicActions<transport, chain, account> & WalletActions<chain, account>
-  >;
+export class UsdcErc20ABIClient {
+  private contractAddress: Address;
 
-  export class UsdcErc20ABIClient {
+  private publicClient: PublicClient;
 
-    private contractAddress: Address;
-    private publicClient: PublicClient;
-    private walletClient?: ReadWriteWalletClient;
-    private chain: Chain;
+  private walletClient?: ReadWriteWalletClient;
 
-    public abi: Abi = [
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "balanceOf",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
+  private chain: Chain;
 
-    constructor({
-      contractAddress,
-      publicClient,
-      walletClient,
-      chain
-    }: {
-      contractAddress: Address,
-      chain: Chain,
-      publicClient?: PublicClient,
-      walletClient?: ReadWriteWalletClient,
-    }) {
-      if (!publicClient && !walletClient) {
-        throw new Error('At least one client is required.');
-      } else if (publicClient && walletClient) {
-        throw new Error('Provide only a public client or wallet clients'); 
-      };
+  public abi: Abi = [
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: 'account',
+          type: 'address'
+        }
+      ],
+      name: 'balanceOf',
+      outputs: [
+        {
+          internalType: 'uint256',
+          name: '',
+          type: 'uint256'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    }
+  ];
 
-      this.chain = chain;
-      this.contractAddress = contractAddress;
-
-      const client = publicClient || walletClient;
-
-      if (client!.chain!.id !== chain.id) {
-        throw new Error('Client must be on the same chain as the contract. Make sure to add a chain to your client');
-      }
-
-      if (publicClient) {
-        this.publicClient = publicClient;
-      } else {
-        this.walletClient = walletClient;
-        this.publicClient = walletClient as PublicClient; 
-      }
+  constructor({
+    contractAddress,
+    publicClient,
+    walletClient,
+    chain
+  }: {
+    contractAddress: Address;
+    chain: Chain;
+    publicClient?: PublicClient;
+    walletClient?: ReadWriteWalletClient;
+  }) {
+    if (!publicClient && !walletClient) {
+      throw new Error('At least one client is required.');
+    } else if (publicClient && walletClient) {
+      throw new Error('Provide only a public client or wallet clients');
     }
 
-    
-    async balanceOf(params: { args: { account: string },  }): Promise<BigInt> {
-      const txData = encodeFunctionData({
-        abi: this.abi,
-        functionName: "balanceOf",
-        args: [params.args.account],
-      });
+    this.chain = chain;
+    this.contractAddress = contractAddress;
 
-      const { data } = await this.publicClient.call({
-        to: this.contractAddress,
-        data: txData,
-      });
+    const client = publicClient || walletClient;
 
-      // Decode the result based on the expected return type
-      const result = decodeFunctionResult({
-        abi: this.abi,
-        functionName: "balanceOf",
-        data: data as `0x${string}`,
-      });
-
-      // Parse the result based on the return type
-      return result as BigInt;
+    if (client!.chain!.id !== chain.id) {
+      throw new Error('Client must be on the same chain as the contract. Make sure to add a chain to your client');
     }
-    
+
+    if (publicClient) {
+      this.publicClient = publicClient;
+    } else {
+      this.walletClient = walletClient;
+      this.publicClient = walletClient as PublicClient;
+    }
   }
-  
+
+  async balanceOf(params: { args: { account: string } }): Promise<bigint> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'balanceOf',
+      args: [params.args.account]
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'balanceOf',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as bigint;
+  }
+}

@@ -8,9 +8,13 @@ export async function deployProtocolContract({ ProtocolERC20Address }: { Protoco
 
   const implementation = await viem.deployContract('ScoutProtocolImplementation');
 
-  const proxy = await viem.deployContract('ScoutProtocolProxy', [implementation.address, ProtocolERC20Address as Address], {
-    client: { wallet: admin }
-  });
+  const proxy = await viem.deployContract(
+    'ScoutProtocolProxy',
+    [implementation.address, ProtocolERC20Address as Address],
+    {
+      client: { wallet: admin }
+    }
+  );
 
   // Make the implementation ABI available to the proxy
   const proxyWithImplementationABI = await viem.getContractAt(

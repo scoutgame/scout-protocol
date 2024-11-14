@@ -12,7 +12,6 @@ export function ensureDirectoryExists(directory: string) {
   }
 }
 
-
 export function ensureAbisDirectoryExists() {
   return ensureDirectoryExists('abis');
 }

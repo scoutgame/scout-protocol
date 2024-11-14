@@ -1,19 +1,19 @@
+import type { HardhatRuntimeEnvironment } from 'hardhat/types';
+import type { Address } from 'viem';
 
-import { HardhatRuntimeEnvironment } from "hardhat/types";
-import { Address } from "viem";
-import { SupportedChains } from "./connectors";
-import { NULL_ADDRESS } from "./constants";
+import type { SupportedChains } from './connectors';
+import { NULL_ADDRESS } from './constants';
 
 const DEPLOY_SALT = 'deterministic-salt-02';
 
 export function getDeterministicDeploySalt() {
-  return  '0x' + Buffer.from(DEPLOY_SALT.padEnd(32, '0')).toString('hex');
+  return `0x${Buffer.from(DEPLOY_SALT.padEnd(32, '0')).toString('hex')}`;
 }
 
 type Factory = {
   tokenFactory: Address;
   stargateFactory: Address;
-}
+};
 
 export const factories: Record<Extract<SupportedChains, 'opsepolia' | 'sepolia'>, Factory> = {
   opsepolia: {
@@ -26,24 +26,29 @@ export const factories: Record<Extract<SupportedChains, 'opsepolia' | 'sepolia'>
   } as Factory
 } as const;
 
-export function getFactoryFromHardhatRuntimeEnvironment({hre, type}: {hre: HardhatRuntimeEnvironment, type: keyof Factory}): Address {
-
+export function getFactoryFromHardhatRuntimeEnvironment({
+  hre,
+  type
+}: {
+  hre: HardhatRuntimeEnvironment;
+  type: keyof Factory;
+}): Address {
   const chainName = hre.hardhatArguments.network;
 
   if (!chainName) {
-    throw new Error('No network specified')
+    throw new Error('No network specified');
   }
 
   const factory = factories[chainName as Extract<SupportedChains, 'opsepolia' | 'sepolia'>];
 
   if (!factory) {
-    throw new Error(`Unsupported chain: ${chainName}`)
+    throw new Error(`Unsupported chain: ${chainName}`);
   }
 
   const factoryAddress = factory[type];
 
   if (factoryAddress === NULL_ADDRESS) {
-    throw new Error(`Factory type "${type}" is not deployed on ${chainName}`)
+    throw new Error(`Factory type "${type}" is not deployed on ${chainName}`);
   }
 
   return factory[type];

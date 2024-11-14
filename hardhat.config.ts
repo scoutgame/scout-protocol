@@ -21,7 +21,7 @@ import './scripts/deploy/deployScoutGameErc20';
 import './scripts/deploy/deployScoutProtocol';
 import './scripts/deploy/deployStargateProtocol';
 import './scripts/deploy/deployEASSchemas';
-import './scripts/deploy/updateProxyImplementation';
+import './scripts/interact/updateProxyImplementation';
 
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';

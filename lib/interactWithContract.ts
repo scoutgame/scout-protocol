@@ -1,7 +1,9 @@
-import { HardhatRuntimeEnvironment } from 'hardhat/types';
+import type { HardhatRuntimeEnvironment } from 'hardhat/types';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
-import { Address, createWalletClient, decodeFunctionResult, encodeFunctionData, getAddress, http, publicActions } from 'viem';
+import type { Address } from 'viem';
+import { createWalletClient, decodeFunctionResult, encodeFunctionData, getAddress, http, publicActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
+
 import { getConnectorFromHardhatRuntimeEnvironment } from './connectors';
 
 type InteractParams = {
@@ -9,21 +11,16 @@ type InteractParams = {
   contractAddress: Address;
   privateKey: `0x${string}`;
   abi: any;
-}
+};
 
 export async function interactWithContract(params: InteractParams): Promise<void> {
-  const {
-    hre,
-    contractAddress,
-    privateKey,
-    abi
-  } = params;
+  const { hre, contractAddress, privateKey, abi } = params;
   const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
   const walletClient = createWalletClient({
     account: privateKeyToAccount(privateKey),
     chain: connector.chain,
-    transport: http(connector.rpcUrl),
+    transport: http(connector.rpcUrl)
   }).extend(publicActions);
 
   const signer = walletClient.account;
@@ -43,7 +40,6 @@ export async function interactWithContract(params: InteractParams): Promise<void
 
   console.log(`\r\n🏦 From Wallet: ${signer.address}\r\n`);
   console.log(`\r\n📑 To Contract: ${contractAddress}\r\n`);
-  
 
   // Select method using inquirer
   const { selectedMethodIndex } = await inquirer.prompt([
@@ -54,15 +50,13 @@ export async function interactWithContract(params: InteractParams): Promise<void
       validate: (input) => {
         const index = parseInt(input, 10);
         return index > 0 && index <= contractMethods.length ? true : 'Invalid method number';
-      },
-    },
+      }
+    }
   ]);
 
   const methodIndex = parseInt(selectedMethodIndex, 10) - 1;
   const selectedMethod = contractMethods[methodIndex];
   let txData;
-
-
 
   // If method has inputs, prompt for arguments
   if (selectedMethod.inputs.length > 0) {
@@ -76,7 +70,7 @@ export async function interactWithContract(params: InteractParams): Promise<void
           if (input.type === 'address') return /^0x[a-fA-F0-9]{40}$/.test(value) || 'Invalid address format';
           if (input.type.startsWith('uint')) return /^\d+$/.test(value) || 'Expected a positive integer';
           return true;
-        },
+        }
       }))
     );
 
@@ -92,7 +86,7 @@ export async function interactWithContract(params: InteractParams): Promise<void
     txData = encodeFunctionData({
       abi,
       functionName: selectedMethod.name,
-      args: formattedArgs,
+      args: formattedArgs
     });
   }
 
@@ -102,38 +96,37 @@ export async function interactWithContract(params: InteractParams): Promise<void
     txData = encodeFunctionData({
       abi,
       functionName: selectedMethod.name,
-      args: [],
+      args: []
     });
   }
 
   // Handle payable methods
-  let value: bigint | undefined = undefined;
+  let value: bigint | undefined;
   if (selectedMethod.stateMutability === 'payable') {
     const { ethValue } = await inquirer.prompt([
       {
         type: 'input',
         name: 'ethValue',
         message: 'Enter the ETH value to send (in ETH):',
-        validate: (input) => !isNaN(parseFloat(input)) && parseFloat(input) >= 0 ? true : 'Invalid ETH value',
-      },
+        validate: (input) => (!isNaN(parseFloat(input)) && parseFloat(input) >= 0 ? true : 'Invalid ETH value')
+      }
     ]);
     value = BigInt(parseFloat(ethValue) * 1e18); // Convert ETH to wei
   }
 
   // Call or send transaction depending on the method's state mutability
   if (['view', 'pure'].includes(selectedMethod.stateMutability)) {
-
     console.log('Performing read operation...');
 
     const callResponse = await walletClient.call({
       to: contractAddress,
-      data: txData,
+      data: txData
     });
 
     const result = decodeFunctionResult({
       abi,
       functionName: selectedMethod.name,
-      data: callResponse.data as `0x${string}`,
+      data: callResponse.data as `0x${string}`
     });
 
     console.log(`Result:`, result);
@@ -144,7 +137,7 @@ export async function interactWithContract(params: InteractParams): Promise<void
       chain: connector.chain,
       to: contractAddress,
       data: txData,
-      value, // Only set value if applicable (undefined for non-payable functions)
+      value // Only set value if applicable (undefined for non-payable functions)
       // gasPrice: BigInt(4e7), // 40 gwei
     });
 
@@ -152,18 +145,17 @@ export async function interactWithContract(params: InteractParams): Promise<void
     console.log('Transaction receipt:', receipt);
   }
 
-  const {decision} = await inquirer.prompt([
+  const { decision } = await inquirer.prompt([
     {
       type: 'input',
       name: 'decision',
-      message: 'Continue ? Y/N',
-    },
+      message: 'Continue ? Y/N'
+    }
   ]);
 
   if (!String(decision).toLowerCase().startsWith('y')) {
-    return
+    return;
   }
-
 
   return interactWithContract(params);
 }
