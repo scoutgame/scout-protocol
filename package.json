@@ -7,7 +7,6 @@
     "script": "npx dotenv -e .env.local -- npx tsx",
     "setkey": "npx hardhat vars set PRIVATE_KEY",
     "compile": "npx hardhat compile",
-    "deploy:protocol": "npx hardhat deployStargateProtocol --network opsepolia",
     "deploybuilders": "npm run compile && npx hardhat deployBuilderNFTSeasonOne --network",
     "proxy:update": "npx hardhat updateProxyImplementation --network",
     "scout:deploy:erc20": "npx hardhat deployScoutGameERC20 --network",

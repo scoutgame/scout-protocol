@@ -17,7 +17,6 @@ type Connector = {
   // See https://docs.attest.org/docs/quick--start/contracts for full list
   easContract: Address;
   luckyStarCoinContract: Address;
-  stargateProtocolContract: Address;
   builderNFTContract: Address;
   usdcContract?: Address;
   seasonOneProxy?: Address | null;
@@ -45,7 +44,6 @@ export const connectors = {
     chain: optimismSepolia,
     easContract: '0x4200000000000000000000000000000000000021',
     luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
-    stargateProtocolContract: '0x2aec1dedd9a63173d673bcaa60564a4bae38bc38',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
     seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
@@ -56,7 +54,6 @@ export const connectors = {
     chain: optimism,
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
-    stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
     seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
@@ -68,7 +65,6 @@ export const connectors = {
     chain: sepolia,
     easContract: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
     luckyStarCoinContract: NULL_ADDRESS,
-    stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: NULL_ADDRESS,
     usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
   } as Connector,
@@ -77,7 +73,6 @@ export const connectors = {
     chain: baseSepolia,
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
-    stargateProtocolContract: NULL_ADDRESS,
     // This is the new version of the contract with a sudo-type mint
     builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
     usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
@@ -95,7 +90,6 @@ export const connectors = {
     chain: base,
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
-    stargateProtocolContract: NULL_ADDRESS,
     builderNFTContract: '0x278cc8861cfc93ea47c9e89b1876d0def2037c27',
     usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     easAttestationContract: '0x4200000000000000000000000000000000000021',

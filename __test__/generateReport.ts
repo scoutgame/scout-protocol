@@ -12,56 +12,90 @@ type ParsedResult = {
         events: string[];
       };
     };
+    read: {
+      [method: string]: {
+        returns: string[];
+      };
+    };
   };
-}[];
+};
 
-function parseTestReport(input: any[]): ParsedResult {
-  const output: ParsedResult = [];
+function parseTestReport(input: any[]): ParsedResult[] {
+  const output: ParsedResult[] = [];
 
   const contractMap: Record<
     string,
-    Record<string, { effects: string[]; permissions: string[]; validations: string[]; events: string[] }>
+    {
+      write: Record<string, { effects: string[]; permissions: string[]; validations: string[]; events: string[] }>;
+      read: Record<string, { returns: string[] }>;
+    }
   > = {};
 
   input.forEach((_row) => {
+    const isReadSuite = _row.name.endsWith('read.spec.ts');
+    const isWriteSuite = _row.name.endsWith('write.spec.ts');
+
+    console.log(
+      '\r\n\r\n-------------------\r\n\r\n',
+      JSON.stringify({ _row: { ..._row, assertionResults: [] } }, null, 2)
+    );
+
     _row.assertionResults.forEach((item: any) => {
-      console.log({ item });
+      console.log(JSON.stringify({ item }, null, 2));
       const [contractName, methodName, category] = item.ancestorTitles;
       const description = item.title;
 
       if (!contractMap[contractName]) {
-        contractMap[contractName] = {};
-      }
-
-      if (!contractMap[contractName][methodName]) {
-        contractMap[contractName][methodName] = {
-          effects: [],
-          permissions: [],
-          validations: [],
-          events: []
+        contractMap[contractName] = {
+          write: {},
+          read: {}
         };
       }
 
-      if (category in contractMap[contractName][methodName]) {
-        contractMap[contractName][methodName][
-          category as keyof (typeof contractMap)['contractName']['methodName']
-        ].push(description);
+      if (isWriteSuite) {
+        if (!contractMap[contractName].write[methodName]) {
+          contractMap[contractName].write[methodName] = {
+            effects: [],
+            permissions: [],
+            validations: [],
+            events: []
+          };
+        }
+
+        if (category in contractMap[contractName].write[methodName]) {
+          contractMap[contractName].write[methodName][
+            category as keyof (typeof contractMap)['contractName']['write']['methodName']
+          ].push(description);
+        }
+      }
+
+      if (isReadSuite) {
+        if (!contractMap[contractName].read[methodName]) {
+          contractMap[contractName].read[methodName] = {
+            returns: []
+          };
+        }
+
+        console.log({ category });
+
+        if (category === 'returns') {
+          contractMap[contractName].read[methodName].returns.push(description);
+        }
       }
     });
+
+    console.log(
+      '\r\n\r\n-------------------\r\n\r\n',
+      JSON.stringify({ _row: { ..._row, assertionResults: [] } }, null, 2)
+    );
   });
 
   for (const [contractName, methods] of Object.entries(contractMap)) {
-    const write: Record<string, { effects: string[]; permissions: string[]; validations: string[]; events: string[] }> =
-      {};
-
-    for (const [methodName, categories] of Object.entries(methods)) {
-      write[methodName] = categories;
-    }
-
     output.push({
       contract: {
         name: contractName,
-        write
+        write: methods.write,
+        read: methods.read
       }
     });
   }
@@ -78,10 +112,78 @@ function parseTestReport(input: any[]): ParsedResult {
   return output.filter((item) => trackedSuites.includes(item.contract.name));
 }
 
+export function convertReportToMarkdown(report: ParsedResult[]): string {
+  let markdown = `# Test Report\n\n`;
+
+  report.forEach(({ contract }) => {
+    markdown += `## Contract: ${contract.name}\n\n`;
+
+    if (Object.keys(contract.write).length > 0) {
+      markdown += `### Write Methods\n\n`;
+
+      Object.entries(contract.write).forEach(([method, details]) => {
+        markdown += `#### ${method}\n\n`;
+
+        if (details.effects.length > 0) {
+          markdown += `- **Effects**:\n`;
+          details.effects.forEach((effect) => {
+            markdown += `  - ${effect}\n`;
+          });
+        }
+
+        if (details.permissions.length > 0) {
+          markdown += `- **Permissions**:\n`;
+          details.permissions.forEach((permission) => {
+            markdown += `  - ${permission}\n`;
+          });
+        }
+
+        if (details.validations.length > 0) {
+          markdown += `- **Validations**:\n`;
+          details.validations.forEach((validation) => {
+            markdown += `  - ${validation}\n`;
+          });
+        }
+
+        if (details.events.length > 0) {
+          markdown += `- **Events**:\n`;
+          details.events.forEach((event) => {
+            markdown += `  - ${event}\n`;
+          });
+        }
+
+        markdown += `\n`;
+      });
+    }
+
+    if (Object.keys(contract.read).length > 0) {
+      markdown += `### Read Methods\n\n`;
+
+      Object.entries(contract.read).forEach(([method, details]) => {
+        markdown += `#### ${method}\n\n`;
+
+        if (details.returns.length > 0) {
+          markdown += `- **Returns**:\n`;
+          details.returns.forEach((returnValue) => {
+            markdown += `  - ${returnValue}\n`;
+          });
+        }
+
+        markdown += `\n`;
+      });
+    }
+  });
+
+  return markdown;
+}
+
 export function loadAndGenerateTestReport() {
   const input = fs.readFileSync(path.resolve('report.json'), 'utf8');
   const parsedOutput = parseTestReport(JSON.parse(input).testResults);
-  fs.writeFileSync(path.resolve('parsedReport.json'), JSON.stringify(parsedOutput, null, 2));
+
+  const asMarkdown = convertReportToMarkdown(parsedOutput);
+
+  fs.writeFileSync(path.resolve('test-report.md'), asMarkdown);
 
   return parsedOutput;
 }

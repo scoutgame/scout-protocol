@@ -19,7 +19,6 @@ import './scripts/deploy/nfts/deployBuilderNftSeason02';
 // Scout Game Protocol
 import './scripts/deploy/deployScoutGameErc20';
 import './scripts/deploy/deployScoutProtocol';
-import './scripts/deploy/deployStargateProtocol';
 import './scripts/deploy/deployEASSchemas';
 import './scripts/interact/updateProxyImplementation';
 
@@ -28,20 +27,6 @@ import './scripts/interact/builderNftApp';
 import './scripts/interact/scoutProtocol';
 import './scripts/interact/scoutProtocolToken';
 import './scripts/interact/scoutProtocolResolver';
-
-type TestReport = {
-  contract: {
-    name: string;
-    write: {
-      method1: {
-        effects: string[];
-        permissions: string[];
-        validations: string[];
-        events: string[];
-      };
-    };
-  };
-};
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
