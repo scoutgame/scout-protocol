@@ -3,6 +3,7 @@
   "scripts": {
     "lint": "npx eslint . --fix",
     "test": "npm run compile && npx dotenv -e .env.test.local -- npx jest test --verbose --testTimeout 20000",
+    "test:jsonreport": "npm run test -- --json --outputFile=report.json",
     "script": "npx dotenv -e .env.local -- npx tsx",
     "setkey": "npx hardhat vars set PRIVATE_KEY",
     "compile": "npx hardhat compile",

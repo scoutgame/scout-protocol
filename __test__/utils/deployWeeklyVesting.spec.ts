@@ -73,10 +73,6 @@ describe('deployScoutTokenERC20', () => {
 
     await mine();
 
-    const current = await time.latest();
-
-    console.log({ current });
-
     const withdrawReceipt = await SablierLockupTranched.write.withdrawMax(
       [streamLog.streamId, recipient.account.address],
       {

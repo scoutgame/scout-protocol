@@ -29,6 +29,20 @@ import './scripts/interact/scoutProtocol';
 import './scripts/interact/scoutProtocolToken';
 import './scripts/interact/scoutProtocolResolver';
 
+type TestReport = {
+  contract: {
+    name: string;
+    write: {
+      method1: {
+        effects: string[];
+        permissions: string[];
+        validations: string[];
+        events: string[];
+      };
+    };
+  };
+};
+
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
 // Gas prices fetched from blockscout. Last refreshed Sep. 18th 2024
