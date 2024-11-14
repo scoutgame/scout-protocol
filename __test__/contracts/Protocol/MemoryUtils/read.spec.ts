@@ -22,9 +22,21 @@ describe('returns', function () {
     expect(implementationSlot).toEqual(expectedSlot);
   });
 
+  it('returns the correct PROCEEDS_RECEIVER_SLOT', async function () {
+    const expectedSlot = toHex(BigInt(keccak256(toBytes('builderNFT.proceedsReceiver'))));
+    const claimsTokenSlot = await testMemoryUtils.read.getProceedsReceiverSlot();
+    expect(claimsTokenSlot).toEqual(expectedSlot);
+  });
+
   it('returns the correct CLAIMS_TOKEN_SLOT', async function () {
     const expectedSlot = toHex(BigInt(keccak256(toBytes('protocol.token'))));
     const claimsTokenSlot = await testMemoryUtils.read.getClaimsTokenSlot();
+    expect(claimsTokenSlot).toEqual(expectedSlot);
+  });
+
+  it('returns the correct MINTER_SLOT', async function () {
+    const expectedSlot = toHex(BigInt(keccak256(toBytes('builderNFT.minterRole'))));
+    const claimsTokenSlot = await testMemoryUtils.read.getMinterSlot();
     expect(claimsTokenSlot).toEqual(expectedSlot);
   });
 

@@ -41,6 +41,8 @@
     "eslint-plugin-prettier": "^5.1.3",
     "ethers": "^6.13.1",
     "hardhat": "^2.22.6",
+    "prettier": "^3.3.3",
+    "prettier-plugin-solidity": "^1.4.1",
     "solady": "^0.0.177",
     "ts-jest": "^29.1.2",
     "typechain": "^8.3.2"
@@ -52,6 +54,8 @@
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@pinata/sdk": "^2.1.0",
+    "@sablier/v2-core": "^1.2.0",
+    "@sablier/v2-periphery": "^1.2.0",
     "@types/jest": "^29.5.13",
     "dotenv-cli": "^7.4.2",
     "hardhat-jest": "^1.0.8",

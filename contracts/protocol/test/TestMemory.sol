@@ -6,7 +6,7 @@ import "../libs/ProtocolAccessControl.sol";
 import "../libs/MemoryUtils.sol";
 
 contract TestMemoryUtils {
-  using MemoryUtils for bytes32;
+    using MemoryUtils for bytes32;
     function getImplementationSlot() external pure returns (bytes32) {
         return MemoryUtils.IMPLEMENTATION_SLOT;
     }
@@ -23,8 +23,16 @@ contract TestMemoryUtils {
         return MemoryUtils.MERKLE_ROOTS_SLOT;
     }
 
+    function getProceedsReceiverSlot() external pure returns (bytes32) {
+        return MemoryUtils.PROCEEDS_RECEIVER_SLOT;
+    }
+
     function getAdminSlot() external pure returns (bytes32) {
         return MemoryUtils.ADMIN_SLOT;
+    }
+
+    function getMinterSlot() external pure returns (bytes32) {
+        return MemoryUtils.MINTER_SLOT;
     }
 
     function getPauserSlot() external pure returns (bytes32) {
