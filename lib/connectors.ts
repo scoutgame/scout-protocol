@@ -7,6 +7,10 @@ import { NULL_ADDRESS } from './constants';
 // https://app.ens.domains/scoutgame.eth
 export const proceedsReceiver = '0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D';
 
+type ContractDeploymentEnvironment = 'dev' | 'prod';
+
+type ContractDeployment<T extends string> = Partial<Record<ContractDeploymentEnvironment, Record<T, Address>>>;
+
 type Connector = {
   chain: Chain;
   rpcUrl: string;
@@ -21,6 +25,7 @@ type Connector = {
   testDevProxy?: Address | null;
   easBaseUrl?: string;
   easAttestationContract?: Address | null;
+  scoutgameBuilderNftSeason02?: ContractDeployment<'proxy'>;
   scoutgameEASResolver?: Address | null;
   scoutgameErc20TokenDev?: Address | null;
   scoutgameScoutProtocolProxyDev?: Address | null;
