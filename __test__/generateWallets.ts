@@ -53,10 +53,15 @@ export async function generateWallets({ initialEthBalance = 1 }: GeneratedWallet
 
 export type GeneratedWallet = Awaited<ReturnType<typeof generateWallets>>['userAccount'];
 
-export async function walletFromKey({
-  key,
-  initialEthBalance
-}: { key: string } & GeneratedWalletConfig): Promise<GeneratedWallet> {
+export async function walletFromKey(
+  { key, initialEthBalance }: { key?: string } & GeneratedWalletConfig = {
+    key: generatePrivateKey(),
+    initialEthBalance: 1
+  }
+): Promise<GeneratedWallet> {
+  if (!key) {
+    key = generatePrivateKey();
+  }
   const account = privateKeyToAccount(key.startsWith('0x') ? (key as Address) : `0x${key}`);
 
   if (initialEthBalance) {

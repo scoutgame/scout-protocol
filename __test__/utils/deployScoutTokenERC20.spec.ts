@@ -9,16 +9,21 @@ describe('deployScoutTokenERC20', () => {
     ProtocolERC20 = await deployScoutTokenERC20();
   });
 
-  it('should deploy the ProtocolERC20 contract, with minting, approve, transfer, balanceOf and transferFrom enabled', async () => {
+  it('should deploy the ProtocolERC20 contract, with minting, approve, transfer, balanceOf and transferFrom enabled, as well as a starting balance of 1 million tokens for the admin', async () => {
     const {
       mintProtocolERC20To,
       transferProtocolERC20,
       balanceOfProtocolERC20,
       approveProtocolERC20,
-      transferProtocolERC20From
+      transferProtocolERC20From,
+      ProtocolERC20AdminAccount
     } = ProtocolERC20;
 
     const { userAccount, secondUserAccount } = await generateWallets();
+
+    const adminBalance = await balanceOfProtocolERC20({ account: ProtocolERC20AdminAccount.account.address });
+
+    expect(adminBalance).toBe(1000000);
 
     const userBalance = await balanceOfProtocolERC20({ account: userAccount.account.address });
 

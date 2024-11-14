@@ -65,6 +65,8 @@ export async function deployScoutTokenERC20() {
     });
   }
 
+  await mintTo({ account: adminAccount.account.address, amount: 1000000 });
+
   // Return the proxy with the implementation ABI attached
   return {
     ProtocolERC20,

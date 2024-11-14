@@ -23,8 +23,16 @@ library MemoryUtils {
     bytes32 internal constant EAS_ATTESTER_SLOT = keccak256("easResolver.attester");
     bytes32 internal constant SECONDARY_EAS_ATTESTER_SLOT = keccak256("easResolver.secondaryAttester");
 
+    bytes32 internal constant PROCEEDS_RECEIVER_SLOT = keccak256("builderNFT.proceedsReceiver");
+
+    bytes32 internal constant MINTER_SLOT = keccak256("builderNFT.minterRole");
+
     // 4. State
     bytes32 internal constant IS_PAUSED_SLOT = keccak256("common.isPaused");
+    
+    bytes32 internal constant PRICE_INCREMENT_SLOT = keccak256("builderNFT.priceIncrement");
+    bytes32 internal constant TOKEN_NAME = keccak256("builderNFT.tokenName");
+    bytes32 internal constant TOKEN_SYMBOL = keccak256("builderNFT.tokenSymbol");
 
     function _getRoleName(bytes32 role) internal pure returns (string memory) {
       if (role == ADMIN_SLOT) {
@@ -37,6 +45,8 @@ library MemoryUtils {
           return "Secondary EAS Attester";
       } else if (role == PAUSER_SLOT) {
           return "Pauser";
+      } else if (role == MINTER_SLOT) {
+          return "Minter";
       } else {
           return "Unknown Role";
       }
@@ -74,6 +84,15 @@ library MemoryUtils {
 
     function _setBool(bytes32 slot, bool value) internal {
       StorageSlot.getBooleanSlot(slot).value = value;
+    }
+
+    // Getter and setter for string type
+    function _getString(bytes32 slot) internal view returns (string memory) {
+      return StorageSlot.getStringSlot(slot).value;
+    }
+
+    function _setString(bytes32 slot, string memory value) internal {
+      StorageSlot.getStringSlot(slot).value = value;
     }
 
 }
