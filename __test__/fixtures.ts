@@ -1,6 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
 
 import { deployBuilderNftContract } from './deployBuilderNft';
+import { deployBuilderNftSeason02Contract } from './deployBuilderNftSeason02';
 import { deployEASContracts } from './deployEAS';
 import { deployProtocolContract } from './deployProtocol';
 import { deployScoutTokenERC20 } from './deployScoutTokenERC20';
@@ -23,6 +24,17 @@ async function deployProtocolFixtures() {
   const eas = await deployEASContracts();
 
   return { token, protocol, eas };
+}
+
+async function deployBuilderNFTSeason02Fixtures() {
+  const token = await deployScoutTokenERC20();
+  const builderNftSeason02 = await deployBuilderNftSeason02Contract({ ScoutERC20Address: token.ProtocolERC20.address });
+
+  return { token, builderNftSeason02 };
+}
+
+export async function loadBuilderNFTSeason02Fixtures() {
+  return loadFixture(deployBuilderNFTSeason02Fixtures);
 }
 
 export async function loadProtocolFixtures() {
