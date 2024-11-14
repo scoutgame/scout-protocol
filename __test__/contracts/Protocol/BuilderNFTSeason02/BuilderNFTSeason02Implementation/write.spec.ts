@@ -795,4 +795,186 @@ describe('BuilderNFTSeason02Implementation', function () {
       });
     });
   });
+
+  describe('safeBatchTransferFrom()', function () {
+    describe('effects', function () {
+      it('Transfers multiple tokens from one account to another', async function () {
+        // Mint tokens to userAccount
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 2,
+          tokenId: 1
+        });
+
+        // Approve operator
+        const operatorAccount = await walletFromKey();
+        await builderNftSeason02.builderNftContract.write.setApprovalForAll([operatorAccount.account.address, true], {
+          account: userAccount.account
+        });
+
+        // Transfer tokens
+        const recipientAccount = await walletFromKey();
+        await expect(
+          builderNftSeason02.builderNftContract.write.safeBatchTransferFrom(
+            [userAccount.account.address, recipientAccount.account.address, [BigInt(1)], [BigInt(1)], '0x'],
+            { account: operatorAccount.account }
+          )
+        ).resolves.toBeDefined();
+
+        // Check balances
+        const senderBalance = await builderNftSeason02.builderNftContract.read.balanceOf([
+          userAccount.account.address,
+          BigInt(1)
+        ]);
+        expect(senderBalance).toEqual(BigInt(1));
+
+        const recipientBalance = await builderNftSeason02.builderNftContract.read.balanceOf([
+          recipientAccount.account.address,
+          BigInt(1)
+        ]);
+        expect(recipientBalance).toEqual(BigInt(1));
+      });
+    });
+
+    describe('events', function () {
+      it('Emits TransferBatch event on transfer', async function () {
+        // Mint tokens to userAccount
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 2,
+          tokenId: 1
+        });
+
+        // Setup similar to effects test
+        const { userAccount: recipientAccount, secondUserAccount: operatorAccount } = await generateWallets();
+
+        // Approve operator
+        await builderNftSeason02.builderNftContract.write.setApprovalForAll([operatorAccount.account.address, true], {
+          account: userAccount.account
+        });
+
+        // Perform transfer
+        const txResponse = await builderNftSeason02.builderNftContract.write.safeBatchTransferFrom(
+          [userAccount.account.address, recipientAccount.account.address, [BigInt(1)], [BigInt(1)], '0x'],
+          { account: operatorAccount.account }
+        );
+
+        const receipt = await operatorAccount.getTransactionReceipt({ hash: txResponse });
+
+        const parsedLogs = parseEventLogs({
+          abi: builderNftSeason02.builderNftContract.abi,
+          logs: receipt.logs,
+          eventName: ['TransferBatch']
+        });
+
+        const transferEvent = parsedLogs.find((log) => log.eventName === 'TransferBatch');
+
+        expect(transferEvent).toBeDefined();
+
+        expect(transferEvent!.args.operator).toEqual(operatorAccount.account.address);
+        expect(transferEvent!.args.from).toEqual(userAccount.account.address);
+        expect(transferEvent!.args.to).toEqual(recipientAccount.account.address);
+        expect(transferEvent!.args.ids).toEqual([BigInt(1)]);
+        expect(transferEvent!.args.values).toEqual([BigInt(1)]);
+      });
+    });
+
+    describe('permissions', function () {
+      it('Allows token owner to transfer tokens', async function () {
+        // Mint tokens to userAccount
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 2,
+          tokenId: 1
+        });
+        // Setup similar to mint test
+
+        // Transfer tokens
+        const recipientAccount = await walletFromKey();
+        await expect(
+          builderNftSeason02.builderNftContract.write.safeBatchTransferFrom(
+            [userAccount.account.address, recipientAccount.account.address, [BigInt(1)], [BigInt(1)], '0x'],
+            { account: userAccount.account }
+          )
+        ).resolves.toBeDefined();
+      });
+
+      it('Allows approved operator to transfer tokens', async function () {
+        // Setup similar to previous test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 2,
+          tokenId: 1
+        });
+
+        // Approve operator
+        const operatorAccount = await walletFromKey();
+        await builderNftSeason02.builderNftContract.write.setApprovalForAll([operatorAccount.account.address, true], {
+          account: userAccount.account
+        });
+
+        // Transfer tokens
+        const recipientAccount = await walletFromKey();
+        await expect(
+          builderNftSeason02.builderNftContract.write.safeBatchTransferFrom(
+            [userAccount.account.address, recipientAccount.account.address, [BigInt(1)], [BigInt(1)], '0x'],
+            { account: operatorAccount.account }
+          )
+        ).resolves.toBeDefined();
+      });
+
+      it('Prevents transferring tokens if not owner nor approved', async function () {
+        // Setup similar to mint test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 2,
+          tokenId: 1
+        });
+
+        // Attempt transfer without approval
+        const anotherAccount = await walletFromKey();
+        const recipientAccount = await walletFromKey();
+
+        await expect(
+          builderNftSeason02.builderNftContract.write.safeBatchTransferFrom(
+            [userAccount.account.address, recipientAccount.account.address, [BigInt(1)], [BigInt(1)], '0x'],
+            { account: anotherAccount.account }
+          )
+        ).rejects.toThrow('ERC1155: caller is not owner nor approved');
+      });
+    });
+
+    describe('validations', function () {
+      it('Reverts if transferring more tokens than balance', async function () {
+        // Mint tokens to userAccount
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 2,
+          tokenId: 1
+        });
+
+        // Attempt to transfer more than balance
+        const recipientAccount = await walletFromKey();
+
+        await expect(
+          builderNftSeason02.builderNftContract.write.safeBatchTransferFrom(
+            [userAccount.account.address, recipientAccount.account.address, [BigInt(1)], [BigInt(3)], '0x'],
+            { account: userAccount.account }
+          )
+        ).rejects.toThrow('ERC1155: insufficient balance for transfer');
+      });
+    });
+  });
 });

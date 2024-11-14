@@ -100,7 +100,7 @@ contract BuilderNFTSeason02Implementation is
         uint256 tokenId,
         uint256 amount,
         bytes memory data
-    ) external override {
+    ) external override onlyWhenNotPaused {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not owner nor approved"
@@ -146,7 +146,7 @@ contract BuilderNFTSeason02Implementation is
     ) external override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
-            "ERC1155: transfer caller is not owner nor approved"
+            "ERC1155: caller is not owner nor approved"
         );
         require(to != address(0), "ERC1155: transfer to the zero address");
         require(
