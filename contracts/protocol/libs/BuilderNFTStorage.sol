@@ -104,7 +104,7 @@ library BuilderNFTStorage {
         uint256 _balance = getBalance(account, tokenId);
         require(_balance >= amount, "Cannot decrease balance below 0");
 
-        layout().balances[tokenId][account] += amount;
+        layout().balances[tokenId][account] -= amount;
         decreaseTotalSupply(tokenId, amount);
     }
 

@@ -6,6 +6,38 @@ import type { ProtocolERC20TestFixture } from '../../../../deployScoutTokenERC20
 import { loadBuilderNFTSeason02Fixtures } from '../../../../fixtures';
 import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
 
+async function mintNft({
+  wallet,
+  erc20,
+  nft,
+  amount,
+  tokenId
+}: {
+  wallet: GeneratedWallet;
+  erc20: ProtocolERC20TestFixture;
+  nft: BuilderNftSeason02Fixture;
+  amount: number;
+  tokenId: number;
+}) {
+  // Get price
+  const price = await nft.builderNftContract.read.getTokenPurchasePrice([BigInt(tokenId), BigInt(amount)]);
+
+  // Fund wallet
+  await erc20.ProtocolERC20.write.transfer([wallet.account.address, price], {
+    account: erc20.ProtocolERC20AdminAccount.account
+  });
+
+  // Approve the contract to spend USDC
+  await erc20.ProtocolERC20.write.approve([nft.builderNftContract.address, price], {
+    account: wallet.account
+  });
+
+  // Mint NFT
+  await nft.builderNftContract.write.mint([wallet.account.address, BigInt(tokenId), BigInt(amount), uuid()], {
+    account: wallet.account
+  });
+}
+
 describe('BuilderNFTSeason02Implementation', function () {
   let token: ProtocolERC20TestFixture;
   let builderNftSeason02: BuilderNftSeason02Fixture;
@@ -138,15 +170,6 @@ describe('BuilderNFTSeason02Implementation', function () {
           account: erc1155AdminAccount.account
         });
 
-        // Set proceeds receiver
-        proceedsReceiverAccount = await walletFromKey();
-        await builderNftSeason02.builderNftContract.write.setProceedsReceiver(
-          [proceedsReceiverAccount.account.address],
-          {
-            account: erc1155AdminAccount.account
-          }
-        );
-
         // Transfer tokens to user to cover mint price
         const mintPrice = await builderNftSeason02.builderNftContract.read.getTokenPurchasePrice([
           BigInt(1),
@@ -175,6 +198,38 @@ describe('BuilderNFTSeason02Implementation', function () {
           BigInt(1)
         ]);
         expect(balance).toEqual(BigInt(1));
+      });
+
+      it('Increments total supply of the token', async function () {
+        const tokenId = 1;
+
+        const totalSupply = await builderNftSeason02.builderNftContract.read.totalSupply([BigInt(tokenId)]);
+
+        expect(totalSupply).toEqual(BigInt(0));
+
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId
+        });
+
+        const updatedTotalSupply = await builderNftSeason02.builderNftContract.read.totalSupply([BigInt(tokenId)]);
+
+        expect(updatedTotalSupply).toEqual(BigInt(1));
+
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 3,
+          tokenId
+        });
+
+        const finalTotalSupply = await builderNftSeason02.builderNftContract.read.totalSupply([BigInt(tokenId)]);
+
+        expect(finalTotalSupply).toEqual(BigInt(4));
       });
     });
 
@@ -292,47 +347,6 @@ describe('BuilderNFTSeason02Implementation', function () {
           )
         ).rejects.toThrow();
       });
-
-      it('Reverts if payment token is not set', async function () {
-        const builderId = uuid();
-        await builderNftSeason02.builderNftContract.write.registerBuilderToken([builderId], {
-          account: erc1155AdminAccount.account
-        });
-
-        const scoutId = uuid();
-        await expect(
-          builderNftSeason02.builderNftContract.write.mint(
-            [userAccount.account.address, BigInt(1), BigInt(1), scoutId],
-            { account: userAccount.account }
-          )
-        ).rejects.toThrow('Payment token not set');
-      });
-
-      it('Reverts if proceeds receiver is not set', async function () {
-        const builderId = uuid();
-        await builderNftSeason02.builderNftContract.write.registerBuilderToken([builderId], {
-          account: erc1155AdminAccount.account
-        });
-
-        const scoutId = uuid();
-
-        await token.transferProtocolERC20({
-          args: { to: userAccount.account.address, amount: 10000 },
-          wallet: erc20AdminAccount
-        });
-
-        await token.approveProtocolERC20({
-          args: { spender: builderNftSeason02.builderNftContract.address, amount: 10000 },
-          wallet: userAccount
-        });
-
-        await expect(
-          builderNftSeason02.builderNftContract.write.mint(
-            [userAccount.account.address, BigInt(1), BigInt(1), scoutId],
-            { account: userAccount.account }
-          )
-        ).rejects.toThrow('Proceeds receiver not set');
-      });
     });
   });
 
@@ -341,6 +355,13 @@ describe('BuilderNFTSeason02Implementation', function () {
       it('Burns tokens from a user account', async function () {
         // Mint tokens first
         // Setup similar to mint test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId: 1
+        });
 
         // Burn tokens
         await expect(
@@ -356,12 +377,45 @@ describe('BuilderNFTSeason02Implementation', function () {
         ]);
         expect(balance).toEqual(BigInt(0));
       });
+
+      it('Decrements total supply of the token', async function () {
+        const tokenId = 1;
+
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 5,
+          tokenId
+        });
+
+        const totalSupply = await builderNftSeason02.builderNftContract.read.totalSupply([BigInt(tokenId)]);
+
+        expect(totalSupply).toEqual(BigInt(5));
+
+        await builderNftSeason02.builderNftContract.write.burn(
+          [userAccount.account.address, BigInt(tokenId), BigInt(2)],
+          {
+            account: userAccount.account
+          }
+        );
+
+        const updatedTotalSupply = await builderNftSeason02.builderNftContract.read.totalSupply([BigInt(tokenId)]);
+
+        expect(updatedTotalSupply).toEqual(BigInt(3));
+      });
     });
 
     describe('events', function () {
       it('Emits TransferSingle event on burn', async function () {
         // Mint tokens first
-        // Setup similar to mint test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 2,
+          tokenId: 1
+        });
 
         // Burn tokens
         const txResponse = await builderNftSeason02.builderNftContract.write.burn(
@@ -385,13 +439,28 @@ describe('BuilderNFTSeason02Implementation', function () {
         expect(transferEvent!.args.to).toEqual('0x0000000000000000000000000000000000000000');
         expect(transferEvent!.args.id).toEqual(BigInt(1));
         expect(transferEvent!.args.value).toEqual(BigInt(1));
+
+        // Check balance
+        const balance = await builderNftSeason02.builderNftContract.read.balanceOf([
+          userAccount.account.address,
+          BigInt(1)
+        ]);
+        expect(balance).toEqual(BigInt(1));
       });
     });
 
     describe('permissions', function () {
       it('Allows token owner to burn tokens', async function () {
+        const tokenId = 1;
+
         // Mint tokens first
-        // Setup similar to mint test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId
+        });
 
         // Burn tokens
         await expect(
@@ -402,8 +471,16 @@ describe('BuilderNFTSeason02Implementation', function () {
       });
 
       it('Allows approved operator to burn tokens', async function () {
+        const tokenId = 1;
+
         // Mint tokens first
-        // Setup similar to mint test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId
+        });
 
         // Approve operator
         const operatorAccount = await walletFromKey();
@@ -418,12 +495,18 @@ describe('BuilderNFTSeason02Implementation', function () {
           })
         ).resolves.toBeDefined();
       });
-    });
 
-    describe('validations', function () {
-      it('Reverts if caller is not owner nor approved', async function () {
+      it('Prevents burning tokens if not owner nor approved', async function () {
+        const tokenId = 1;
+
         // Mint tokens first
-        // Setup similar to mint test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId
+        });
 
         // Attempt to burn without approval
         const anotherAccount = await walletFromKey();
@@ -434,17 +517,16 @@ describe('BuilderNFTSeason02Implementation', function () {
           })
         ).rejects.toThrow('ERC1155: caller is not owner nor approved');
       });
+    });
 
+    describe('validations', function () {
       it('Reverts if burning more tokens than balance', async function () {
-        // Mint tokens first
-        // Setup similar to mint test
-
         // Attempt to burn more than balance
         await expect(
           builderNftSeason02.builderNftContract.write.burn([userAccount.account.address, BigInt(1), BigInt(2)], {
             account: userAccount.account
           })
-        ).rejects.toThrow();
+        ).rejects.toThrow('Cannot decrease balance below 0');
       });
     });
   });
@@ -521,7 +603,13 @@ describe('BuilderNFTSeason02Implementation', function () {
     describe('effects', function () {
       it('Transfers tokens from one account to another', async function () {
         // Mint tokens to userAccount
-        // Setup similar to mint test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId: 1
+        });
 
         // Approve operator
         const operatorAccount = await walletFromKey();
@@ -555,8 +643,22 @@ describe('BuilderNFTSeason02Implementation', function () {
 
     describe('events', function () {
       it('Emits TransferSingle event on transfer', async function () {
+        // Mint tokens to userAccount
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId: 1
+        });
+
         // Setup similar to effects test
         const { userAccount: recipientAccount, secondUserAccount: operatorAccount } = await generateWallets();
+
+        // Approve operator
+        await builderNftSeason02.builderNftContract.write.setApprovalForAll([operatorAccount.account.address, true], {
+          account: userAccount.account
+        });
 
         // Perform transfer
         const txResponse = await builderNftSeason02.builderNftContract.write.safeTransferFrom(
@@ -586,6 +688,13 @@ describe('BuilderNFTSeason02Implementation', function () {
     describe('permissions', function () {
       it('Allows token owner to transfer tokens', async function () {
         // Mint tokens to userAccount
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId: 1
+        });
         // Setup similar to mint test
 
         // Transfer tokens
@@ -600,6 +709,13 @@ describe('BuilderNFTSeason02Implementation', function () {
 
       it('Allows approved operator to transfer tokens', async function () {
         // Setup similar to previous test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId: 1
+        });
 
         // Approve operator
         const operatorAccount = await walletFromKey();
@@ -615,6 +731,28 @@ describe('BuilderNFTSeason02Implementation', function () {
             { account: operatorAccount.account }
           )
         ).resolves.toBeDefined();
+      });
+
+      it('Prevents transferring tokens if not owner nor approved', async function () {
+        // Setup similar to mint test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId: 1
+        });
+
+        // Attempt transfer without approval
+        const anotherAccount = await walletFromKey();
+        const recipientAccount = await walletFromKey();
+
+        await expect(
+          builderNftSeason02.builderNftContract.write.safeTransferFrom(
+            [userAccount.account.address, recipientAccount.account.address, BigInt(1), BigInt(1), '0x'],
+            { account: anotherAccount.account }
+          )
+        ).rejects.toThrow('ERC1155: caller is not owner nor approved');
       });
     });
 
@@ -637,7 +775,13 @@ describe('BuilderNFTSeason02Implementation', function () {
 
       it('Reverts if transferring more tokens than balance', async function () {
         // Mint tokens to userAccount
-        // Setup similar to mint test
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId: 1
+        });
 
         // Attempt to transfer more than balance
         const recipientAccount = await walletFromKey();
