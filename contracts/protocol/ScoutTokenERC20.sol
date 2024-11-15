@@ -8,10 +8,9 @@ import "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 contract ScoutTokenERC20 is Context, AccessControlEnumerable, ERC20Pausable {
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant VESTING_ROLE = keccak256("VESTING_ROLE");
-    uint256 public constant INITIAL_SUPPLY = 1e9 * 10**18;
+    uint256 public constant SUPPLY = 1e9 * 10 ** 18;
 
     modifier onlyAdmin() {
         require(
@@ -21,10 +20,9 @@ contract ScoutTokenERC20 is Context, AccessControlEnumerable, ERC20Pausable {
         _;
     }
 
-    constructor() ERC20("Scout Token", "$SCOUT") {
+    constructor(address _distributionWallet) ERC20("Scout Token", "$SCOUT") {
+        _mint(_distributionWallet, SUPPLY);
         _grantRole(DEFAULT_ADMIN_ROLE, _msgSender());
-
-        _grantRole(MINTER_ROLE, _msgSender());
         _grantRole(PAUSER_ROLE, _msgSender());
     }
 
@@ -33,16 +31,13 @@ contract ScoutTokenERC20 is Context, AccessControlEnumerable, ERC20Pausable {
     }
 
     function transferAdmin(address _newAdmin) external onlyAdmin {
-        
         address _currentAdmin = admin();
 
-        _revokeRole(DEFAULT_ADMIN_ROLE, _currentAdmin); 
+        _revokeRole(DEFAULT_ADMIN_ROLE, _currentAdmin);
         _grantRole(DEFAULT_ADMIN_ROLE, _newAdmin);
     }
 
-    function mint(address to, uint256 amount) public onlyAdmin {
-        _mint(to, amount);
-    }
+    function mint(address to, uint256 amount) public onlyAdmin {}
 
     function mintForVesting(address to, uint256 amount) public virtual {
         require(

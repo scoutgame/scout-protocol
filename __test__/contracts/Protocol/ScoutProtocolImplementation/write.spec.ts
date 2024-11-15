@@ -54,7 +54,10 @@ describe('ScoutProtocolImplementation', function () {
     protocol = fixtures.protocol;
     admin = protocol.protocolAdminAccount;
 
-    await token.mintProtocolERC20To({ account: protocol.protocolContract.address, amount: 100_000 });
+    await token.transferProtocolERC20({
+      args: { to: protocol.protocolContract.address, amount: 100_000 },
+      wallet: token.ProtocolERC20AdminAccount
+    });
 
     await protocol.protocolContract.write.setMerkleRoot([week, `0x${merkleTree.rootHash}`]);
   });
