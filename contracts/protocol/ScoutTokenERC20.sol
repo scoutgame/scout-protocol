@@ -37,16 +37,6 @@ contract ScoutTokenERC20 is Context, AccessControlEnumerable, ERC20Pausable {
         _grantRole(DEFAULT_ADMIN_ROLE, _newAdmin);
     }
 
-    function mint(address to, uint256 amount) public onlyAdmin {}
-
-    function mintForVesting(address to, uint256 amount) public virtual {
-        require(
-            hasRole(VESTING_ROLE, _msgSender()),
-            "Must have vesting role to mint for vesting"
-        );
-        _mint(to, amount);
-    }
-
     function pause() public virtual {
         require(
             hasRole(PAUSER_ROLE, _msgSender()),
@@ -61,13 +51,5 @@ contract ScoutTokenERC20 is Context, AccessControlEnumerable, ERC20Pausable {
             "Must have pauser role to unpause"
         );
         _unpause();
-    }
-
-    function grantVestingRole(address vestingContract) public virtual {
-        require(
-            hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),
-            "Must have admin role to grant vesting role"
-        );
-        _grantRole(VESTING_ROLE, vestingContract);
     }
 }

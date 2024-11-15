@@ -35,13 +35,7 @@ function parseTestReport(input: any[]): ParsedResult[] {
     const isReadSuite = _row.name.endsWith('read.spec.ts');
     const isWriteSuite = _row.name.endsWith('write.spec.ts');
 
-    console.log(
-      '\r\n\r\n-------------------\r\n\r\n',
-      JSON.stringify({ _row: { ..._row, assertionResults: [] } }, null, 2)
-    );
-
     _row.assertionResults.forEach((item: any) => {
-      console.log(JSON.stringify({ item }, null, 2));
       const [contractName, methodName, category] = item.ancestorTitles;
       const description = item.title;
 
@@ -76,18 +70,11 @@ function parseTestReport(input: any[]): ParsedResult[] {
           };
         }
 
-        console.log({ category });
-
         if (category === 'returns') {
           contractMap[contractName].read[methodName].returns.push(description);
         }
       }
     });
-
-    console.log(
-      '\r\n\r\n-------------------\r\n\r\n',
-      JSON.stringify({ _row: { ..._row, assertionResults: [] } }, null, 2)
-    );
   });
 
   for (const [contractName, methods] of Object.entries(contractMap)) {
@@ -101,17 +88,20 @@ function parseTestReport(input: any[]): ParsedResult[] {
   }
 
   const trackedSuites = [
+    'BuilderNFTSeason02Upgradeable',
     'BuilderNFTSeason02Implementation',
     'ScoutProtocolToken',
     'ProtocolEASResolver',
+    'ScoutProtocolProxy',
     'ScoutProtocolImplementation',
-
     'LockupWeeklyStreamCreator',
     // Utilities
     'MemoryUtils',
     'ProtocolAccessControl'
   ];
-  return output.filter((item) => trackedSuites.includes(item.contract.name));
+  return output
+    .filter((item) => trackedSuites.includes(item.contract.name))
+    .sort((a, b) => a.contract.name.localeCompare(b.contract.name));
 }
 
 export function convertReportToMarkdown(report: ParsedResult[]): string {

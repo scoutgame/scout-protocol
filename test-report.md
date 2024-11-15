@@ -1,69 +1,5 @@
 # Test Report
 
-## Contract: MemoryUtils
-
-### Read Methods
-
-#### IMPLEMENTATION_SLOT
-
-- **Returns**:
-  - the correct value, compliant with EIP 1967
-
-#### PROCEEDS_RECEIVER_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### CLAIMS_TOKEN_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### MINTER_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### CLAIMS_HISTORY_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### MERKLE_ROOTS_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### ADMIN_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### PAUSER_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### CLAIM_MANAGER_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### EAS_ATTESTER_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### SECONDARY_EAS_ATTESTER_SLOT
-
-- **Returns**:
-  - the correct value
-
-#### IS_PAUSED_SLOT
-
-- **Returns**:
-  - the correct value
-
 ## Contract: BuilderNFTSeason02Implementation
 
 ### Write Methods
@@ -218,45 +154,108 @@
 - **Returns**:
   - returns its own address
 
-## Contract: ProtocolEASResolver
+## Contract: BuilderNFTSeason02Upgradeable
 
 ### Write Methods
 
-#### setAttesterWallet
+#### setImplementation()
 
 - **Effects**:
-  - updates the attester wallet correctly
+  - Updates the implementation address correctly
 - **Permissions**:
-  - allows authorized users
-  - denies unauthorized users
+  - Allows admin to set implementation
+  - Prevents non-admin from setting implementation
 - **Validations**:
-  - reverts when input is invalid
+  - Reverts if new implementation address is zero address
+  - Reverts if new implementation address is an EOA wallet
+  - Reverts if new implementation address is an EOA wallet
+  - Reverts if new implementation address is the same as current
 
-#### rolloverAttesterWallet
+### Read Methods
+
+#### implementation()
+
+- **Returns**:
+  - Returns the current implementation address
+
+## Contract: LockupWeeklyStreamCreator
+
+### Write Methods
+
+#### createStream()
 
 - **Effects**:
-  - updates the attester wallets correctly and sets the current attester as secondary attester
-- **Permissions**:
-  - allows authorized users
-  - denies unauthorized users
-- **Validations**:
-  - reverts when input is invalid
+  - creates a claimable, and cancellable stream for the protocol
+  - immediately deducts the balance from the stream creator
 
-#### transferAdmin
+#### claim()
 
 - **Effects**:
-  - updates the admin correctly
-- **Permissions**:
-  - allows authorized users
-  - denies unauthorized users
-- **Validations**:
-  - reverts when input is invalid
+  - allows the recipient to claim the stream, unlocked in weekly increments
 
-#### onAttest
+## Contract: MemoryUtils
 
-- **Validations**:
-  - allows the attester wallet to attest
-  - prevents other wallets than the attester wallet from attesting
+### Read Methods
+
+#### IMPLEMENTATION_SLOT
+
+- **Returns**:
+  - the correct value, compliant with EIP 1967
+
+#### PROCEEDS_RECEIVER_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### CLAIMS_TOKEN_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### MINTER_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### CLAIMS_HISTORY_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### MERKLE_ROOTS_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### ADMIN_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### PAUSER_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### CLAIM_MANAGER_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### EAS_ATTESTER_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### SECONDARY_EAS_ATTESTER_SLOT
+
+- **Returns**:
+  - the correct value
+
+#### IS_PAUSED_SLOT
+
+- **Returns**:
+  - the correct value
 
 ## Contract: ProtocolAccessControl
 
@@ -313,6 +312,46 @@
 - **Events**:
   - emits a RoleTransferred event when pauser is changed
 
+## Contract: ProtocolEASResolver
+
+### Write Methods
+
+#### setAttesterWallet
+
+- **Effects**:
+  - updates the attester wallet correctly
+- **Permissions**:
+  - allows authorized users
+  - denies unauthorized users
+- **Validations**:
+  - reverts when input is invalid
+
+#### rolloverAttesterWallet
+
+- **Effects**:
+  - updates the attester wallets correctly and sets the current attester as secondary attester
+- **Permissions**:
+  - allows authorized users
+  - denies unauthorized users
+- **Validations**:
+  - reverts when input is invalid
+
+#### transferAdmin
+
+- **Effects**:
+  - updates the admin correctly
+- **Permissions**:
+  - allows authorized users
+  - denies unauthorized users
+- **Validations**:
+  - reverts when input is invalid
+
+#### onAttest
+
+- **Validations**:
+  - allows the attester wallet to attest
+  - prevents other wallets than the attester wallet from attesting
+
 ## Contract: ScoutProtocolImplementation
 
 ### Write Methods
@@ -344,4 +383,21 @@
   - Sets the claims manager
 - **Permissions**:
   - reverts when not called by admin
+
+## Contract: ScoutProtocolProxy
+
+### Write Methods
+
+#### setImplementation()
+
+- **Effects**:
+  - Updates the implementation address correctly
+- **Permissions**:
+  - Allows admin to set implementation
+  - Prevents non-admin from setting implementation
+- **Validations**:
+  - Reverts if new implementation address is zero address
+  - Reverts if new implementation address is an EOA wallet
+  - Reverts if new implementation address is an EOA wallet
+  - Reverts if new implementation address is the same as current
 
