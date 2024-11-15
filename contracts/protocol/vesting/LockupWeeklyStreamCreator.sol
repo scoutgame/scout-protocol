@@ -101,13 +101,9 @@ contract LockupWeeklyStreamCreator is Context {
         LOCKUP_TRANCHED.withdrawMax(streamId, stream.recipient);
     }
 
-    function cancelStream(uint256 streamId) public {
-        LOCKUP_TRANCHED.cancel(streamId);
-    }
-
     function getStartDateOffset(
         uint128 startDate
-    ) public view returns (uint40) {
+    ) internal view returns (uint40) {
         // Revert if the start date is in the past
         require(
             uint40(startDate) >= uint40(block.timestamp),

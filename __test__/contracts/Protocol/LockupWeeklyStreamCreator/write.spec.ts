@@ -32,11 +32,13 @@ async function createStream({
     wallet: streamCreator
   });
 
+  const latest = await time.latest();
+
   const receipt = await vesting.WeeklyERC20Vesting.write.createStream(
     [
       recipient,
       BigInt(amountToVest) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER,
-      typeof startDate === 'bigint' ? startDate : startDate ? BigInt(startDate) : vesting.nowIshInSeconds(),
+      typeof startDate === 'bigint' ? startDate : startDate ? BigInt(startDate) : BigInt(latest + 1000),
       BigInt(weeks)
     ],
     {
@@ -150,65 +152,6 @@ describe('LockupWeeklyStreamCreator', () => {
     });
   });
 
-  describe('cancelStream()', () => {
-    describe('effects', () => {
-      it('allows the stream creator to cancel the stream and receive a refund for the remaining assets', async () => {
-        const recipient = await walletFromKey();
-
-        // Fund the stream creator with some tokens
-        await erc20.fundWallet({
-          account: streamCreator.account.address,
-          amount: 200_000
-        });
-
-        const amountToVest = 100_000;
-
-        const totalWeeks = 10;
-
-        const perTranche = amountToVest / totalWeeks;
-
-        const startDate = vesting.nowIshInSeconds();
-
-        const stream = await createStream({
-          erc20,
-          recipient: recipient.account.address,
-          vesting,
-          amountToVest,
-          streamCreator,
-          weeks: totalWeeks,
-          startDate
-        });
-
-        for (let i = 0; i < totalWeeks; i++) {
-          expect(stream.args.tranches[i].amount).toBe(BigInt(perTranche) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
-          expect(stream.args.tranches[i].timestamp).toBe(Number(startDate) + i * 60 * 60 * 24 * 7);
-        }
-
-        const recipientBalance = await erc20.balanceOfProtocolERC20({
-          account: recipient.account.address
-        });
-
-        expect(recipientBalance).toBe(0);
-
-        for (let i = 0; i < totalWeeks; i++) {
-          await time.setNextBlockTimestamp(stream.args.tranches[i].timestamp);
-
-          await mine();
-
-          await vesting.WeeklyERC20Vesting.write.claim([stream.args.streamId], {
-            account: recipient.account
-          });
-
-          const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
-            account: recipient.account.address
-          });
-
-          expect(recipientBalanceAfterClaim).toBe(perTranche * (i + 1));
-        }
-      });
-    });
-  });
-
   describe('claim()', () => {
     describe('effects', () => {
       it('allows the recipient to claim the stream, unlocked in weekly increments', async () => {
@@ -226,7 +169,7 @@ describe('LockupWeeklyStreamCreator', () => {
 
         const perTranche = amountToVest / totalWeeks;
 
-        const startDate = vesting.nowIshInSeconds();
+        const startDate = vesting.nowIshInSeconds() + BigInt(1000);
 
         const stream = await createStream({
           erc20,
@@ -317,6 +260,84 @@ describe('LockupWeeklyStreamCreator', () => {
 
           expect(recipientBalanceAfterClaim).toBe(perTranche * (i + 1));
         }
+      });
+    });
+  });
+
+  describe('(SablierLockupTranched) cancel()', () => {
+    describe('effects', () => {
+      it('allows the stream creator to cancel the stream and receive a refund for the remaining assets', async () => {
+        const recipient = await walletFromKey();
+
+        // Fund the stream creator with some tokens
+        await erc20.fundWallet({
+          account: streamCreator.account.address,
+          amount: 200_000
+        });
+
+        const amountToVest = 100_000;
+
+        const totalWeeks = 10;
+
+        const perTranche = amountToVest / totalWeeks;
+
+        const startDate = (await time.latest()) + 1000;
+
+        const stream = await createStream({
+          erc20,
+          recipient: recipient.account.address,
+          vesting,
+          amountToVest,
+          streamCreator,
+          weeks: totalWeeks,
+          startDate
+        });
+
+        for (let i = 0; i < totalWeeks; i++) {
+          expect(stream.args.tranches[i].amount).toBe(BigInt(perTranche) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
+          expect(stream.args.tranches[i].timestamp).toBe(Number(startDate) + i * 60 * 60 * 24 * 7);
+        }
+
+        const recipientBalance = await erc20.balanceOfProtocolERC20({
+          account: recipient.account.address
+        });
+
+        expect(recipientBalance).toBe(0);
+
+        const claimedWeeks = 3;
+
+        for (let i = 0; i < claimedWeeks; i++) {
+          await time.setNextBlockTimestamp(stream.args.tranches[i].timestamp);
+
+          await mine();
+
+          await vesting.WeeklyERC20Vesting.write.claim([stream.args.streamId], {
+            account: recipient.account
+          });
+
+          const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
+            account: recipient.account.address
+          });
+
+          expect(recipientBalanceAfterClaim).toBe(perTranche * (i + 1));
+        }
+
+        const expectedRefund = perTranche * (totalWeeks - claimedWeeks);
+
+        const streamCreatorBalanceBeforeCancel = await erc20.balanceOfProtocolERC20({
+          account: streamCreator.account.address
+        });
+
+        // Call the actual contract
+        await vesting.SablierLockupTranched.write.cancel([stream.args.streamId], {
+          account: streamCreator.account
+        });
+
+        const streamCreatorBalanceAfterCancel = await erc20.balanceOfProtocolERC20({
+          account: streamCreator.account.address
+        });
+
+        expect(streamCreatorBalanceAfterCancel).toBe(streamCreatorBalanceBeforeCancel + expectedRefund);
       });
     });
   });
