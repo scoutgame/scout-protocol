@@ -13,13 +13,12 @@ import type { SupportedChains } from './lib/connectors';
 import { connectors } from './lib/connectors';
 
 // Deploys ------------------------------
-import './scripts/deploy/deployBuilderNft';
-import './scripts/deploy/deployCreate2Factory';
-import './scripts/deploy/deployLuckyStarCoin';
+import './scripts/deploy/nfts/deployBuilderNft';
+import './scripts/deploy/nfts/deployBuilderNftSeason02';
+
 // Scout Game Protocol
 import './scripts/deploy/deployScoutGameErc20';
 import './scripts/deploy/deployScoutProtocol';
-import './scripts/deploy/deployStargateProtocol';
 import './scripts/deploy/deployEASSchemas';
 import './scripts/interact/updateProxyImplementation';
 
@@ -28,8 +27,6 @@ import './scripts/interact/builderNftApp';
 import './scripts/interact/scoutProtocol';
 import './scripts/interact/scoutProtocolToken';
 import './scripts/interact/scoutProtocolResolver';
-import './scripts/interact/claimBalance';
-import './scripts/interact/getUnclaimedBalance';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 

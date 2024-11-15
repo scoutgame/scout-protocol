@@ -33,6 +33,10 @@ async function deployBuilderNFTSeason02Fixtures() {
   return { token, builderNftSeason02 };
 }
 
+export async function loadScoutTokenERC20Fixtures() {
+  return loadFixture(deployScoutTokenERC20);
+}
+
 export async function loadBuilderNFTSeason02Fixtures() {
   return loadFixture(deployBuilderNFTSeason02Fixtures);
 }

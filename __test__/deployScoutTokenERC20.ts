@@ -7,7 +7,7 @@ import { generateWallets } from './generateWallets';
 export async function deployScoutTokenERC20() {
   const { adminAccount, secondUserAccount } = await generateWallets();
 
-  const ProtocolERC20Deployed = await viem.deployContract('ScoutTokenERC20', [], {
+  const ProtocolERC20Deployed = await viem.deployContract('ScoutTokenERC20', [adminAccount.account.address], {
     client: { wallet: adminAccount }
   });
 
@@ -18,12 +18,6 @@ export async function deployScoutTokenERC20() {
   const decimals = BigInt(await ProtocolERC20.read.decimals());
 
   const decimalMultiplier = 10n ** decimals;
-
-  async function mintTo({ account, amount }: { account: string; amount: number }) {
-    await ProtocolERC20.write.mint([account as Address, BigInt(amount) * decimalMultiplier], {
-      account: adminAccount.account
-    });
-  }
 
   async function transfer({
     args: { to, amount },
@@ -65,7 +59,12 @@ export async function deployScoutTokenERC20() {
     });
   }
 
-  await mintTo({ account: adminAccount.account.address, amount: 1000000 });
+  /**
+   * Transfers funds from the admin account, which holds entire supply
+   */
+  async function fundWallet({ account, amount }: { account: Address; amount: number }) {
+    await transfer({ args: { to: account, amount }, wallet: adminAccount });
+  }
 
   // Return the proxy with the implementation ABI attached
   return {
@@ -73,11 +72,11 @@ export async function deployScoutTokenERC20() {
     ProtocolERC20AdminAccount: adminAccount,
     ProtocolERC20_DECIMALS: decimals,
     ProtocolERC20_DECIMAL_MULTIPLIER: decimalMultiplier,
-    mintProtocolERC20To: mintTo,
     transferProtocolERC20: transfer,
     balanceOfProtocolERC20: balanceOf,
     approveProtocolERC20: approve,
-    transferProtocolERC20From: transferFrom
+    transferProtocolERC20From: transferFrom,
+    fundWallet
   };
 }
 

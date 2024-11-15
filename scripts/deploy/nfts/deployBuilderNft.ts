@@ -8,7 +8,7 @@ import inquirer from 'inquirer';
 import { createPublicClient, createWalletClient, encodeDeployData, http, isAddress, parseAbiItem } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
-import { getConnectorFromHardhatRuntimeEnvironment, proceedsReceiver, getConnectorKey } from '../../lib/connectors';
+import { getConnectorFromHardhatRuntimeEnvironment, proceedsReceiver, getConnectorKey } from '../../../lib/connectors';
 
 dotenv.config();
 

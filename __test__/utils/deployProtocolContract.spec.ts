@@ -14,11 +14,9 @@ describe('Proxy and Initialization', function () {
 
     const proxyAdminAddress = await ScoutProtocolProxyContract.read.admin();
     const proxyImplementationAddress = await ScoutProtocolProxyContract.read.implementation();
-    const erc20ContractAddress = await ScoutProtocolProxyContract.read.claimsToken();
 
     expect(proxyAdminAddress).toBe(protocolAdminAccount.account.address);
     expect(proxyImplementationAddress).toBe(getAddress(ScoutProtocolImplementationContract.address));
     expect(ScoutProtocolImplementationContract.address).not.toBe(getAddress(ScoutProtocolProxyContract.address));
-    expect(erc20ContractAddress).toBe(getAddress(ProtocolERC20.address));
   });
 });

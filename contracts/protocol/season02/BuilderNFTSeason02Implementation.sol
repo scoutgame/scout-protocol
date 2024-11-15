@@ -391,12 +391,7 @@ contract BuilderNFTSeason02Implementation is
         return MemoryUtils._getAddress(MemoryUtils.MINTER_SLOT);
     }
 
-    function setERC20(address newERC20) external onlyAdmin {
-        require(newERC20 != address(0), "Invalid address");
-        MemoryUtils._setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, newERC20);
-    }
-
-    function ERC20() external view returns (address) {
+    function scoutTokenERC20() external view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }
 
@@ -493,5 +488,9 @@ contract BuilderNFTSeason02Implementation is
 
     function updatePriceIncrement(uint256 newIncrement) external onlyAdmin {
         MemoryUtils._setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, newIncrement);
+    }
+
+    function acceptUpgrade() public view returns (address) {
+        return address(this);
     }
 }

@@ -1,10 +1,10 @@
 import type { ProvableClaim } from '@charmverse/core/protocol';
 import { generateMerkleTree, getMerkleProofs } from '@charmverse/core/protocol';
 
-import { type ProtocolTestFixture } from '../../../deployProtocol';
-import type { ProtocolERC20TestFixture } from '../../../deployScoutTokenERC20';
-import { loadProtocolFixtures } from '../../../fixtures';
-import { generateWallets, type GeneratedWallet } from '../../../generateWallets';
+import { type ProtocolTestFixture } from '../../../../deployProtocol';
+import type { ProtocolERC20TestFixture } from '../../../../deployScoutTokenERC20';
+import { loadProtocolFixtures } from '../../../../fixtures';
+import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
 
 describe('ScoutProtocolImplementation', function () {
   let protocol: ProtocolTestFixture;
@@ -54,7 +54,10 @@ describe('ScoutProtocolImplementation', function () {
     protocol = fixtures.protocol;
     admin = protocol.protocolAdminAccount;
 
-    await token.mintProtocolERC20To({ account: protocol.protocolContract.address, amount: 100_000 });
+    await token.transferProtocolERC20({
+      args: { to: protocol.protocolContract.address, amount: 100_000 },
+      wallet: token.ProtocolERC20AdminAccount
+    });
 
     await protocol.protocolContract.write.setMerkleRoot([week, `0x${merkleTree.rootHash}`]);
   });
@@ -179,6 +182,33 @@ describe('ScoutProtocolImplementation', function () {
         const merkleRoot = await protocol.protocolContract.read.getMerkleRoot([week]);
 
         expect(merkleRoot).toEqual(`0x${merkleTree.rootHash}`);
+      });
+    });
+  });
+
+  describe('setClaimsManager()', function () {
+    describe('effects', function () {
+      it('Sets the claims manager', async function () {
+        const newClaimsManagerAccount = await walletFromKey();
+
+        await expect(
+          protocol.protocolContract.write.setClaimsManager([newClaimsManagerAccount.account.address], {
+            account: protocol.protocolAdminAccount.account
+          })
+        ).resolves.toBeDefined();
+
+        const claimsManager = await protocol.protocolContract.read.claimsManager();
+        expect(claimsManager).toEqual(newClaimsManagerAccount.account.address);
+      });
+    });
+
+    describe('permissions', function () {
+      it('reverts when not called by admin', async function () {
+        await expect(
+          protocol.protocolContract.write.setClaimsManager([user.account.address], {
+            account: user.account
+          })
+        ).rejects.toThrow('Caller is not the admin');
       });
     });
   });
