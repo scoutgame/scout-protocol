@@ -98,8 +98,6 @@ contract LockupWeeklyStreamCreator is Context {
             streamId
         );
 
-        require(stream.recipient == _msgSender(), "Not the recipient");
-
         LOCKUP_TRANCHED.withdrawMax(streamId, stream.recipient);
     }
 

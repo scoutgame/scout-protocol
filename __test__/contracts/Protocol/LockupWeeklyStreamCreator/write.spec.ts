@@ -2,6 +2,7 @@ import { mine, time } from '@nomicfoundation/hardhat-toolbox-viem/network-helper
 import type { Address } from 'viem';
 import { parseEventLogs } from 'viem';
 
+import type { ProtocolTestFixture } from '../../../deployProtocol';
 import { deployProtocolContract } from '../../../deployProtocol';
 import { deployScoutTokenERC20, type ProtocolERC20TestFixture } from '../../../deployScoutTokenERC20';
 import type { WeeklyVestingTestFixture } from '../../../deployWeeklyVesting';
@@ -56,6 +57,7 @@ async function createStream({
 
 describe('LockupWeeklyStreamCreator', () => {
   let erc20: ProtocolERC20TestFixture;
+  let protocol: ProtocolTestFixture;
   let vesting: WeeklyVestingTestFixture;
   let streamCreator: GeneratedWallet;
 
@@ -64,9 +66,9 @@ describe('LockupWeeklyStreamCreator', () => {
     vesting = await deployWeeklyVesting({
       ScoutERC20Address: erc20.ProtocolERC20.address
     });
-    // protocol = await deployProtocolContract({
-    //   ProtocolERC20Address: erc20.ProtocolERC20.address
-    // });
+    protocol = await deployProtocolContract({
+      ProtocolERC20Address: erc20.ProtocolERC20.address
+    });
     streamCreator = await walletFromKey();
   });
 
@@ -148,6 +150,65 @@ describe('LockupWeeklyStreamCreator', () => {
     });
   });
 
+  describe('cancelStream()', () => {
+    describe('effects', () => {
+      it('allows the stream creator to cancel the stream and receive a refund for the remaining assets', async () => {
+        const recipient = await walletFromKey();
+
+        // Fund the stream creator with some tokens
+        await erc20.fundWallet({
+          account: streamCreator.account.address,
+          amount: 200_000
+        });
+
+        const amountToVest = 100_000;
+
+        const totalWeeks = 10;
+
+        const perTranche = amountToVest / totalWeeks;
+
+        const startDate = vesting.nowIshInSeconds();
+
+        const stream = await createStream({
+          erc20,
+          recipient: recipient.account.address,
+          vesting,
+          amountToVest,
+          streamCreator,
+          weeks: totalWeeks,
+          startDate
+        });
+
+        for (let i = 0; i < totalWeeks; i++) {
+          expect(stream.args.tranches[i].amount).toBe(BigInt(perTranche) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
+          expect(stream.args.tranches[i].timestamp).toBe(Number(startDate) + i * 60 * 60 * 24 * 7);
+        }
+
+        const recipientBalance = await erc20.balanceOfProtocolERC20({
+          account: recipient.account.address
+        });
+
+        expect(recipientBalance).toBe(0);
+
+        for (let i = 0; i < totalWeeks; i++) {
+          await time.setNextBlockTimestamp(stream.args.tranches[i].timestamp);
+
+          await mine();
+
+          await vesting.WeeklyERC20Vesting.write.claim([stream.args.streamId], {
+            account: recipient.account
+          });
+
+          const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
+            account: recipient.account.address
+          });
+
+          expect(recipientBalanceAfterClaim).toBe(perTranche * (i + 1));
+        }
+      });
+    });
+  });
+
   describe('claim()', () => {
     describe('effects', () => {
       it('allows the recipient to claim the stream, unlocked in weekly increments', async () => {
@@ -205,58 +266,58 @@ describe('LockupWeeklyStreamCreator', () => {
         }
       });
 
-      // it('allows the protocol contract to claim the stream, unlocked in weekly increments', async () => {
-      //   const { ScoutProtocolProxyContract } = protocol;
+      it('allows the protocol contract to receive a stream, unlocked in weekly increments by any wallet', async () => {
+        const { ScoutProtocolProxyContract } = protocol;
 
-      //   const operator = await walletFromKey();
+        const operator = await walletFromKey();
 
-      //   // Fund the stream creator with some tokens
-      //   await erc20.fundWallet({
-      //     account: streamCreator.account.address,
-      //     amount: 200_000
-      //   });
+        // Fund the stream creator with some tokens
+        await erc20.fundWallet({
+          account: streamCreator.account.address,
+          amount: 200_000
+        });
 
-      //   const amountToVest = 100_000;
+        const amountToVest = 100_000;
 
-      //   const totalWeeks = 10;
+        const totalWeeks = 10;
 
-      //   const perTranche = amountToVest / totalWeeks;
+        const perTranche = amountToVest / totalWeeks;
 
-      //   const stream = await createStream({
-      //     erc20,
-      //     recipient: ScoutProtocolProxyContract.address,
-      //     vesting,
-      //     amountToVest,
-      //     streamCreator,
-      //     weeks: totalWeeks
-      //   });
+        const stream = await createStream({
+          erc20,
+          recipient: ScoutProtocolProxyContract.address,
+          vesting,
+          amountToVest,
+          streamCreator,
+          weeks: totalWeeks
+        });
 
-      //   await vesting.SablierLockupTranched.write.approve([operator.account.address, stream.args.streamId], {
-      //     account: streamCreator.account
-      //   });
+        const recipientBalance = await erc20.balanceOfProtocolERC20({
+          account: ScoutProtocolProxyContract.address
+        });
 
-      //   const recipientBalance = await erc20.balanceOfProtocolERC20({
-      //     account: ScoutProtocolProxyContract.address
-      //   });
+        expect(recipientBalance).toBe(0);
 
-      //   expect(recipientBalance).toBe(0);
+        await protocol.protocolContract.write.setSablier([vesting.WeeklyERC20Vesting.address, stream.args.streamId], {
+          account: protocol.protocolAdminAccount.account
+        });
 
-      //   for (let i = 0; i < totalWeeks; i++) {
-      //     await time.setNextBlockTimestamp(stream.args.tranches[i].timestamp);
+        for (let i = 0; i < totalWeeks; i++) {
+          await time.setNextBlockTimestamp(stream.args.tranches[i].timestamp);
 
-      //     await mine();
+          await mine();
 
-      //     await vesting.WeeklyERC20Vesting.write.claim([stream.args.streamId], {
-      //       account: operator.account
-      //     });
+          await vesting.WeeklyERC20Vesting.write.claim([stream.args.streamId], {
+            account: operator.account
+          });
 
-      //     const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
-      //       account: ScoutProtocolProxyContract.address
-      //     });
+          const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
+            account: ScoutProtocolProxyContract.address
+          });
 
-      //     expect(recipientBalanceAfterClaim).toBe(perTranche * (i + 1));
-      //   }
-      // });
+          expect(recipientBalanceAfterClaim).toBe(perTranche * (i + 1));
+        }
+      });
     });
   });
 });

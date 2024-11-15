@@ -37,6 +37,28 @@ contract ScoutTokenERC20 is Context, AccessControlEnumerable, ERC20Pausable {
         _grantRole(DEFAULT_ADMIN_ROLE, _newAdmin);
     }
 
+    function increaseAllowance(
+        address spender,
+        uint256 addedValue
+    ) public returns (bool) {
+        uint256 _currentAllowance = allowance(_msgSender(), spender);
+        approve(spender, addedValue + _currentAllowance);
+        return true;
+    }
+
+    function decreaseAllowance(
+        address spender,
+        uint256 subtractedValue
+    ) public returns (bool) {
+        uint256 _currentAllowance = allowance(_msgSender(), spender);
+        require(
+            _currentAllowance >= subtractedValue,
+            "ERC20: decreased allowance below zero"
+        );
+        approve(spender, _currentAllowance - subtractedValue);
+        return true;
+    }
+
     function pause() public virtual {
         require(
             hasRole(PAUSER_ROLE, _msgSender()),
