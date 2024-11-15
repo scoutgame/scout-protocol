@@ -494,4 +494,8 @@ contract BuilderNFTSeason02Implementation is
     function updatePriceIncrement(uint256 newIncrement) external onlyAdmin {
         MemoryUtils._setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, newIncrement);
     }
+
+    function acceptUpgrade() public view returns (address) {
+        return address(this);
+    }
 }

@@ -7,6 +7,10 @@ import "../libs/ProtocolAccessControl.sol";
 import "../ScoutTokenERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
+interface IImplementation {
+    function acceptUpgrade() external returns (address);
+}
+
 contract BuilderNFTSeason02Upgradeable is Context, ProtocolAccessControl {
     using MemoryUtils for bytes32;
     using BuilderNFTStorage for bytes32;
@@ -61,6 +65,34 @@ contract BuilderNFTSeason02Upgradeable is Context, ProtocolAccessControl {
             newImplementation != address(0),
             "Invalid implementation address"
         );
+
+        address currentImplementation = MemoryUtils._getAddress(
+            MemoryUtils.IMPLEMENTATION_SLOT
+        );
+        require(
+            newImplementation != currentImplementation,
+            "New implementation must be different"
+        );
+
+        // Check if newImplementation is a contract
+        uint32 size;
+        assembly {
+            size := extcodesize(newImplementation)
+        }
+        require(size > 0, "Invalid address, must be a smart contract");
+
+        // Check if newImplementation accepts the upgrade
+        try IImplementation(newImplementation).acceptUpgrade() returns (
+            address acceptedAddress
+        ) {
+            require(
+                acceptedAddress == newImplementation,
+                "Invalid address, must accept the upgrade"
+            );
+        } catch {
+            revert("Invalid address, must accept the upgrade");
+        }
+
         MemoryUtils._setAddress(
             MemoryUtils.IMPLEMENTATION_SLOT,
             newImplementation

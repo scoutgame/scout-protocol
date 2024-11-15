@@ -350,4 +350,13 @@ describe('BuilderNFTSeason02Implementation', function () {
       });
     });
   });
+
+  describe('acceptUpgrade()', function () {
+    describe('returns', function () {
+      it('returns its own address', async function () {
+        const address = await builderNftContract.read.acceptUpgrade();
+        expect(getAddress(address)).toBe(getAddress(builderNftContract.address));
+      });
+    });
+  });
 });
