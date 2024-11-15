@@ -17,11 +17,6 @@ library MemoryUtils {
     bytes32 internal constant MERKLE_ROOTS_SLOT =
         keccak256("protocol.merkleRoots");
 
-    bytes32 internal constant SABLIER_LOCKUP_SLOT =
-        keccak256("protocol.sablierLockup");
-    bytes32 internal constant SABLIER_LOCKUP_STREAMID_SLOT =
-        keccak256("protocol.sablierLockupStreamId");
-
     // 3. Roles
     bytes32 internal constant ADMIN_SLOT = keccak256("common.admin");
     bytes32 internal constant PAUSER_SLOT = keccak256("common.pauser");

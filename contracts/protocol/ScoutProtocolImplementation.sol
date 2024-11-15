@@ -132,32 +132,7 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         return address(this);
     }
 
-    function setSablier(
-        address _sablierLockup,
-        uint256 _streamId
-    ) public onlyAdmin {
-        MemoryUtils._setAddress(
-            MemoryUtils.SABLIER_LOCKUP_SLOT,
-            _sablierLockup
-        );
-        MemoryUtils._setUint256(
-            MemoryUtils.SABLIER_LOCKUP_STREAMID_SLOT,
-            _streamId
-        );
-    }
-
     function scoutTokenERC20() public view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
-    }
-
-    //
-    function releaseVestedAmount() public {
-        LockupWeeklyStreamCreator claimsLockup = LockupWeeklyStreamCreator(
-            MemoryUtils._getAddress(MemoryUtils.SABLIER_LOCKUP_SLOT)
-        );
-
-        claimsLockup.claim(
-            MemoryUtils._getUint256(MemoryUtils.SABLIER_LOCKUP_STREAMID_SLOT)
-        );
     }
 }
