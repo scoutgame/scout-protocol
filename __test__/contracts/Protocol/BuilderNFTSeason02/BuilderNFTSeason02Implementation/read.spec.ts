@@ -134,10 +134,10 @@ describe('BuilderNFTSeason02Implementation', function () {
     });
   });
 
-  describe('ERC20()', function () {
+  describe('scoutTokenERC20()', function () {
     describe('returns', function () {
       it('Returns the address of USDC contract', async function () {
-        const paymentTokenAddress = await builderNftContract.read.ERC20();
+        const paymentTokenAddress = await builderNftContract.read.scoutTokenERC20();
 
         expect(paymentTokenAddress).toBe(getAddress(erc20.ProtocolERC20.address));
       });

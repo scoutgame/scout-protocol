@@ -82,78 +82,6 @@
 - **Events**:
   - Emits TransferBatch event on transfer
 
-### Read Methods
-
-#### balanceOf()
-
-- **Returns**:
-  - Returns the correct balance of tokens for an account and tokenId
-  - Returns zero for accounts with no tokens
-
-#### balanceOfBatch()
-
-- **Returns**:
-  - Returns correct balances for multiple accounts and tokenIds
-  - Returns zeros for accounts with no tokens
-
-#### ERC20()
-
-- **Returns**:
-  - Returns the address of USDC contract
-
-#### getTokenPurchasePrice()
-
-- **Returns**:
-  - Returns the correct price for purchasing a given amount of tokens, taking into account current supply and bonding curve formula of 2S + 2
-
-#### totalSupply()
-
-- **Returns**:
-  - Returns the total supply of a given tokenId
-  - Returns zero for tokens with no supply
-
-#### getBuilderIdForToken()
-
-- **Returns**:
-  - Returns the correct builderId for a given tokenId
-  - Reverts if the tokenId is not registered
-
-#### getTokenIdForBuilder()
-
-- **Returns**:
-  - Returns the correct tokenId for a given builderId
-  - Reverts if the builderId is not registered
-
-#### totalBuilderTokens()
-
-- **Returns**:
-  - Returns the total number of registered builder tokens
-
-#### getPriceIncrement()
-
-- **Returns**:
-  - Returns the price increment used for calculating token prices
-
-#### uri()
-
-- **Returns**:
-  - Returns the correct URI for a given tokenId
-
-#### tokenURI()
-
-- **Returns**:
-  - Returns the correct token URI for a given tokenId
-
-#### minter()
-
-- **Returns**:
-  - Should return the correct minter address
-
-#### acceptUpgrade()
-
-- **Returns**:
-  - returns its own address
-
 ## Contract: BuilderNFTSeason02Upgradeable
 
 ### Write Methods
@@ -192,6 +120,12 @@
 
 - **Effects**:
   - allows the recipient to claim the stream, unlocked in weekly increments
+  - allows the protocol contract to receive a stream, unlocked in weekly increments by any wallet
+
+#### (SablierLockupTranched) cancel()
+
+- **Effects**:
+  - allows the stream creator to cancel the stream and receive a refund for the remaining assets
 
 ## Contract: MemoryUtils
 
