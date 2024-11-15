@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity >=0.8.22;
 
+import {Context} from "@openzeppelin/contracts/utils/Context.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ud60x18} from "@prb/math/src/UD60x18.sol";
 import {ud60x18} from "@prb/math/src/UD60x18.sol";
 import {ISablierV2LockupTranched} from "@sablier/v2-core/src/interfaces/ISablierV2LockupTranched.sol";
 import {Broker, LockupTranched} from "@sablier/v2-core/src/types/DataTypes.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 // Import here so that it is compiled and included in the hardhat artifacts
 import {SablierV2NFTDescriptor} from "@sablier/v2-core/src/SablierV2NFTDescriptor.sol";
@@ -13,7 +15,8 @@ import {SablierV2LockupTranched} from "@sablier/v2-core/src/SablierV2LockupTranc
 
 /// @notice Example of how to create a Lockup Linear stream.
 /// @dev This code is referenced in the docs: https://docs.sablier.com/contracts/v2/guides/create-stream/lockup-linear
-contract LockupWeeklyStreamCreator {
+contract LockupWeeklyStreamCreator is Context {
+    using Strings for uint256;
     // sepolia addresses
     IERC20 public SCOUT;
 
@@ -28,10 +31,13 @@ contract LockupWeeklyStreamCreator {
     function createStream(
         address recipient,
         uint128 totalAmount,
+        uint128 _startDate,
         uint128 _weeks
     ) public returns (uint256 streamId) {
         // Transfer the provided amount of SCOUT tokens to this contract
         SCOUT.transferFrom(msg.sender, address(this), totalAmount);
+
+        uint40 firstClaim = getStartDateOffset(_startDate);
 
         // Approve the Sablier contract to spend SCOUT
         SCOUT.approve(address(LOCKUP_TRANCHED), totalAmount);
@@ -55,7 +61,14 @@ contract LockupWeeklyStreamCreator {
         uint128 _amountPerWeek = totalAmount / _weeks;
 
         for (uint256 i = 0; i < _weeks; i++) {
-            if (i != _weeks - 1) {
+            if (i == 0) {
+                params.tranches[i] = LockupTranched.TrancheWithDuration({
+                    amount: _amountPerWeek,
+                    duration: firstClaim
+                });
+
+                _streamed += _amountPerWeek;
+            } else if (i != _weeks - 1) {
                 params.tranches[i] = LockupTranched.TrancheWithDuration({
                     amount: _amountPerWeek,
                     duration: 1 weeks
@@ -78,6 +91,33 @@ contract LockupWeeklyStreamCreator {
 
         // Create the LockupTranched stream
         streamId = LOCKUP_TRANCHED.createWithDurations(params);
+    }
+
+    function claim(uint256 streamId) public {
+        LockupTranched.StreamLT memory stream = LOCKUP_TRANCHED.getStream(
+            streamId
+        );
+
+        require(stream.recipient == _msgSender(), "Not the recipient");
+
+        LOCKUP_TRANCHED.withdrawMax(streamId, stream.recipient);
+    }
+
+    function cancelStream(uint256 streamId) public {
+        LOCKUP_TRANCHED.cancel(streamId);
+    }
+
+    function getStartDateOffset(
+        uint128 startDate
+    ) public view returns (uint40) {
+        // Revert if the start date is in the past
+        require(
+            uint40(startDate) >= uint40(block.timestamp),
+            "Start date must be in the future"
+        );
+
+        // Return the difference between startDate and block.timestamp
+        return uint40(startDate - block.timestamp);
     }
 
     function _weeksToSeconds(uint256 _weeks) internal pure returns (uint256) {

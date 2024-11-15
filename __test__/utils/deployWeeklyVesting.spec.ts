@@ -26,12 +26,10 @@ describe('deployScoutTokenERC20', () => {
   it('should deploy the weekly vesting contract, with functional vesting', async () => {
     const { SablierLockupTranched, WeeklyERC20Vesting } = weeklyVesting;
 
-    const { ProtocolERC20AdminAccount } = ProtocolERC20;
-
     // Fund the stream creator with some tokens
-    await ProtocolERC20.transferProtocolERC20({
-      args: { to: streamCreator.account.address, amount: 20_000 },
-      wallet: ProtocolERC20AdminAccount
+    await ProtocolERC20.fundWallet({
+      account: streamCreator.account.address,
+      amount: 20_000
     });
 
     const amountToVest = 10_000;
@@ -48,6 +46,7 @@ describe('deployScoutTokenERC20', () => {
       [
         recipient.account.address,
         BigInt(amountToVest) * ProtocolERC20.ProtocolERC20_DECIMAL_MULTIPLIER,
+        BigInt(Math.ceil(Date.now() / 1000) + 20),
         BigInt(totalWeeks)
       ],
       {

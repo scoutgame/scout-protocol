@@ -59,7 +59,6 @@ contract BuilderNFTSeason02Upgradeable is Context, ProtocolAccessControl {
         BuilderNFTStorage.incrementNextTokenId();
     }
 
-    // External wrapper for setting implementation
     function setImplementation(address newImplementation) external onlyAdmin {
         require(
             newImplementation != address(0),

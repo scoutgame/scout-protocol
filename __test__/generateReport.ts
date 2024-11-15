@@ -105,6 +105,8 @@ function parseTestReport(input: any[]): ParsedResult[] {
     'ScoutProtocolToken',
     'ProtocolEASResolver',
     'ScoutProtocolImplementation',
+
+    'LockupWeeklyStreamCreator',
     // Utilities
     'MemoryUtils',
     'ProtocolAccessControl'
