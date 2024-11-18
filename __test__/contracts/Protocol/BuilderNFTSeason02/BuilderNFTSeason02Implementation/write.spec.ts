@@ -33,7 +33,7 @@ async function mintNft({
   });
 
   // Mint NFT
-  await nft.builderNftContract.write.mint([wallet.account.address, BigInt(tokenId), BigInt(amount), uuid()], {
+  await nft.builderNftContract.write.mint([wallet.account.address, BigInt(tokenId), BigInt(amount)], {
     account: wallet.account
   });
 }
@@ -184,17 +184,52 @@ describe('BuilderNFTSeason02Implementation', function () {
           account: userAccount.account
         });
 
-        const scoutId = uuid();
         await expect(
-          builderNftSeason02.builderNftContract.write.mint(
-            [userAccount.account.address, BigInt(1), BigInt(1), scoutId],
-            { account: userAccount.account }
-          )
+          builderNftSeason02.builderNftContract.write.mint([userAccount.account.address, BigInt(1), BigInt(1)], {
+            account: userAccount.account
+          })
         ).resolves.toBeDefined();
 
         // Check balance
         const balance = await builderNftSeason02.builderNftContract.read.balanceOf([
           userAccount.account.address,
+          BigInt(1)
+        ]);
+        expect(balance).toEqual(BigInt(1));
+      });
+
+      it('Mints tokens to a different address than the one paying for the transfer', async function () {
+        // Setup: Register builder token
+        const builderId = uuid();
+        await builderNftSeason02.builderNftContract.write.registerBuilderToken([builderId], {
+          account: erc1155AdminAccount.account
+        });
+
+        const userReceivingGift = await walletFromKey();
+
+        // Transfer tokens to user to cover mint price
+        const mintPrice = await builderNftSeason02.builderNftContract.read.getTokenPurchasePrice([
+          BigInt(1),
+          BigInt(1)
+        ]);
+        await token.ProtocolERC20.write.transfer([userAccount.account.address, mintPrice], {
+          account: erc20AdminAccount.account
+        });
+
+        // Approve NFT contract to spend user's tokens
+        await token.ProtocolERC20.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
+          account: userAccount.account
+        });
+
+        await expect(
+          builderNftSeason02.builderNftContract.write.mint([userReceivingGift.account.address, BigInt(1), BigInt(1)], {
+            account: userAccount.account
+          })
+        ).resolves.toBeDefined();
+
+        // Check balance
+        const balance = await builderNftSeason02.builderNftContract.read.balanceOf([
+          userReceivingGift.account.address,
           BigInt(1)
         ]);
         expect(balance).toEqual(BigInt(1));
@@ -234,38 +269,36 @@ describe('BuilderNFTSeason02Implementation', function () {
     });
 
     describe('events', function () {
-      it('Emits TransferSingle and BuilderScouted events on mint', async function () {
-        // Setup similar to effects test
+      it('Emits TransferSingle event on mint', async function () {
+        // Setup: Register builder token
         const builderId = uuid();
         await builderNftSeason02.builderNftContract.write.registerBuilderToken([builderId], {
           account: erc1155AdminAccount.account
         });
 
-        proceedsReceiverAccount = await walletFromKey();
-        await builderNftSeason02.builderNftContract.write.setProceedsReceiver(
-          [proceedsReceiverAccount.account.address],
-          {
-            account: erc1155AdminAccount.account
-          }
-        );
+        const userReceivingGift = await walletFromKey();
 
+        const tokensToBuy = BigInt(22);
+
+        // Transfer tokens to user to cover mint price
         const mintPrice = await builderNftSeason02.builderNftContract.read.getTokenPurchasePrice([
           BigInt(1),
-          BigInt(1)
+          tokensToBuy
         ]);
-
         await token.ProtocolERC20.write.transfer([userAccount.account.address, mintPrice], {
           account: erc20AdminAccount.account
         });
 
+        // Approve NFT contract to spend user's tokens
         await token.ProtocolERC20.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
-        const scoutId = uuid();
         const txResponse = await builderNftSeason02.builderNftContract.write.mint(
-          [userAccount.account.address, BigInt(1), BigInt(1), scoutId],
-          { account: userAccount.account }
+          [userReceivingGift.account.address, BigInt(1), tokensToBuy],
+          {
+            account: userAccount.account
+          }
         );
 
         const receipt = await userAccount.getTransactionReceipt({ hash: txResponse });
@@ -276,24 +309,12 @@ describe('BuilderNFTSeason02Implementation', function () {
           eventName: ['TransferSingle']
         })[0];
 
-        const scoutedEvent = parseEventLogs({
-          abi: builderNftSeason02.builderNftContract.abi,
-          logs: receipt.logs,
-          eventName: ['BuilderScouted']
-        })[0];
-
         expect(transferEvent).toBeDefined();
         expect(transferEvent!.args.operator).toEqual(userAccount.account.address);
         expect(transferEvent!.args.from).toEqual('0x0000000000000000000000000000000000000000');
-        expect(transferEvent!.args.to).toEqual(userAccount.account.address);
+        expect(transferEvent!.args.to).toEqual(userReceivingGift.account.address);
         expect(transferEvent!.args.id).toEqual(BigInt(1));
-        expect(transferEvent!.args.value).toEqual(BigInt(1));
-
-        expect(scoutedEvent).toBeDefined();
-        expect(scoutedEvent!.args.account).toEqual(userAccount.account.address);
-        expect(scoutedEvent!.args.tokenId).toEqual(BigInt(1));
-        expect(scoutedEvent!.args.amount).toEqual(BigInt(1));
-        expect(scoutedEvent!.args.scout).toEqual(scoutId);
+        expect(transferEvent!.args.value).toEqual(tokensToBuy);
       });
     });
 
@@ -325,12 +346,10 @@ describe('BuilderNFTSeason02Implementation', function () {
           account: userAccount.account
         });
 
-        const scoutId = uuid();
         await expect(
-          builderNftSeason02.builderNftContract.write.mint(
-            [userAccount.account.address, BigInt(1), BigInt(1), scoutId],
-            { account: userAccount.account }
-          )
+          builderNftSeason02.builderNftContract.write.mint([userAccount.account.address, BigInt(1), BigInt(1)], {
+            account: userAccount.account
+          })
         ).resolves.toBeDefined();
       });
     });
@@ -338,11 +357,10 @@ describe('BuilderNFTSeason02Implementation', function () {
     describe('validations', function () {
       it('Reverts if tokenId is not registered', async function () {
         const unregisteredTokenId = BigInt(999);
-        const scoutId = uuid();
 
         await expect(
           builderNftSeason02.builderNftContract.write.mint(
-            [userAccount.account.address, unregisteredTokenId, BigInt(1), scoutId],
+            [userAccount.account.address, unregisteredTokenId, BigInt(1)],
             { account: userAccount.account }
           )
         ).rejects.toThrow();

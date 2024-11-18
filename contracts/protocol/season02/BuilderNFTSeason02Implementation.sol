@@ -26,12 +26,6 @@ contract BuilderNFTSeason02Implementation is
     using Address for address;
 
     // Events
-    event BuilderScouted(
-        address indexed account,
-        uint256 indexed tokenId,
-        uint256 amount,
-        string scout
-    );
     event BuilderTokenRegistered(uint256 tokenId, string builderId);
 
     modifier onlyAdminOrMinter() {
@@ -321,14 +315,8 @@ contract BuilderNFTSeason02Implementation is
         BuilderNFTStorage.incrementNextTokenId();
     }
 
-    function mint(
-        address account,
-        uint256 tokenId,
-        uint256 amount,
-        string calldata scout
-    ) external {
+    function mint(address account, uint256 tokenId, uint256 amount) external {
         require(account != address(0), "Invalid account address");
-        require(StringUtils._isValidUUID(scout), "Scout must be a valid UUID");
         // Throws if token ID is not registered
         BuilderNFTStorage.getTokenToBuilderRegistry(tokenId);
 
@@ -367,9 +355,6 @@ contract BuilderNFTSeason02Implementation is
 
         // Emit TransferSingle event
         emit TransferSingle(_msgSender(), address(0), account, tokenId, amount);
-
-        // Emit BuilderScouted event
-        emit BuilderScouted(account, tokenId, amount, scout);
     }
 
     function burn(address account, uint256 tokenId, uint256 amount) external {

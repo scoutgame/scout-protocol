@@ -241,10 +241,6 @@ describe('LockupWeeklyStreamCreator', () => {
 
         expect(recipientBalance).toBe(0);
 
-        await protocol.protocolContract.write.setSablier([vesting.WeeklyERC20Vesting.address, stream.args.streamId], {
-          account: protocol.protocolAdminAccount.account
-        });
-
         for (let i = 0; i < totalWeeks; i++) {
           await time.setNextBlockTimestamp(stream.args.tranches[i].timestamp);
 

@@ -27,7 +27,6 @@ describe('BuilderNFTSeason02Implementation', function () {
         const builderId = uuid();
         await builderNftContract.write.registerBuilderToken([builderId]);
 
-        const scoutId = uuid();
         const tokenId = BigInt(1);
         const amount = BigInt(10);
         const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, amount]);
@@ -41,7 +40,7 @@ describe('BuilderNFTSeason02Implementation', function () {
           args: { spender: builderNftContract.address, amount: Number(price) }
         });
 
-        await builderNftContract.write.mint([testUserAddress, tokenId, amount, scoutId], {
+        await builderNftContract.write.mint([testUserAddress, tokenId, amount], {
           account: secondUserAccount.account
         });
 
@@ -73,7 +72,6 @@ describe('BuilderNFTSeason02Implementation', function () {
         await builderNftContract.write.registerBuilderToken([builderId1]);
         await builderNftContract.write.registerBuilderToken([builderId2]);
 
-        const scoutId = uuid();
         const tokenId1 = BigInt(1);
         const tokenId2 = BigInt(2);
 
@@ -92,7 +90,7 @@ describe('BuilderNFTSeason02Implementation', function () {
           args: { spender: builderNftContract.address, amount: Number(price1) }
         });
 
-        await builderNftContract.write.mint([user1Address, tokenId1, amount1, scoutId], {
+        await builderNftContract.write.mint([user1Address, tokenId1, amount1], {
           account: firstUserAccount.account
         });
 
@@ -105,7 +103,7 @@ describe('BuilderNFTSeason02Implementation', function () {
           args: { spender: builderNftContract.address, amount: Number(price2) }
         });
 
-        await builderNftContract.write.mint([user2Address, tokenId2, amount2, scoutId], {
+        await builderNftContract.write.mint([user2Address, tokenId2, amount2], {
           account: secondUserAccount.account
         });
 
@@ -178,7 +176,7 @@ describe('BuilderNFTSeason02Implementation', function () {
           args: { spender: builderNftContract.address, amount: Number(priceForThreeTokens) }
         });
 
-        await builderNftContract.write.mint([userAccount.account.address, tokenId, minted, builderId], {
+        await builderNftContract.write.mint([userAccount.account.address, tokenId, minted], {
           account: userAccount.account
         });
 
@@ -207,7 +205,6 @@ describe('BuilderNFTSeason02Implementation', function () {
         const builderId = uuid();
         await builderNftContract.write.registerBuilderToken([builderId]);
 
-        const scoutId = uuid();
         const tokenId = BigInt(1);
         const amount = BigInt(10);
         const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, amount]);
@@ -221,7 +218,7 @@ describe('BuilderNFTSeason02Implementation', function () {
           args: { spender: builderNftContract.address, amount: Number(price) }
         });
 
-        await builderNftContract.write.mint([testUserAddress, tokenId, amount, scoutId], {
+        await builderNftContract.write.mint([testUserAddress, tokenId, amount], {
           account: secondUserAccount.account
         });
 
