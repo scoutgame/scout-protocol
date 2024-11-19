@@ -9,9 +9,8 @@ describe('deployScoutTokenERC20', () => {
     ProtocolERC20 = await deployScoutTokenERC20();
   });
 
-  it('should deploy the ProtocolERC20 contract, with minting, approve, transfer, balanceOf and transferFrom enabled, as well as a starting balance of 1 million tokens for the admin', async () => {
+  it('should deploy the ProtocolERC20 contract, with minting, approve, transfer, balanceOf and transferFrom enabled, as well as a starting balance of 1 billion tokens for the admin', async () => {
     const {
-      mintProtocolERC20To,
       transferProtocolERC20,
       balanceOfProtocolERC20,
       approveProtocolERC20,
@@ -23,7 +22,7 @@ describe('deployScoutTokenERC20', () => {
 
     const adminBalance = await balanceOfProtocolERC20({ account: ProtocolERC20AdminAccount.account.address });
 
-    expect(adminBalance).toBe(1000000);
+    expect(adminBalance).toBe(1_000_000_000);
 
     const userBalance = await balanceOfProtocolERC20({ account: userAccount.account.address });
 
@@ -34,7 +33,10 @@ describe('deployScoutTokenERC20', () => {
     const hundredProtocolERC20 = 100;
 
     // Mint 1000 ProtocolERC20 to the user
-    await mintProtocolERC20To({ account: userAccount.account.address, amount: thousandProtocolERC20 });
+    await transferProtocolERC20({
+      args: { to: userAccount.account.address, amount: thousandProtocolERC20 },
+      wallet: ProtocolERC20AdminAccount
+    });
 
     const newUserBalance = await balanceOfProtocolERC20({ account: userAccount.account.address });
 

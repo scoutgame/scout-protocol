@@ -23,7 +23,10 @@ export async function deployWeeklyVesting({ ScoutERC20Address }: { ScoutERC20Add
   return {
     WeeklyERC20Vesting,
     SablierLockupTranched,
-    SablierNFTDescriptor
+    SablierNFTDescriptor,
+    nowIshInSeconds() {
+      return BigInt(Math.ceil(Date.now() / 1000)) + BigInt(20);
+    }
   };
 }
 
