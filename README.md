@@ -1,4 +1,4 @@
-# stargate-protocol
+# scout-protocol
 
 This project was built with Hardhat. For more reference, visit https://hardhat.org/hardhat-runner/docs/getting-started
 
