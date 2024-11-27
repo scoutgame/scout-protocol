@@ -22,20 +22,20 @@ contract LockupWeeklyStreamCreator is Context {
 
     ISablierV2LockupTranched public LOCKUP_TRANCHED;
 
+    uint8 public constant WEEKS_PER_STREAM = 13;
+
     constructor(address _erc20, address _lockupTranched) {
         SCOUT = IERC20(_erc20);
         LOCKUP_TRANCHED = ISablierV2LockupTranched(_lockupTranched);
     }
 
-    /// @dev For this function to work, the sender must have approved this dummy contract to spend SCOUT.
     function createStream(
         address recipient,
         uint128 totalAmount,
-        uint128 _startDate,
-        uint128 _weeks
+        uint128 _startDate
     ) public returns (uint256 streamId) {
         // Transfer the provided amount of SCOUT tokens to this contract
-        SCOUT.transferFrom(msg.sender, address(this), totalAmount);
+        SCOUT.transferFrom(_msgSender(), address(this), totalAmount);
 
         uint40 firstClaim = getStartDateOffset(_startDate);
 
@@ -46,46 +46,47 @@ contract LockupWeeklyStreamCreator is Context {
         LockupTranched.CreateWithDurations memory params;
 
         // Declare the function parameters
-        params.sender = msg.sender; // The sender will be able to cancel the stream
+        params.sender = _msgSender(); // The sender will be able to cancel the stream
         params.recipient = address(recipient); // The recipient of the streamed assets
         params.totalAmount = uint128(totalAmount); // Total amount is the amount inclusive of all fees
         params.asset = SCOUT; // The streaming asset
         params.cancelable = true; // Whether the stream will be cancelable or not
         params.transferable = true; // Whether the stream will be transferable or not
 
-        // Declare some dummy tranches
-        params.tranches = new LockupTranched.TrancheWithDuration[](_weeks);
+        // Declare the tranches array
+        params.tranches = new LockupTranched.TrancheWithDuration[](
+            WEEKS_PER_STREAM
+        );
 
+        // Track the amount streamed as we iterate through the weeks
         uint128 _streamed = 0;
 
-        uint128 _amountPerWeek = totalAmount / _weeks;
+        // Remove index 0 from the loop as we want to match the whitepaper schedule for 13 weeks
+        for (
+            uint256 weekIndex = 1;
+            weekIndex <= WEEKS_PER_STREAM;
+            weekIndex++
+        ) {
+            // Calculate the amount for the current week in the loop
+            uint128 _amountPerWeek = streamAllocation(totalAmount, weekIndex);
+            uint40 _duration = 1 weeks;
 
-        for (uint256 i = 0; i < _weeks; i++) {
-            if (i == 0) {
-                params.tranches[i] = LockupTranched.TrancheWithDuration({
-                    amount: _amountPerWeek,
-                    duration: firstClaim
-                });
-
-                _streamed += _amountPerWeek;
-            } else if (i != _weeks - 1) {
-                params.tranches[i] = LockupTranched.TrancheWithDuration({
-                    amount: _amountPerWeek,
-                    duration: 1 weeks
-                });
-
-                _streamed += _amountPerWeek;
-            } else {
-                uint128 _remainder = totalAmount - _streamed;
-                params.tranches[i] = LockupTranched.TrancheWithDuration({
-                    amount: _remainder,
-                    duration: 1 weeks
-                });
-
-                _streamed += _remainder;
+            if (weekIndex == 0) {
+                _duration = uint40(firstClaim);
             }
-        }
+            // If we are on the last week, set the amount to the remainder instead to avoid amount mismatch errors
+            else if (weekIndex >= WEEKS_PER_STREAM) {
+                _amountPerWeek = totalAmount - _streamed;
+            }
 
+            _streamed += _amountPerWeek;
+
+            params.tranches[weekIndex - 1] = LockupTranched
+                .TrancheWithDuration({
+                    amount: _amountPerWeek,
+                    duration: _duration
+                });
+        }
         // Wondering what's up with that ud60x18 function? It's a casting function that wraps a basic integer to the UD60x18 value type. This type is part of the math library PRBMath, which is used in Sablier for fixed-point calculations.
         params.broker = Broker(address(0), ud60x18(0)); // Optional parameter left undefined
 
@@ -114,7 +115,34 @@ contract LockupWeeklyStreamCreator is Context {
         return uint40(startDate - block.timestamp);
     }
 
-    function _weeksToSeconds(uint256 _weeks) internal pure returns (uint256) {
-        return _weeks * 60 * 60 * 24 * 7;
+    function streamAllocation(
+        uint128 totalAmount,
+        uint256 weekIndex
+    ) internal pure returns (uint128) {
+        // Define the allocation percentages for each week
+        uint8[WEEKS_PER_STREAM] memory allocationPercentages = [
+            5,
+            5,
+            6,
+            6,
+            7,
+            7,
+            8,
+            8,
+            9,
+            9,
+            10,
+            10,
+            10
+        ];
+
+        // Ensure the weekIndex is within range
+        require(weekIndex > 0 && weekIndex <= 13, "Invalid week index");
+
+        // Calculate the allocation for the specific week
+        uint128 allocatedAmount = (totalAmount *
+            allocationPercentages[weekIndex - 1]) / 100;
+
+        return allocatedAmount;
     }
 }
