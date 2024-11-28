@@ -1,7 +1,6 @@
 import { mine, time } from '@nomicfoundation/hardhat-network-helpers';
 import { parseEventLogs } from 'viem';
 
-import { prettyPrint } from '../../lib/prettyPrint';
 import type { ProtocolERC20TestFixture } from '../deployScoutTokenERC20';
 import { deployScoutTokenERC20 } from '../deployScoutTokenERC20';
 import { deployWeeklyVesting, type WeeklyVestingTestFixture } from '../deployWeeklyVesting';
@@ -34,8 +33,6 @@ describe('deployScoutTokenERC20', () => {
 
     const amountToVest = 10_000;
 
-    const totalWeeks = 10;
-
     // Approve the contract
     await ProtocolERC20.approveProtocolERC20({
       args: { spender: WeeklyERC20Vesting.address, amount: amountToVest },
@@ -46,8 +43,7 @@ describe('deployScoutTokenERC20', () => {
       [
         recipient.account.address,
         BigInt(amountToVest) * ProtocolERC20.ProtocolERC20_DECIMAL_MULTIPLIER,
-        BigInt(Math.ceil(Date.now() / 1000) + 20),
-        BigInt(totalWeeks)
+        BigInt(Math.ceil(Date.now() / 1000) + 20)
       ],
       {
         account: streamCreator.account
@@ -87,17 +83,14 @@ describe('deployScoutTokenERC20', () => {
       eventName: ['WithdrawFromLockupStream']
     })[0].args;
 
+    const amountToWithdrawFirstWeek = 0.05 * amountToVest;
+
+    expect(withdrawLog.amount).toBe(BigInt(amountToWithdrawFirstWeek) * ProtocolERC20.ProtocolERC20_DECIMAL_MULTIPLIER);
+
     const recipientErc20BalanceAfter = await ProtocolERC20.balanceOfProtocolERC20({
       account: recipient.account.address
     });
 
-    prettyPrint({
-      recipientErc20BalanceAfter,
-      amountToVest,
-      streamLog,
-      withdrawLog
-    });
-
-    expect(recipientErc20BalanceAfter).toBe(amountToVest / totalWeeks);
+    expect(recipientErc20BalanceAfter).toBe(amountToWithdrawFirstWeek);
   });
 });

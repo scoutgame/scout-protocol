@@ -16,7 +16,6 @@ async function createStream({
   vesting,
   amountToVest,
   streamCreator,
-  weeks,
   startDate
 }: {
   erc20: ProtocolERC20TestFixture;
@@ -38,8 +37,7 @@ async function createStream({
     [
       recipient,
       BigInt(amountToVest) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER,
-      typeof startDate === 'bigint' ? startDate : startDate ? BigInt(startDate) : BigInt(latest + 1000),
-      BigInt(weeks)
+      typeof startDate === 'bigint' ? startDate : startDate ? BigInt(startDate) : BigInt(latest + 1000)
     ],
     {
       account: streamCreator.account
@@ -88,7 +86,6 @@ describe('LockupWeeklyStreamCreator', () => {
         });
 
         const amountToVest = 100_000;
-        const totalWeeks = 10;
 
         // Approve the contract
         await erc20.approveProtocolERC20({
@@ -102,8 +99,7 @@ describe('LockupWeeklyStreamCreator', () => {
           [
             recipient.account.address,
             BigInt(amountToVest) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER,
-            BigInt(latest + 1000),
-            BigInt(totalWeeks)
+            BigInt(latest + 1000)
           ],
           {
             account: streamCreator.account
@@ -154,62 +150,9 @@ describe('LockupWeeklyStreamCreator', () => {
 
   describe('claim()', () => {
     describe('effects', () => {
-      it('allows the recipient to claim the stream, unlocked in weekly increments', async () => {
-        const recipient = await walletFromKey();
+      const allocationPercentages = [5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10];
 
-        // Fund the stream creator with some tokens
-        await erc20.fundWallet({
-          account: streamCreator.account.address,
-          amount: 200_000
-        });
-
-        const amountToVest = 100_000;
-
-        const totalWeeks = 10;
-
-        const perTranche = amountToVest / totalWeeks;
-
-        const startDate = vesting.nowIshInSeconds() + BigInt(1000);
-
-        const stream = await createStream({
-          erc20,
-          recipient: recipient.account.address,
-          vesting,
-          amountToVest,
-          streamCreator,
-          weeks: totalWeeks,
-          startDate
-        });
-
-        for (let i = 0; i < totalWeeks; i++) {
-          expect(stream.args.tranches[i].amount).toBe(BigInt(perTranche) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
-          expect(stream.args.tranches[i].timestamp).toBe(Number(startDate) + i * 60 * 60 * 24 * 7);
-        }
-
-        const recipientBalance = await erc20.balanceOfProtocolERC20({
-          account: recipient.account.address
-        });
-
-        expect(recipientBalance).toBe(0);
-
-        for (let i = 0; i < totalWeeks; i++) {
-          await time.setNextBlockTimestamp(stream.args.tranches[i].timestamp);
-
-          await mine();
-
-          await vesting.WeeklyERC20Vesting.write.claim([stream.args.streamId], {
-            account: recipient.account
-          });
-
-          const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
-            account: recipient.account.address
-          });
-
-          expect(recipientBalanceAfterClaim).toBe(perTranche * (i + 1));
-        }
-      });
-
-      it('allows the protocol contract to receive a stream, unlocked in weekly increments by any wallet', async () => {
+      it(`allows the protocol contract to receive a stream, unlocked in 13 weekly increments by any wallet following the allocation percentages: ${allocationPercentages.join(', ')}`, async () => {
         const { ScoutProtocolProxyContract } = protocol;
 
         const operator = await walletFromKey();
@@ -221,10 +164,9 @@ describe('LockupWeeklyStreamCreator', () => {
         });
 
         const amountToVest = 100_000;
+        const totalWeeks = allocationPercentages.length;
 
-        const totalWeeks = 10;
-
-        const perTranche = amountToVest / totalWeeks;
+        const startDate = vesting.nowIshInSeconds() + BigInt(1000);
 
         const stream = await createStream({
           erc20,
@@ -232,14 +174,25 @@ describe('LockupWeeklyStreamCreator', () => {
           vesting,
           amountToVest,
           streamCreator,
-          weeks: totalWeeks
+          weeks: totalWeeks,
+          startDate
         });
+
+        let cumulativeClaimed = 0;
+        const expectedPerTranche = allocationPercentages.map((percentage) => (amountToVest * percentage) / 100);
 
         const recipientBalance = await erc20.balanceOfProtocolERC20({
           account: ScoutProtocolProxyContract.address
         });
 
         expect(recipientBalance).toBe(0);
+
+        const results: {
+          week: number;
+          recipientBalanceAfterClaim: number;
+          percentage: number;
+          claimed: number;
+        }[] = [];
 
         for (let i = 0; i < totalWeeks; i++) {
           await time.setNextBlockTimestamp(stream.args.tranches[i].timestamp);
@@ -250,12 +203,23 @@ describe('LockupWeeklyStreamCreator', () => {
             account: operator.account
           });
 
+          cumulativeClaimed += expectedPerTranche[i];
+
           const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
             account: ScoutProtocolProxyContract.address
           });
 
-          expect(recipientBalanceAfterClaim).toBe(perTranche * (i + 1));
+          results.push({
+            week: i + 1,
+            recipientBalanceAfterClaim,
+            percentage: allocationPercentages[i],
+            claimed: expectedPerTranche[i]
+          });
+
+          expect(recipientBalanceAfterClaim).toBe(cumulativeClaimed);
         }
+
+        console.log(results);
       });
     });
   });

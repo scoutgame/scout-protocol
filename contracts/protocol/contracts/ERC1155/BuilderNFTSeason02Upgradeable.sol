@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../libs/MemoryUtils.sol";
-import "../libs/BuilderNFTStorage.sol";
-import "../libs/ProtocolAccessControl.sol";
-import "../ScoutTokenERC20.sol";
+import "../../libs/MemoryUtils.sol";
+import "../../libs/BuilderNFTStorage.sol";
+import "../../libs/ProtocolAccessControl.sol";
+import "../ERC20/ScoutTokenERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 interface IImplementation {

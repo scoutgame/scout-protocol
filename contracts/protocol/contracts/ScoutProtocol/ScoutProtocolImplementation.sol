@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "./ScoutTokenERC20.sol";
-import "./libs/MemoryUtils.sol";
-import "./libs/ProtocolAccessControl.sol";
+import "../ERC20/ScoutTokenERC20.sol";
+import "../../libs/MemoryUtils.sol";
+import "../../libs/ProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/utils/StorageSlot.sol";
-import "./vesting/LockupWeeklyStreamCreator.sol";
+import "../Vesting/LockupWeeklyStreamCreator.sol";
 
 contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
     using MemoryUtils for bytes32;
