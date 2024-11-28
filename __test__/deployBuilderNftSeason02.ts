@@ -6,7 +6,7 @@ import { generateWallets } from './generateWallets';
 export async function deployBuilderNftSeason02Contract({ ScoutERC20Address }: { ScoutERC20Address: Address }) {
   const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
-  const implementation = await viem.deployContract('BuilderNFTSeason02Implementation', [], {
+  const implementation = await viem.deployContract('BuilderNFTSeason02Upgradeable.sol', [], {
     client: { wallet: admin }
   });
 
