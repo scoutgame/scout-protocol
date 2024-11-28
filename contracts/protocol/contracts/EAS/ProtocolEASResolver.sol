@@ -8,10 +8,8 @@ import "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
 import "@ethereum-attestation-service/eas-contracts/contracts/EAS.sol";
 import "@ethereum-attestation-service/eas-contracts/contracts/SchemaRegistry.sol";
 
-// import "@ethereum-attestation-service/eas-contracts/contracts/ISchemaRegistry.sol";
-import "./libs/MemoryUtils.sol";
-import "./libs/ProtocolAccessControl.sol";
-
+import "../../libs/MemoryUtils.sol";
+import "../../libs/ProtocolAccessControl.sol";
 
 /// @title ScoutGameProtocol
 /// @notice A schema resolver that manages unclaimed balances based on EAS attestations.
@@ -19,8 +17,8 @@ contract ProtocolEASResolver is SchemaResolver, Context, ProtocolAccessControl {
     using MemoryUtils for bytes32;
 
     constructor(IEAS eas, address _attesterWallet) SchemaResolver(eas) {
-      _setRole(MemoryUtils.ADMIN_SLOT, _msgSender());
-      _setRole(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
+        _setRole(MemoryUtils.ADMIN_SLOT, _msgSender());
+        _setRole(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
     }
 
     // Method that is called by the EAS contract when an attestation is made
@@ -29,7 +27,11 @@ contract ProtocolEASResolver is SchemaResolver, Context, ProtocolAccessControl {
         Attestation calldata attestation,
         uint256 /*value*/
     ) internal override returns (bool) {
-        require(attestation.attester == attester() || attestation.attester == secondaryAttester(), "Invalid attester");
+        require(
+            attestation.attester == attester() ||
+                attestation.attester == secondaryAttester(),
+            "Invalid attester"
+        );
         return true;
     }
 
@@ -42,21 +44,23 @@ contract ProtocolEASResolver is SchemaResolver, Context, ProtocolAccessControl {
     }
 
     function setAttesterWallet(address _attesterWallet) external onlyAdmin {
-      _setRole(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
+        _setRole(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
     }
 
-    function rolloverAttesterWallet(address _attesterWallet) external onlyAdmin {
-      address _currentAttester = attester();
+    function rolloverAttesterWallet(
+        address _attesterWallet
+    ) external onlyAdmin {
+        address _currentAttester = attester();
 
-      _setRole(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
-      _setRole(MemoryUtils.SECONDARY_EAS_ATTESTER_SLOT, _currentAttester);
+        _setRole(MemoryUtils.EAS_ATTESTER_SLOT, _attesterWallet);
+        _setRole(MemoryUtils.SECONDARY_EAS_ATTESTER_SLOT, _currentAttester);
     }
 
     function attester() public view returns (address) {
-      return MemoryUtils._getAddress(MemoryUtils.EAS_ATTESTER_SLOT);
+        return MemoryUtils._getAddress(MemoryUtils.EAS_ATTESTER_SLOT);
     }
 
     function secondaryAttester() public view returns (address) {
-      return MemoryUtils._getAddress(MemoryUtils.SECONDARY_EAS_ATTESTER_SLOT);
+        return MemoryUtils._getAddress(MemoryUtils.SECONDARY_EAS_ATTESTER_SLOT);
     }
 }

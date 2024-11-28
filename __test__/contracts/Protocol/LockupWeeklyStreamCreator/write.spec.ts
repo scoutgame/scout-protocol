@@ -187,6 +187,13 @@ describe('LockupWeeklyStreamCreator', () => {
 
         expect(recipientBalance).toBe(0);
 
+        const results: {
+          week: number;
+          recipientBalanceAfterClaim: number;
+          percentage: number;
+          claimed: number;
+        }[] = [];
+
         for (let i = 0; i < totalWeeks; i++) {
           await time.setNextBlockTimestamp(stream.args.tranches[i].timestamp);
 
@@ -202,8 +209,17 @@ describe('LockupWeeklyStreamCreator', () => {
             account: ScoutProtocolProxyContract.address
           });
 
+          results.push({
+            week: i + 1,
+            recipientBalanceAfterClaim,
+            percentage: allocationPercentages[i],
+            claimed: expectedPerTranche[i]
+          });
+
           expect(recipientBalanceAfterClaim).toBe(cumulativeClaimed);
         }
+
+        console.log(results);
       });
     });
   });

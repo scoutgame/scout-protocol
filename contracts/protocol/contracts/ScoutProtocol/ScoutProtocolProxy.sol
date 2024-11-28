@@ -2,8 +2,8 @@
 pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import "./libs/ProtocolAccessControl.sol";
-import "./libs/MemoryUtils.sol";
+import "../../libs/ProtocolAccessControl.sol";
+import "../../libs/MemoryUtils.sol";
 
 interface IImplementation {
     function acceptUpgrade() external returns (address);
