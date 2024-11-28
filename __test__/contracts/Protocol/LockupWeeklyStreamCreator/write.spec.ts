@@ -218,8 +218,6 @@ describe('LockupWeeklyStreamCreator', () => {
 
           expect(recipientBalanceAfterClaim).toBe(cumulativeClaimed);
         }
-
-        console.log(results);
       });
     });
   });
