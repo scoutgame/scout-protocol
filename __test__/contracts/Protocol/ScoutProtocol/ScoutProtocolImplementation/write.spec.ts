@@ -59,7 +59,14 @@ describe('ScoutProtocolImplementation', function () {
       wallet: token.ProtocolERC20AdminAccount
     });
 
-    await protocol.protocolContract.write.setMerkleRoot([week, `0x${merkleTree.rootHash}`]);
+    await protocol.protocolContract.write.setWeeklyMerkleRoot([
+      {
+        isoWeek: week,
+        merkleRoot: `0x${merkleTree.rootHash}`,
+        merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+        validUntil: BigInt(Math.round(Date.now() / 1000) + 60 * 60 * 24 * 26)
+      }
+    ]);
   });
 
   describe('claim', function () {
@@ -119,7 +126,7 @@ describe('ScoutProtocolImplementation', function () {
         const newWeek = '2024-W55';
         await expect(
           protocol.protocolContract.write.claim([newWeek, BigInt(userClaim.amount), proofs as any])
-        ).rejects.toThrow('Merkle root for this week is not set.');
+        ).rejects.toThrow('No data for this week');
       });
 
       it('reverts when contract balance is insufficient', async function () {
@@ -138,14 +145,26 @@ describe('ScoutProtocolImplementation', function () {
     });
   });
 
-  describe('setMerkleRoot', function () {
+  describe('setWeeklyMerkleRoot', function () {
     describe('effects', function () {
       it('allows admin to set merkle root correctly', async function () {
-        await protocol.protocolContract.write.setMerkleRoot([week, `0x${merkleTree.rootHash}`]);
+        await protocol.protocolContract.write.setWeeklyMerkleRoot([
+          {
+            isoWeek: week,
+            merkleRoot: `0x${merkleTree.rootHash}`,
+            merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+            validUntil: BigInt(Math.round(Date.now() / 1000) + 60 * 60 * 24 * 26)
+          }
+        ]);
 
-        const merkleRoot = await protocol.protocolContract.read.getMerkleRoot([week]);
+        const merkleRoot = await protocol.protocolContract.read.getWeeklyMerkleRoot([week]);
 
-        expect(merkleRoot).toEqual(`0x${merkleTree.rootHash}`);
+        expect(merkleRoot).toEqual({
+          isoWeek: week,
+          merkleRoot: `0x${merkleTree.rootHash}`,
+          merkleTreeUri: 'https://ipfs.com/gateway/<content-hash>',
+          validUntil: expect.any(BigInt)
+        });
       });
     });
 
@@ -156,17 +175,37 @@ describe('ScoutProtocolImplementation', function () {
 
         // Attempt to set merkle root while paused
         await expect(
-          protocol.protocolContract.write.setMerkleRoot([week, `0x${merkleTree.rootHash}`], {
-            account: admin.account
-          })
+          protocol.protocolContract.write.setWeeklyMerkleRoot(
+            [
+              {
+                isoWeek: week,
+                merkleRoot: `0x${merkleTree.rootHash}`,
+                merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+                validUntil: BigInt(Math.round(Date.now() / 1000) + 60 * 60 * 24 * 26)
+              }
+            ],
+            {
+              account: admin.account
+            }
+          )
         ).rejects.toThrow('Contract is paused');
       });
 
       it('reverts when not called by admin', async function () {
         await expect(
-          protocol.protocolContract.write.setMerkleRoot([week, `0x${merkleTree.rootHash}`], {
-            account: user.account
-          })
+          protocol.protocolContract.write.setWeeklyMerkleRoot(
+            [
+              {
+                isoWeek: week,
+                merkleRoot: `0x${merkleTree.rootHash}`,
+                merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+                validUntil: BigInt(Math.round(Date.now() / 1000) + 60 * 60 * 24 * 26)
+              }
+            ],
+            {
+              account: user.account
+            }
+          )
         ).rejects.toThrow('Proxy: caller is not the claim manager');
       });
 
@@ -175,13 +214,25 @@ describe('ScoutProtocolImplementation', function () {
           account: protocol.protocolAdminAccount.account
         });
 
-        await protocol.protocolContract.write.setMerkleRoot([week, `0x${merkleTree.rootHash}`], {
+        const newMerkleRoot = {
+          isoWeek: week,
+          merkleRoot: `0x${merkleTree.rootHash}`,
+          merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+          validUntil: BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 26)
+        } as const;
+
+        await protocol.protocolContract.write.setWeeklyMerkleRoot([newMerkleRoot], {
           account: user.account
         });
 
-        const merkleRoot = await protocol.protocolContract.read.getMerkleRoot([week]);
+        const merkleRoot = await protocol.protocolContract.read.getWeeklyMerkleRoot([week]);
 
-        expect(merkleRoot).toEqual(`0x${merkleTree.rootHash}`);
+        expect(merkleRoot).toMatchObject({
+          isoWeek: week,
+          merkleRoot: `0x${merkleTree.rootHash}`,
+          merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+          validUntil: BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 26)
+        });
       });
     });
   });

@@ -12,6 +12,13 @@ import "../Vesting/LockupWeeklyStreamCreator.sol";
 contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
     using MemoryUtils for bytes32;
 
+    struct WeeklyMerkleRoot {
+        string isoWeek;
+        uint256 validUntil;
+        bytes32 merkleRoot;
+        string merkleTreeUri;
+    }
+
     modifier onlyAdminOrClaimManager() {
         require(
             _hasRole(MemoryUtils.CLAIM_MANAGER_SLOT) || _isAdmin(),
@@ -33,11 +40,11 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         );
 
         // Get the Merkle root for the given week
-        bytes32 merkleRoot = getMerkleRoot(week);
+        WeeklyMerkleRoot memory weeklyMerkle = getWeeklyMerkleRoot(week);
 
         // Ensure the Merkle root is set
         require(
-            merkleRoot != bytes32(0),
+            weeklyMerkle.merkleRoot != bytes32(0),
             "Merkle root for this week is not set."
         );
 
@@ -46,7 +53,7 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
 
         // Verify the Merkle proof
         require(
-            MerkleProof.verify(proofs, merkleRoot, leaf),
+            MerkleProof.verify(proofs, weeklyMerkle.merkleRoot, leaf),
             "Invalid Merkle proof."
         );
 
@@ -65,31 +72,39 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         return true;
     }
 
-    // Function to get the Merkle root hash for a given week
-    function getMerkleRoot(string memory week) public view returns (bytes32) {
-        bytes32 slot = keccak256(
-            abi.encodePacked(week, MemoryUtils.MERKLE_ROOTS_SLOT)
-        );
+    // Function to get the full weekly merkle root data
+    function getWeeklyMerkleRoot(
+        string memory week
+    ) public view returns (WeeklyMerkleRoot memory) {
+        bytes32 slot = _getMerkleRootSlot(week);
 
-        bytes32 _merkleRootForWeek = StorageSlot.getBytes32Slot(slot).value;
+        bytes memory data = StorageSlot.getBytesSlot(slot).value;
+        require(data.length > 0, "No data for this week");
 
-        require(
-            _merkleRootForWeek != bytes32(0),
-            "Merkle root for this week is not set."
-        );
-
-        return _merkleRootForWeek;
+        return abi.decode(data, (WeeklyMerkleRoot));
     }
 
     // Function to set the Merkle root for a given week
-    function setMerkleRoot(
-        string memory week,
-        bytes32 merkleRoot
-    ) external onlyAdminOrClaimManager onlyWhenNotPaused {
-        bytes32 slot = keccak256(
-            abi.encodePacked(week, MemoryUtils.MERKLE_ROOTS_SLOT)
+    function setWeeklyMerkleRoot(
+        WeeklyMerkleRoot calldata weeklyRoot
+    ) external onlyAdminOrClaimManager onlyWhenNotPaused returns (bool) {
+        require(bytes(weeklyRoot.isoWeek).length > 0, "Invalid ISO week");
+        require(
+            weeklyRoot.validUntil > block.timestamp,
+            "Invalid validity period"
         );
-        StorageSlot.getBytes32Slot(slot).value = merkleRoot;
+        require(weeklyRoot.merkleRoot != bytes32(0), "Invalid merkle root");
+        require(
+            bytes(weeklyRoot.merkleTreeUri).length > 0,
+            "Invalid merkle tree URI"
+        );
+
+        bytes32 slot = _getMerkleRootSlot(weeklyRoot.isoWeek);
+
+        // Pack the entire struct into bytes and store it
+        MemoryUtils._setBytes(slot, abi.encode(weeklyRoot));
+
+        return true;
     }
 
     // Function to check if an address has claimed for a given week
@@ -134,5 +149,14 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
 
     function scoutTokenERC20() public view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
+    }
+
+    function _getMerkleRootSlot(
+        string memory week
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(MemoryUtils.WEEKLY_MERKLE_ROOTS_SLOT, week)
+            );
     }
 }
