@@ -44,7 +44,7 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
     ) public onlyWhenNotPaused returns (bool) {
         // Check if the user has already claimed for the given week
         require(
-            !hasClaimed(claim.week, msg.sender),
+            !hasClaimed(claim.week, _msgSender()),
             "You have already claimed for this week."
         );
 
@@ -58,7 +58,7 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         );
 
         // Construct the leaf node from the user's address and the amount
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender, claim.amount));
+        bytes32 leaf = keccak256(abi.encodePacked(_msgSender(), claim.amount));
 
         // Verify the Merkle proof
         require(
@@ -67,7 +67,7 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         );
 
         // Mark the user as having claimed for this week
-        setClaimed(claim.week, msg.sender);
+        setClaimed(claim.week, _msgSender());
 
         // Ensure the contract has enough tokens to fulfill the claim
         uint256 contractBalance = _getToken().balanceOf(address(this));
@@ -79,7 +79,7 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         ScoutTokenERC20 token = _getToken();
 
         // Transfer tokens to the user
-        token.transfer(msg.sender, claim.amount * (10 ** token.decimals()));
+        token.transfer(_msgSender(), claim.amount * (10 ** token.decimals()));
 
         return true;
     }
