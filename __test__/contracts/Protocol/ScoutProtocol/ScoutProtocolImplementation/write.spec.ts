@@ -72,7 +72,7 @@ describe('ScoutProtocolImplementation', function () {
   describe('claim', function () {
     describe('effects', function () {
       it('allows a user to claim tokens correctly', async function () {
-        await protocol.protocolContract.write.claim([week, BigInt(userClaim.amount), proofs], {
+        await protocol.protocolContract.write.claim([{ week, amount: BigInt(userClaim.amount), proofs }], {
           account: user.account
         });
 
@@ -92,7 +92,7 @@ describe('ScoutProtocolImplementation', function () {
 
         // Attempt to claim while paused
         await expect(
-          protocol.protocolContract.write.claim([week, BigInt(userClaim.amount), proofs], {
+          protocol.protocolContract.write.claim([{ week, amount: BigInt(userClaim.amount), proofs }], {
             account: user.account
           })
         ).rejects.toThrow('Contract is paused');
@@ -101,12 +101,12 @@ describe('ScoutProtocolImplementation', function () {
 
     describe('validations', function () {
       it('denies claims if user has already claimed', async function () {
-        await protocol.protocolContract.write.claim([week, BigInt(userClaim.amount), proofs], {
+        await protocol.protocolContract.write.claim([{ week, amount: BigInt(userClaim.amount), proofs }], {
           account: user.account
         });
 
         await expect(
-          protocol.protocolContract.write.claim([week, BigInt(userClaim.amount), proofs], {
+          protocol.protocolContract.write.claim([{ week, amount: BigInt(userClaim.amount), proofs }], {
             account: user.account
           })
         ).rejects.toThrow('You have already claimed for this week.');
@@ -118,14 +118,24 @@ describe('ScoutProtocolImplementation', function () {
           '0x22fef743eb2ba923c1ffe0641f5a75074645a3dbac802311e64110fe3ee522b7'
         ];
         await expect(
-          protocol.protocolContract.write.claim([week, BigInt(userClaim.amount), invalidProofs as any])
+          protocol.protocolContract.write.claim(
+            [{ week, amount: BigInt(userClaim.amount), proofs: invalidProofs as any }],
+            {
+              account: user.account
+            }
+          )
         ).rejects.toThrow('Invalid Merkle proof.');
       });
 
       it('reverts when merkle root is not set', async function () {
         const newWeek = '2024-W55';
         await expect(
-          protocol.protocolContract.write.claim([newWeek, BigInt(userClaim.amount), proofs as any])
+          protocol.protocolContract.write.claim(
+            [{ week: newWeek, amount: BigInt(userClaim.amount), proofs: proofs as any }],
+            {
+              account: user.account
+            }
+          )
         ).rejects.toThrow('No data for this week');
       });
 

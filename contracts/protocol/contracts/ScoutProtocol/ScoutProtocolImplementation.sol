@@ -6,7 +6,6 @@ import "../../libs/MemoryUtils.sol";
 import "../../libs/ProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/utils/StorageSlot.sol";
 import "../Vesting/LockupWeeklyStreamCreator.sol";
 
 contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
@@ -19,6 +18,12 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         string merkleTreeUri;
     }
 
+    struct Claim {
+        string week;
+        uint256 amount;
+        bytes32[] proofs;
+    }
+
     modifier onlyAdminOrClaimManager() {
         require(
             _hasRole(MemoryUtils.CLAIM_MANAGER_SLOT) || _isAdmin(),
@@ -27,20 +32,24 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         _;
     }
 
+    function multiClaim(Claim[] calldata claims) public {
+        for (uint256 i = 0; i < claims.length; i++) {
+            claim(claims[i]);
+        }
+    }
+
     // Allow the sender to claim their balance as ERC20 tokens
     function claim(
-        string memory week,
-        uint256 amount,
-        bytes32[] calldata proofs
+        Claim calldata claim
     ) public onlyWhenNotPaused returns (bool) {
         // Check if the user has already claimed for the given week
         require(
-            !hasClaimed(week, msg.sender),
+            !hasClaimed(claim.week, msg.sender),
             "You have already claimed for this week."
         );
 
         // Get the Merkle root for the given week
-        WeeklyMerkleRoot memory weeklyMerkle = getWeeklyMerkleRoot(week);
+        WeeklyMerkleRoot memory weeklyMerkle = getWeeklyMerkleRoot(claim.week);
 
         // Ensure the Merkle root is set
         require(
@@ -49,25 +58,28 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         );
 
         // Construct the leaf node from the user's address and the amount
-        bytes32 leaf = keccak256(abi.encodePacked(msg.sender, amount));
+        bytes32 leaf = keccak256(abi.encodePacked(msg.sender, claim.amount));
 
         // Verify the Merkle proof
         require(
-            MerkleProof.verify(proofs, weeklyMerkle.merkleRoot, leaf),
+            MerkleProof.verify(claim.proofs, weeklyMerkle.merkleRoot, leaf),
             "Invalid Merkle proof."
         );
 
         // Mark the user as having claimed for this week
-        setClaimed(week, msg.sender);
+        setClaimed(claim.week, msg.sender);
 
         // Ensure the contract has enough tokens to fulfill the claim
         uint256 contractBalance = _getToken().balanceOf(address(this));
-        require(contractBalance >= amount, "Insufficient balance in contract.");
+        require(
+            contractBalance >= claim.amount,
+            "Insufficient balance in contract."
+        );
 
         ScoutTokenERC20 token = _getToken();
 
         // Transfer tokens to the user
-        token.transfer(msg.sender, amount * (10 ** token.decimals()));
+        token.transfer(msg.sender, claim.amount * (10 ** token.decimals()));
 
         return true;
     }
@@ -112,18 +124,26 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         string memory week,
         address account
     ) public view returns (bool) {
-        bytes32 slot = keccak256(
-            abi.encodePacked(week, account, MemoryUtils.CLAIMS_HISTORY_SLOT)
-        );
-        return StorageSlot.getBooleanSlot(slot).value;
+        bytes32 slot = userWeekClaimedSlot(week, account);
+        return MemoryUtils._getBool(slot);
+        (slot);
+    }
+
+    function userWeekClaimedSlot(
+        string memory week,
+        address account
+    ) internal pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(MemoryUtils.CLAIMS_HISTORY_SLOT, week, account)
+            );
     }
 
     // Function to set the claim status for an address for a given week
     function setClaimed(string memory week, address account) internal {
-        bytes32 slot = keccak256(
-            abi.encodePacked(week, account, MemoryUtils.CLAIMS_HISTORY_SLOT)
-        );
-        StorageSlot.getBooleanSlot(slot).value = true;
+        bytes32 slot = userWeekClaimedSlot(week, account);
+
+        MemoryUtils._setBool(slot, true);
     }
 
     // Function to get the ERC20 token instance
