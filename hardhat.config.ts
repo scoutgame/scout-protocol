@@ -20,13 +20,15 @@ import './scripts/deploy/nfts/deployBuilderNftSeason02';
 import './scripts/deploy/deployScoutGameErc20';
 import './scripts/deploy/deployScoutProtocol';
 import './scripts/deploy/deployEASSchemas';
-import './scripts/interact/updateProxyImplementation';
+import './scripts/deploy/nfts/deployBuilderNftStarterPack';
 
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';
 import './scripts/interact/scoutProtocol';
 import './scripts/interact/scoutProtocolToken';
 import './scripts/interact/scoutProtocolResolver';
+import './scripts/interact/updateProxyImplementation';
+import './scripts/interact/builderNftStarterPackApp';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 

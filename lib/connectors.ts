@@ -7,7 +7,7 @@ import { NULL_ADDRESS } from './constants';
 // https://app.ens.domains/scoutgame.eth
 export const proceedsReceiver = '0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D';
 
-type ContractDeploymentEnvironment = 'dev' | 'prod';
+type ContractDeploymentEnvironment = 'dev' | 'stg' | 'prod';
 
 type ContractDeployment<T extends string> = Partial<Record<ContractDeploymentEnvironment, Record<T, Address>>>;
 
@@ -25,6 +25,7 @@ type Connector = {
   easBaseUrl?: string;
   easAttestationContract?: Address | null;
   scoutgameBuilderNftSeason02?: ContractDeployment<'proxy'>;
+  seasonOneStarterPack?: ContractDeployment<'starterPack'>;
   scoutgameEASResolver?: Address | null;
   scoutgameErc20TokenDev?: Address | null;
   scoutgameScoutProtocolProxyDev?: Address | null;
@@ -47,7 +48,12 @@ export const connectors = {
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
     seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
-    devProxy: '0x26d76d564910c063d0953d8636add5027c0337ce'
+    devProxy: '0x26d76d564910c063d0953d8636add5027c0337ce',
+    seasonOneStarterPack: {
+      dev: {
+        starterPack: '0x2df3291c35526d4962476aa87b72ac4d99c0366a'
+      }
+    }
   } as Connector,
   optimism: {
     rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/0rLYBVk_UG9HAInXCNbYMX-gO5t1UxCM',

@@ -389,6 +389,115 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
         expect(balance).toBe(BigInt(0));
       });
     });
+
+    it('Reverts if the amount exceeds the max mint amount for a user', async function () {
+      const {
+        builderNftStarterPack: { builderNftContract },
+        usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER }
+      } = await loadContractWithStarterPackFixtures();
+
+      const { secondUserAccount } = await generateWallets();
+
+      const testUserAddress = secondUserAccount.account.address;
+
+      const builderId = uuid();
+      const tokenId = randomBigIntFromInterval();
+      await builderNftContract.write.registerBuilderToken([builderId, tokenId]);
+
+      const scoutId = uuid();
+
+      const price = await builderNftContract.read.getTokenPurchasePrice([BigInt(10)]);
+
+      await mintUSDCTo({
+        account: secondUserAccount.account.address,
+        amount: Number(price / USDC_DECIMALS_MULTIPLIER)
+      });
+
+      await approveUSDC({
+        wallet: secondUserAccount,
+        args: { spender: builderNftContract.address, amount: Number(price) }
+      });
+
+      await expect(
+        builderNftContract.write.mint([testUserAddress, tokenId, BigInt(10), scoutId], {
+          account: secondUserAccount.account
+        })
+      ).rejects.toThrow('Amount exceeds max mint amount');
+    });
+
+    it('Reverts if the user has already minted the max amount of NFTs', async function () {
+      const {
+        builderNftStarterPack: { builderNftContract },
+        usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER }
+      } = await loadContractWithStarterPackFixtures();
+
+      const { secondUserAccount } = await generateWallets();
+
+      const testUserAddress = secondUserAccount.account.address;
+
+      const builderId = uuid();
+      const tokenId = randomBigIntFromInterval();
+      await builderNftContract.write.registerBuilderToken([builderId, tokenId]);
+
+      const secondBuilderId = uuid();
+      const secondTokenId = randomBigIntFromInterval();
+      await builderNftContract.write.registerBuilderToken([secondBuilderId, secondTokenId]);
+
+      const scoutId = uuid();
+
+      const price = await builderNftContract.read.getTokenPurchasePrice([BigInt(10)]);
+
+      await mintUSDCTo({
+        account: secondUserAccount.account.address,
+        amount: Number(price / USDC_DECIMALS_MULTIPLIER)
+      });
+
+      await approveUSDC({
+        wallet: secondUserAccount,
+        args: { spender: builderNftContract.address, amount: Number(price) }
+      });
+
+      await expect(
+        builderNftContract.write.mint([testUserAddress, tokenId, BigInt(3), scoutId], {
+          account: secondUserAccount.account
+        })
+      ).resolves.toBeDefined();
+
+      await expect(
+        builderNftContract.write.mint([testUserAddress, secondTokenId, BigInt(1), scoutId], {
+          account: secondUserAccount.account
+        })
+      ).rejects.toThrow('Amount exceeds max mint amount');
+
+      const otherUser = await walletFromKey();
+
+      await mintUSDCTo({
+        account: otherUser.account.address,
+        amount: Number(price / USDC_DECIMALS_MULTIPLIER)
+      });
+
+      await approveUSDC({
+        wallet: otherUser,
+        args: { spender: builderNftContract.address, amount: Number(price) }
+      });
+
+      const secondScoutId = uuid();
+
+      await expect(
+        builderNftContract.write.mint([otherUser.account.address, secondTokenId, BigInt(4), secondScoutId], {
+          account: otherUser.account
+        })
+      ).rejects.toThrow('Amount exceeds max mint amount');
+
+      await expect(
+        builderNftContract.write.mint([otherUser.account.address, secondTokenId, BigInt(1), secondScoutId], {
+          account: otherUser.account
+        })
+      ).resolves.toBeDefined();
+
+      const balance = await builderNftContract.read.balanceOf([otherUser.account.address, secondTokenId]);
+      expect(balance).toBe(BigInt(1));
+    });
   });
 
   describe('setBaseUri()', function () {

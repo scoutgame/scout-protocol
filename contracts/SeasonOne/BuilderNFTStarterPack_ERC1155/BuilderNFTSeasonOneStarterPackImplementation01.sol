@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 library ImplementationStorage {
     struct Layout {
         mapping(uint256 => mapping(address => uint256)) balances;
+        mapping(string => uint256) totalMinted;
         mapping(uint256 => uint256) totalSupply;
         mapping(uint256 => string) tokenToBuilderRegistry;
         mapping(string => uint256) builderToTokenRegistry;
@@ -114,6 +115,22 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         return _balanceOf(account, id);
     }
 
+    function totalMinted(
+        string calldata scoutId
+    ) public view returns (uint256) {
+        return ImplementationStorage.layout().totalMinted[scoutId];
+    }
+
+    function _incrementTotalMinted(
+        string calldata scoutId,
+        uint256 amount
+    ) internal {
+        uint256 alreadyMinted = totalMinted(scoutId);
+        ImplementationStorage.layout().totalMinted[scoutId] +=
+            amount +
+            alreadyMinted;
+    }
+
     function _balanceOf(
         address account,
         uint256 id
@@ -186,7 +203,7 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         uint256 amount,
         string calldata scout
     ) external {
-        _validateMint(account, tokenId, scout);
+        _validateMint(account, tokenId, amount, scout);
 
         uint256 price = getTokenPurchasePrice(amount);
         address paymentToken = MemoryUtils.getAddress(
@@ -243,7 +260,7 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         uint256 amount,
         string calldata scout
     ) external onlyAdminOrMinter {
-        _validateMint(account, tokenId, scout);
+        _validateMint(account, tokenId, amount, scout);
         _mintTo(account, tokenId, amount, scout);
     }
 
@@ -261,6 +278,8 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         // Update total supply
         s.totalSupply[tokenId] += amount;
 
+        _incrementTotalMinted(scout, amount);
+
         // Emit TransferSingle event
         emit TransferSingle(msg.sender, address(0), account, tokenId, amount);
 
@@ -271,10 +290,24 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
     function _validateMint(
         address account,
         uint256 tokenId,
+        uint256 amount,
         string calldata scout
     ) internal view {
         require(account != address(0), "Invalid account address");
         require(_isValidUUID(scout), "Scout must be a valid UUID");
+
+        uint256 MAX_MINT_AMOUNT = 3;
+
+        require(amount > 0, "Amount must be greater than 0");
+
+        require(amount <= MAX_MINT_AMOUNT, "Amount exceeds max mint amount");
+
+        uint256 _totalMinted = totalMinted(scout);
+        require(
+            _totalMinted + amount <= MAX_MINT_AMOUNT,
+            "Amount exceeds max mint amount for 1 user"
+        );
+
         _getBuilderIdForToken(tokenId);
     }
 
