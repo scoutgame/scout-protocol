@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "./libs/MemoryUtils.sol";
+import "../libs/MemoryUtils.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -20,7 +20,8 @@ library ImplementationStorage {
         string uriSuffix;
     }
 
-    bytes32 internal constant STORAGE_SLOT = keccak256("builderNFT.implementation.storage");
+    bytes32 internal constant STORAGE_SLOT =
+        keccak256("builderNFT.implementation.storage");
 
     function layout() internal pure returns (Layout storage l) {
         bytes32 slot = STORAGE_SLOT;
@@ -30,7 +31,12 @@ library ImplementationStorage {
     }
 }
 
-contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1155MetadataURI {
+contract BuilderNFTSeasonOneImplementation01 is
+    Context,
+    ERC165,
+    IERC1155,
+    IERC1155MetadataURI
+{
     using MemoryUtils for bytes32;
     using Address for address;
 
@@ -39,19 +45,24 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     event BuilderTokenRegistered(uint256 tokenId, string builderId);
 
     modifier onlyAdmin() {
-        require(MemoryUtils.isAdmin(msg.sender), "Proxy: caller is not the admin");
+        require(
+            MemoryUtils.isAdmin(msg.sender),
+            "Proxy: caller is not the admin"
+        );
         _;
     }
 
     modifier onlyAdminOrMinter() {
-      require(MemoryUtils.isAdmin(msg.sender) || MemoryUtils.isMinter(msg.sender), "Proxy: caller is not the admin or minter");
+        require(
+            MemoryUtils.isAdmin(msg.sender) || MemoryUtils.isMinter(msg.sender),
+            "Proxy: caller is not the admin or minter"
+        );
         _;
     }
 
-    constructor () {}
+    constructor() {}
 
- 
-    function setBaseUri(string memory newBaseUri) external onlyAdmin() {
+    function setBaseUri(string memory newBaseUri) external onlyAdmin {
         _setBaseUri(newBaseUri);
     }
 
@@ -60,19 +71,31 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         ImplementationStorage.layout().baseUri = newBaseUri;
     }
 
-    function registerBuilderToken(string calldata builderId) external onlyAdminOrMinter {
+    function registerBuilderToken(
+        string calldata builderId
+    ) external onlyAdminOrMinter {
         _registerBuilderToken(builderId);
     }
 
     function _registerBuilderToken(string calldata builderId) internal {
         require(_isValidUUID(builderId), "Builder ID must be a valid UUID");
-        require(ImplementationStorage.layout().builderToTokenRegistry[builderId] == 0, "Builder already registered");
+        require(
+            ImplementationStorage.layout().builderToTokenRegistry[builderId] ==
+                0,
+            "Builder already registered"
+        );
 
-        uint256 nextTokenId = MemoryUtils.getUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT);
+        uint256 nextTokenId = MemoryUtils.getUint256(
+            MemoryUtils.NEXT_TOKEN_ID_SLOT
+        );
 
         // Update mappings in storage
-        ImplementationStorage.layout().tokenToBuilderRegistry[nextTokenId] = builderId;
-        ImplementationStorage.layout().builderToTokenRegistry[builderId] = nextTokenId;
+        ImplementationStorage.layout().tokenToBuilderRegistry[
+            nextTokenId
+        ] = builderId;
+        ImplementationStorage.layout().builderToTokenRegistry[
+            builderId
+        ] = nextTokenId;
 
         // Emit BuilderTokenRegistered event
         emit BuilderTokenRegistered(nextTokenId, builderId);
@@ -81,21 +104,39 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         MemoryUtils.setUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT, nextTokenId + 1);
     }
 
-    function balanceOf(address account, uint256 id) external view override returns (uint256) {
+    function balanceOf(
+        address account,
+        uint256 id
+    ) external view override returns (uint256) {
         return _balanceOf(account, id);
     }
 
-    function _balanceOf(address account, uint256 id) internal view returns (uint256) {
-        require(account != address(0), "ERC1155: balance query for the zero address");
+    function _balanceOf(
+        address account,
+        uint256 id
+    ) internal view returns (uint256) {
+        require(
+            account != address(0),
+            "ERC1155: balance query for the zero address"
+        );
         return ImplementationStorage.layout().balances[id][account];
     }
 
-    function balanceOfBatch(address[] memory accounts, uint256[] memory ids) external view override returns (uint256[] memory) {
+    function balanceOfBatch(
+        address[] memory accounts,
+        uint256[] memory ids
+    ) external view override returns (uint256[] memory) {
         return _balanceOfBatch(accounts, ids);
     }
 
-    function _balanceOfBatch(address[] memory accounts, uint256[] memory ids) internal view returns (uint256[] memory) {
-        require(accounts.length == ids.length, "ERC1155: accounts and ids length mismatch");
+    function _balanceOfBatch(
+        address[] memory accounts,
+        uint256[] memory ids
+    ) internal view returns (uint256[] memory) {
+        require(
+            accounts.length == ids.length,
+            "ERC1155: accounts and ids length mismatch"
+        );
         uint256[] memory batchBalances = new uint256[](accounts.length);
 
         for (uint256 i = 0; i < accounts.length; ++i) {
@@ -109,66 +150,106 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         revert("Approval not allowed for soulbound tokens");
     }
 
-    function isApprovedForAll(address, address) external pure override returns (bool) {
+    function isApprovedForAll(
+        address,
+        address
+    ) external pure override returns (bool) {
         return false; // Approvals are not allowed for soulbound tokens
     }
 
-    function safeTransferFrom(address, address, uint256, uint256, bytes memory) external pure override {
+    function safeTransferFrom(
+        address,
+        address,
+        uint256,
+        uint256,
+        bytes memory
+    ) external pure override {
         revert("Transfers not allowed for soulbound tokens");
     }
 
-    function safeBatchTransferFrom(address, address, uint256[] memory, uint256[] memory, bytes memory) external pure override {
+    function safeBatchTransferFrom(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        bytes memory
+    ) external pure override {
         revert("Batch transfers not allowed for soulbound tokens");
     }
 
-    function mint(address account, uint256 tokenId, uint256 amount, string calldata scout) external {
-      _validateMint(account, tokenId, scout);
+    function mint(
+        address account,
+        uint256 tokenId,
+        uint256 amount,
+        string calldata scout
+    ) external {
+        _validateMint(account, tokenId, scout);
 
-      uint256 price = _getTokenPurchasePrice(tokenId, amount);
-      address paymentToken = MemoryUtils.getAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
-      address proceedsReceiver = MemoryUtils.getAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT);
+        uint256 price = _getTokenPurchasePrice(tokenId, amount);
+        address paymentToken = MemoryUtils.getAddress(
+            MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT
+        );
+        address proceedsReceiver = MemoryUtils.getAddress(
+            MemoryUtils.PROCEEDS_RECEIVER_SLOT
+        );
 
-      require(paymentToken != address(0), "Payment token not set");
-      require(proceedsReceiver != address(0), "Proceeds receiver not set");
+        require(paymentToken != address(0), "Payment token not set");
+        require(proceedsReceiver != address(0), "Proceeds receiver not set");
 
-      // Transfer payment from user to proceeds receiver
-      IERC20(paymentToken).transferFrom(msg.sender, proceedsReceiver, price);
+        // Transfer payment from user to proceeds receiver
+        IERC20(paymentToken).transferFrom(msg.sender, proceedsReceiver, price);
 
-      _mintTo(account, tokenId, amount, scout);
+        _mintTo(account, tokenId, amount, scout);
     }
 
-    function burn(address account, uint256 tokenId, uint256 amount) external onlyAdmin {
-      ImplementationStorage.Layout storage s = ImplementationStorage.layout();
+    function burn(
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) external onlyAdmin {
+        ImplementationStorage.Layout storage s = ImplementationStorage.layout();
 
-      // Check that the account has enough tokens to burn
-      require(s.balances[tokenId][account] >= amount, "ERC1155: burn amount exceeds balance");
+        // Check that the account has enough tokens to burn
+        require(
+            s.balances[tokenId][account] >= amount,
+            "ERC1155: burn amount exceeds balance"
+        );
 
-      // Subtract the amount from the account's balance
-      s.balances[tokenId][account] -= amount;
+        // Subtract the amount from the account's balance
+        s.balances[tokenId][account] -= amount;
 
-      // Decrease the total supply of the token
-      s.totalSupply[tokenId] -= amount;
+        // Decrease the total supply of the token
+        s.totalSupply[tokenId] -= amount;
 
-      // Emit TransferSingle event with the burn details
-      emit TransferSingle(msg.sender, account, address(0), tokenId, amount);
-    } 
+        // Emit TransferSingle event with the burn details
+        emit TransferSingle(msg.sender, account, address(0), tokenId, amount);
+    }
 
     function setMinter(address minter) external onlyAdmin {
-      require(minter != address(0), "Invalid address");
-      MemoryUtils.setAddress(MemoryUtils.MINTER_SLOT, minter);
+        require(minter != address(0), "Invalid address");
+        MemoryUtils.setAddress(MemoryUtils.MINTER_SLOT, minter);
     }
 
     function getMinter() external view returns (address) {
-      return MemoryUtils.getAddress(MemoryUtils.MINTER_SLOT);
+        return MemoryUtils.getAddress(MemoryUtils.MINTER_SLOT);
     }
 
-
-    function mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) external onlyAdminOrMinter {
+    function mintTo(
+        address account,
+        uint256 tokenId,
+        uint256 amount,
+        string calldata scout
+    ) external onlyAdminOrMinter {
         _validateMint(account, tokenId, scout);
         _mintTo(account, tokenId, amount, scout);
     }
 
-    function _mintTo(address account, uint256 tokenId, uint256 amount, string calldata scout) internal {
+    function _mintTo(
+        address account,
+        uint256 tokenId,
+        uint256 amount,
+        string calldata scout
+    ) internal {
         ImplementationStorage.Layout storage s = ImplementationStorage.layout();
 
         // Mint tokens
@@ -184,22 +265,34 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         emit BuilderScouted(tokenId, amount, scout);
     }
 
-    function _validateMint(address account, uint256 tokenId, string calldata scout) internal view {
+    function _validateMint(
+        address account,
+        uint256 tokenId,
+        string calldata scout
+    ) internal view {
         require(account != address(0), "Invalid account address");
         require(_isValidUUID(scout), "Scout must be a valid UUID");
         _getBuilderIdForToken(tokenId);
     }
 
     function getERC20ContractV2() external view returns (address) {
-      return MemoryUtils.getAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
+        return MemoryUtils.getAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
     }
 
-    function getTokenPurchasePrice(uint256 tokenId, uint256 amount) external view returns (uint256) {
+    function getTokenPurchasePrice(
+        uint256 tokenId,
+        uint256 amount
+    ) external view returns (uint256) {
         return _getTokenPurchasePrice(tokenId, amount);
     }
 
-    function _getTokenPurchasePrice(uint256 tokenId, uint256 amount) internal view returns (uint256) {
-        uint256 priceIncrement = MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
+    function _getTokenPurchasePrice(
+        uint256 tokenId,
+        uint256 amount
+    ) internal view returns (uint256) {
+        uint256 priceIncrement = MemoryUtils.getUint256(
+            MemoryUtils.PRICE_INCREMENT_SLOT
+        );
         uint256 currentSupply = _totalSupply(tokenId);
         uint256 totalCost = 0;
         for (uint256 i = 0; i < amount; i++) {
@@ -216,22 +309,34 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         return ImplementationStorage.layout().totalSupply[tokenId];
     }
 
-    function getBuilderIdForToken(uint256 tokenId) external view returns (string memory) {
+    function getBuilderIdForToken(
+        uint256 tokenId
+    ) external view returns (string memory) {
         return _getBuilderIdForToken(tokenId);
     }
 
-    function _getBuilderIdForToken(uint256 tokenId) internal view returns (string memory) {
-        string memory builderId = ImplementationStorage.layout().tokenToBuilderRegistry[tokenId];
+    function _getBuilderIdForToken(
+        uint256 tokenId
+    ) internal view returns (string memory) {
+        string memory builderId = ImplementationStorage
+            .layout()
+            .tokenToBuilderRegistry[tokenId];
         require(bytes(builderId).length > 0, "Token not yet allocated");
         return builderId;
     }
 
-    function getTokenIdForBuilder(string calldata builderId) external view returns (uint256) {
+    function getTokenIdForBuilder(
+        string calldata builderId
+    ) external view returns (uint256) {
         return _getTokenIdForBuilder(builderId);
     }
 
-    function _getTokenIdForBuilder(string calldata builderId) internal view returns (uint256) {
-        uint256 tokenId = ImplementationStorage.layout().builderToTokenRegistry[builderId];
+    function _getTokenIdForBuilder(
+        string calldata builderId
+    ) internal view returns (uint256) {
+        uint256 tokenId = ImplementationStorage.layout().builderToTokenRegistry[
+            builderId
+        ];
         require(tokenId != 0, "Builder not registered");
         return tokenId;
     }
@@ -241,7 +346,9 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     }
 
     function _totalBuilderTokens() internal view returns (uint256) {
-        uint256 nextTokenId = MemoryUtils.getUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT);
+        uint256 nextTokenId = MemoryUtils.getUint256(
+            MemoryUtils.NEXT_TOKEN_ID_SLOT
+        );
         return nextTokenId - 1;
     }
 
@@ -253,11 +360,17 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
     }
 
-    function setUriPrefixAndSuffix(string memory newPrefix, string memory newSuffix) external onlyAdmin {
+    function setUriPrefixAndSuffix(
+        string memory newPrefix,
+        string memory newSuffix
+    ) external onlyAdmin {
         _setUriPrefixAndSuffix(newPrefix, newSuffix);
     }
 
-    function _setUriPrefixAndSuffix(string memory newPrefix, string memory newSuffix) internal {
+    function _setUriPrefixAndSuffix(
+        string memory newPrefix,
+        string memory newSuffix
+    ) internal {
         _setUriPrefix(newPrefix);
         _setUriSuffix(newSuffix);
     }
@@ -295,7 +408,9 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
         return ImplementationStorage.layout().uriSuffix;
     }
 
-    function uri(uint256 _tokenId) external view override returns (string memory) {
+    function uri(
+        uint256 _tokenId
+    ) external view override returns (string memory) {
         return _tokenURI(_tokenId);
     }
 
@@ -304,13 +419,16 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
     }
 
     function _tokenURI(uint256 _tokenId) internal view returns (string memory) {
-        return string(abi.encodePacked(
-            _getUriPrefix(),
-            "/",
-            _uint2str(_tokenId),
-            "/",
-            _getUriSuffix()
-        ));
+        return
+            string(
+                abi.encodePacked(
+                    _getUriPrefix(),
+                    "/",
+                    _uint2str(_tokenId),
+                    "/",
+                    _getUriSuffix()
+                )
+            );
     }
 
     // Utility function to convert uint to string
@@ -347,7 +465,8 @@ contract BuilderNFTSeasonOneImplementation01 is Context, ERC165, IERC1155, IERC1
 
     function _isValidUUID(string memory uuid) internal pure returns (bool) {
         bytes memory uuidBytes = bytes(uuid);
-        return uuidBytes.length == 36 &&
+        return
+            uuidBytes.length == 36 &&
             uuidBytes[8] == "-" &&
             uuidBytes[13] == "-" &&
             uuidBytes[18] == "-" &&
