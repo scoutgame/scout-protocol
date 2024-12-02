@@ -2,6 +2,7 @@ import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpe
 
 import { deployBuilderNftContract } from './deployBuilderNft';
 import { deployBuilderNftSeason02Contract } from './deployBuilderNftSeason02';
+import { deployBuilderNftStarterPackContract } from './deployBuilderNftStarterPack';
 import { deployEASContracts } from './deployEAS';
 import { deployProtocolContract } from './deployProtocol';
 import { deployScoutTokenERC20 } from './deployScoutTokenERC20';
@@ -16,6 +17,14 @@ export async function deployContractFixtures() {
 
 export async function loadContractFixtures() {
   return loadFixture(deployContractFixtures);
+}
+
+export async function loadContractWithStarterPackFixtures() {
+  const { usdc } = await loadContractFixtures();
+  const builderNftStarterPack = await deployBuilderNftStarterPackContract({
+    USDCContractAddress: usdc.USDC.address
+  });
+  return { usdc, builderNftStarterPack };
 }
 
 async function deployProtocolFixtures() {
