@@ -71,6 +71,82 @@ describe('ScoutProtocolImplementation', function () {
     ]);
   });
 
+  describe('multiClaim', function () {
+    describe('effects', function () {
+      it('allows a user to perform multiple claims in a single call', async function () {
+        const weeks = [week, '2024-W42', '2024-W43'];
+
+        for (let i = 0; i < weeks.length; i++) {
+          const _week = weeks[i];
+
+          await protocol.protocolContract.write.setWeeklyMerkleRoot(
+            [
+              {
+                isoWeek: _week,
+                merkleRoot: `0x${merkleTree.rootHash}`,
+                merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+                validUntil: BigInt(Math.round(Date.now() / 1000) + 60 * 60 * 24 * 26)
+              }
+            ],
+            {
+              account: admin.account
+            }
+          );
+        }
+
+        const claimData = weeks.map((_week) => ({ week: _week, amount: BigInt(userClaim.amount), proofs }));
+
+        await protocol.protocolContract.write.multiClaim([claimData], { account: user.account });
+
+        const balance = await token.balanceOfProtocolERC20({ account: user.account.address });
+        expect(balance).toEqual(userClaim.amount * weeks.length);
+      });
+
+      it('does not have any effect if a single claim is invalid', async function () {
+        const latest = await time.latest();
+        const weeks = [week, '2024-W42', '2024-W43'];
+
+        for (let i = 0; i < weeks.length; i++) {
+          const _week = weeks[i];
+
+          await protocol.protocolContract.write.setWeeklyMerkleRoot(
+            [
+              {
+                isoWeek: _week,
+                merkleRoot: `0x${merkleTree.rootHash}`,
+                merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+                validUntil:
+                  i === weeks.length - 1
+                    ? // Have one claim in the past
+                      BigInt(latest + 100)
+                    : BigInt(Math.round(Date.now() / 1000) + 60 * 60 * 24 * 26)
+              }
+            ],
+            {
+              account: admin.account
+            }
+          );
+        }
+
+        await mine(10, { interval: 2000 });
+
+        const claimData = weeks.map((_week) => ({ week: _week, amount: BigInt(userClaim.amount), proofs }));
+
+        await expect(
+          protocol.protocolContract.write.multiClaim([claimData], { account: user.account })
+        ).rejects.toThrow('Claiming period expired');
+
+        const balance = await token.balanceOfProtocolERC20({ account: user.account.address });
+        expect(balance).toEqual(0);
+
+        for (const _week of weeks) {
+          const claimed = await protocol.protocolContract.read.hasClaimed([_week, user.account.address]);
+          expect(claimed).toBe(false);
+        }
+      });
+    });
+  });
+
   describe('claim', function () {
     describe('effects', function () {
       it('allows a user to claim tokens correctly', async function () {

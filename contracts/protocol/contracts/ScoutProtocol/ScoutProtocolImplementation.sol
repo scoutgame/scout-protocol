@@ -138,7 +138,6 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
     ) public view returns (bool) {
         bytes32 slot = userWeekClaimedSlot(week, account);
         return MemoryUtils._getBool(slot);
-        (slot);
     }
 
     function userWeekClaimedSlot(
