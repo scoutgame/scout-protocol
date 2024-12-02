@@ -40,16 +40,18 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
 
     // Allow the sender to claim their balance as ERC20 tokens
     function claim(
-        Claim calldata claim
+        Claim calldata claimData
     ) public onlyWhenNotPaused returns (bool) {
         // Check if the user has already claimed for the given week
         require(
-            !hasClaimed(claim.week, _msgSender()),
+            !hasClaimed(claimData.week, _msgSender()),
             "You have already claimed for this week."
         );
 
         // Get the Merkle root for the given week
-        WeeklyMerkleRoot memory weeklyMerkle = getWeeklyMerkleRoot(claim.week);
+        WeeklyMerkleRoot memory weeklyMerkle = getWeeklyMerkleRoot(
+            claimData.week
+        );
 
         // Ensure the Merkle root is set
         require(
@@ -57,29 +59,39 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
             "Merkle root for this week is not set."
         );
 
+        require(
+            weeklyMerkle.validUntil > block.timestamp,
+            "Claiming period expired"
+        );
+
         // Construct the leaf node from the user's address and the amount
-        bytes32 leaf = keccak256(abi.encodePacked(_msgSender(), claim.amount));
+        bytes32 leaf = keccak256(
+            abi.encodePacked(_msgSender(), claimData.amount)
+        );
 
         // Verify the Merkle proof
         require(
-            MerkleProof.verify(claim.proofs, weeklyMerkle.merkleRoot, leaf),
+            MerkleProof.verify(claimData.proofs, weeklyMerkle.merkleRoot, leaf),
             "Invalid Merkle proof."
         );
 
         // Mark the user as having claimed for this week
-        setClaimed(claim.week, _msgSender());
+        setClaimed(claimData.week, _msgSender());
 
         // Ensure the contract has enough tokens to fulfill the claim
         uint256 contractBalance = _getToken().balanceOf(address(this));
         require(
-            contractBalance >= claim.amount,
+            contractBalance >= claimData.amount,
             "Insufficient balance in contract."
         );
 
         ScoutTokenERC20 token = _getToken();
 
         // Transfer tokens to the user
-        token.transfer(_msgSender(), claim.amount * (10 ** token.decimals()));
+        token.transfer(
+            _msgSender(),
+            claimData.amount * (10 ** token.decimals())
+        );
 
         return true;
     }
@@ -103,7 +115,7 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         require(bytes(weeklyRoot.isoWeek).length > 0, "Invalid ISO week");
         require(
             weeklyRoot.validUntil > block.timestamp,
-            "Invalid validity period"
+            "Claiming period must be in the future"
         );
         require(weeklyRoot.merkleRoot != bytes32(0), "Invalid merkle root");
         require(

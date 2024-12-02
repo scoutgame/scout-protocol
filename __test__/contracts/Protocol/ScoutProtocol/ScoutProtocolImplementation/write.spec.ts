@@ -1,5 +1,7 @@
 import type { ProvableClaim } from '@charmverse/core/protocol';
 import { generateMerkleTree, getMerkleProofs } from '@charmverse/core/protocol';
+import { mine, time } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
+import { keccak256, randomBytes } from 'ethers';
 
 import { type ProtocolTestFixture } from '../../../../deployProtocol';
 import type { ProtocolERC20TestFixture } from '../../../../deployScoutTokenERC20';
@@ -112,6 +114,29 @@ describe('ScoutProtocolImplementation', function () {
         ).rejects.toThrow('You have already claimed for this week.');
       });
 
+      it('denies claims if user is at a time too far in the future', async function () {
+        const latestTimestamp = await time.latest();
+
+        const oldWeek = '2024-W_Expired';
+
+        await protocol.protocolContract.write.setWeeklyMerkleRoot([
+          {
+            isoWeek: oldWeek,
+            merkleRoot: `0x${merkleTree.rootHash}`,
+            merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+            validUntil: BigInt(latestTimestamp + 1000)
+          }
+        ]);
+
+        await mine(2, { interval: 2000 });
+
+        await expect(
+          protocol.protocolContract.write.claim([{ week: oldWeek, amount: BigInt(userClaim.amount), proofs }], {
+            account: user.account
+          })
+        ).rejects.toThrow('Claiming period expired');
+      });
+
       it('reverts with invalid merkle proof', async function () {
         const invalidProofs = [
           '0x11fef743eb2ba923c1ffe0641f5a75074645a3dbac802311e64110fe3ee522b7',
@@ -175,6 +200,42 @@ describe('ScoutProtocolImplementation', function () {
           merkleTreeUri: 'https://ipfs.com/gateway/<content-hash>',
           validUntil: expect.any(BigInt)
         });
+      });
+
+      it('sets the merkle root with a unique key', async function () {
+        function generateRandomMerkleHash(): string {
+          // Generate random bytes
+          const randomBytesData = randomBytes(32);
+
+          // Hash the random bytes to produce a bytes32 hash
+          const hash = keccak256(randomBytesData);
+
+          return hash;
+        }
+
+        const weekArray = Array.from({ length: 10 }, (_, i) => ({
+          isoWeek: `2024-W${i}`,
+          merkleRoot: `${generateRandomMerkleHash()}` as `0x${string}`,
+          merkleTreeUri: `https://ipfs.com/gateway/<content-hash>/${i}`,
+          validUntil: BigInt(Math.round(Date.now() / 1000) + 60 * 60 * 24 * 26)
+        }));
+
+        for (const _week of weekArray) {
+          await protocol.protocolContract.write.setWeeklyMerkleRoot([_week], {
+            account: admin.account
+          });
+        }
+
+        const merkleRoots = await Promise.all(
+          weekArray.map((_week) => protocol.protocolContract.read.getWeeklyMerkleRoot([_week.isoWeek]))
+        );
+
+        for (let i = 0; i < merkleRoots.length; i++) {
+          expect(merkleRoots[i]).toEqual(weekArray[i]);
+        }
+
+        const uniqueMerkleRoots = new Set(merkleRoots.map((root) => root.merkleRoot));
+        expect(uniqueMerkleRoots.size).toEqual(weekArray.length);
       });
     });
 
@@ -243,6 +304,21 @@ describe('ScoutProtocolImplementation', function () {
           merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
           validUntil: BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 26)
         });
+      });
+    });
+
+    describe('validations', function () {
+      it('reverts when the validUntil is in the past', async function () {
+        await expect(
+          protocol.protocolContract.write.setWeeklyMerkleRoot([
+            {
+              isoWeek: week,
+              merkleRoot: `0x${merkleTree.rootHash}`,
+              merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+              validUntil: BigInt(0)
+            }
+          ])
+        ).rejects.toThrow('Claiming period must be in the future');
       });
     });
   });
