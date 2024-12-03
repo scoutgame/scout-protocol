@@ -40,7 +40,11 @@ task('deployBuilderNFTSeasonOneStarterPack', 'Deploys or updates the BuilderNFT 
     // Deploy the implementation contract first
     console.log('Deploying the implementation contract...');
 
-    const implementation = await hre.viem.deployContract('BuilderNFTSeasonOneStarterPackImplementation01');
+    const implementation = await hre.viem.deployContract('BuilderNFTSeasonOneStarterPackImplementation01', [], {
+      client: {
+        wallet: walletClient
+      }
+    });
 
     const implementationAddress = implementation.address;
     const implementationABI = implementation.abi;

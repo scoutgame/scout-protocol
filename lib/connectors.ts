@@ -64,7 +64,18 @@ export const connectors = {
     usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
     seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
     devProxy: '0x1d305a06cb9dbdc32e08c3d230889acb9fe8a4dd',
-    testDevProxy: '0x2cba9c6e0c14da826b0ec689cabf02a6f6b9808e'
+    testDevProxy: '0x2cba9c6e0c14da826b0ec689cabf02a6f6b9808e',
+    seasonOneStarterPack: {
+      dev: {
+        starterPack: '0xd85b1e922b70f4577aeff71c027efa5b6c1c9598'
+      },
+      stg: {
+        starterPack: '0xd85b1e922b70f4577aeff71c027efa5b6c1c9598'
+      },
+      prod: {
+        starterPack: '0x66cb3bd53f899aed2306f64ec9f36987e4cc742b'
+      }
+    }
   } as Connector,
   sepolia: {
     rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
