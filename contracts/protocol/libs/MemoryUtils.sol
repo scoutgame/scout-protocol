@@ -14,8 +14,8 @@ library MemoryUtils {
     bytes32 internal constant CLAIMS_TOKEN_SLOT = keccak256("protocol.token");
     bytes32 internal constant CLAIMS_HISTORY_SLOT =
         keccak256("protocol.claimsHistory");
-    bytes32 internal constant MERKLE_ROOTS_SLOT =
-        keccak256("protocol.merkleRoots");
+    bytes32 internal constant WEEKLY_MERKLE_ROOTS_SLOT =
+        keccak256("protocol.weeklyMerkleRoots");
 
     // 3. Roles
     bytes32 internal constant ADMIN_SLOT = keccak256("common.admin");
@@ -100,5 +100,13 @@ library MemoryUtils {
 
     function _setString(bytes32 slot, string memory value) internal {
         StorageSlot.getStringSlot(slot).value = value;
+    }
+
+    function _getBytes(bytes32 slot) internal view returns (bytes memory) {
+        return StorageSlot.getBytesSlot(slot).value;
+    }
+
+    function _setBytes(bytes32 slot, bytes memory value) internal {
+        StorageSlot.getBytesSlot(slot).value = value;
     }
 }

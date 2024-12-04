@@ -19,8 +19,8 @@ contract TestMemoryUtils {
         return MemoryUtils.CLAIMS_HISTORY_SLOT;
     }
 
-    function getMerkleRootsSlot() external pure returns (bytes32) {
-        return MemoryUtils.MERKLE_ROOTS_SLOT;
+    function getWeeklyMerkleRootsSlot() external pure returns (bytes32) {
+        return MemoryUtils.WEEKLY_MERKLE_ROOTS_SLOT;
     }
 
     function getProceedsReceiverSlot() external pure returns (bytes32) {

@@ -66,11 +66,11 @@ describe('MemoryUtils', function () {
     });
   });
 
-  describe('MERKLE_ROOTS_SLOT', function () {
+  describe('WEEKLY_MERKLE_ROOTS_SLOT', function () {
     describe('returns', function () {
       it('the correct value', async function () {
-        const expectedSlot = toHex(BigInt(keccak256(toBytes('protocol.merkleRoots'))));
-        const merkleRootsSlot = await testMemoryUtils.read.getMerkleRootsSlot();
+        const expectedSlot = toHex(BigInt(keccak256(toBytes('protocol.weeklyMerkleRoots'))));
+        const merkleRootsSlot = await testMemoryUtils.read.getWeeklyMerkleRootsSlot();
         expect(merkleRootsSlot).toEqual(expectedSlot);
       });
     });

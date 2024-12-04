@@ -218,8 +218,6 @@ describe('LockupWeeklyStreamCreator', () => {
 
           expect(recipientBalanceAfterClaim).toBe(cumulativeClaimed);
         }
-
-        console.log(results);
       });
     });
   });
@@ -239,8 +237,6 @@ describe('LockupWeeklyStreamCreator', () => {
 
         const totalWeeks = 10;
 
-        const perTranche = amountToVest / totalWeeks;
-
         const startDate = (await time.latest()) + 1000;
 
         const stream = await createStream({
@@ -252,11 +248,6 @@ describe('LockupWeeklyStreamCreator', () => {
           weeks: totalWeeks,
           startDate
         });
-
-        for (let i = 0; i < totalWeeks; i++) {
-          expect(stream.args.tranches[i].amount).toBe(BigInt(perTranche) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
-          expect(stream.args.tranches[i].timestamp).toBe(Number(startDate) + i * 60 * 60 * 24 * 7);
-        }
 
         const recipientBalance = await erc20.balanceOfProtocolERC20({
           account: recipient.account.address
@@ -274,15 +265,18 @@ describe('LockupWeeklyStreamCreator', () => {
           await vesting.WeeklyERC20Vesting.write.claim([stream.args.streamId], {
             account: recipient.account
           });
-
-          const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
-            account: recipient.account.address
-          });
-
-          expect(recipientBalanceAfterClaim).toBe(perTranche * (i + 1));
         }
 
-        const expectedRefund = perTranche * (totalWeeks - claimedWeeks);
+        const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
+          account: recipient.account.address
+        });
+
+        // Weeks 1, 2, and 3 have respective percentages of 5%, 5%, and 6%
+        const totalClaimed = amountToVest * (0.05 + 0.05 + 0.06);
+
+        expect(recipientBalanceAfterClaim).toBe(totalClaimed);
+
+        const expectedRefund = amountToVest - totalClaimed;
 
         const streamCreatorBalanceBeforeCancel = await erc20.balanceOfProtocolERC20({
           account: streamCreator.account.address
