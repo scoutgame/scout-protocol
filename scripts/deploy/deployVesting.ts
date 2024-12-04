@@ -34,8 +34,8 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
   console.log('Deploying the Sablier Vesting contract...');
 
   const deployArgs = [
-    walletClient.account.address as Address,
-    connector.scoutProtocol?.prod?.scoutERC20 ?? (connector.scoutProtocol?.stg?.scoutERC20 as Address)
+    connector.scoutProtocol?.prod?.scoutERC20 ?? (connector.scoutProtocol?.stg?.scoutERC20 as Address),
+    connector.sablier?.SablierV2LockupTranched as Address
   ] as [Address, Address];
 
   const deployedSablierLockup = await hre.viem.deployContract('LockupWeeklyStreamCreator', deployArgs, {
@@ -54,7 +54,9 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
 
   console.log('Verifying implementation with etherscan');
   try {
-    execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${sablierLockupAddress}`);
+    execSync(
+      `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${sablierLockupAddress} ${deployArgs.join(' ')}`
+    );
   } catch (err) {
     console.warn('Error verifying contract', err);
   }

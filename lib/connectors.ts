@@ -111,7 +111,7 @@ export const connectors = {
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
         scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0',
         season02NFT: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c',
-        sablierLockup: '' as Address
+        sablierLockup: '0xb24d94b9a502bdcaff14649026ef8a4d91a0c85d'
       }
     },
     sablier: {

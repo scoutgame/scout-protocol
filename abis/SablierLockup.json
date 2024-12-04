@@ -1,0 +1,99 @@
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_erc20",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_lockupTranched",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "LOCKUP_TRANCHED",
+    "outputs": [
+      {
+        "internalType": "contract ISablierV2LockupTranched",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "SCOUT",
+    "outputs": [
+      {
+        "internalType": "contract IERC20",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "WEEKS_PER_STREAM",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "streamId",
+        "type": "uint256"
+      }
+    ],
+    "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "recipient",
+        "type": "address"
+      },
+      {
+        "internalType": "uint128",
+        "name": "totalAmount",
+        "type": "uint128"
+      },
+      {
+        "internalType": "uint128",
+        "name": "_startDate",
+        "type": "uint128"
+      }
+    ],
+    "name": "createStream",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "streamId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

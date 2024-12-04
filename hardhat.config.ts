@@ -31,6 +31,7 @@ import './scripts/interact/scoutProtocolToken';
 import './scripts/interact/scoutProtocolResolver';
 import './scripts/interact/updateProxyImplementation';
 import './scripts/interact/builderNftStarterPackApp';
+import './scripts/interact/vesting';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
