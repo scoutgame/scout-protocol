@@ -67,7 +67,7 @@ export const connectors = {
     testDevProxy: '0x2cba9c6e0c14da826b0ec689cabf02a6f6b9808e',
     seasonOneStarterPack: {
       dev: {
-        starterPack: '0xd85b1e922b70f4577aeff71c027efa5b6c1c9598'
+        starterPack: '0xaed6174a1936a089df22f7eaf85ffddf37bd3ff4'
       },
       stg: {
         starterPack: '0xd85b1e922b70f4577aeff71c027efa5b6c1c9598'

@@ -131,6 +131,18 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
             alreadyMinted;
     }
 
+    function _decrementTotalMinted(
+        string calldata scoutId,
+        uint256 amount
+    ) internal {
+        uint256 alreadyMinted = totalMinted(scoutId);
+        require(
+            alreadyMinted >= amount,
+            "Amount to burn exceeds already minted amount"
+        );
+        ImplementationStorage.layout().totalMinted[scoutId] -= amount;
+    }
+
     function _balanceOf(
         address account,
         uint256 id
@@ -225,7 +237,8 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
     function burn(
         address account,
         uint256 tokenId,
-        uint256 amount
+        uint256 amount,
+        string calldata scout
     ) external onlyAdmin {
         ImplementationStorage.Layout storage s = ImplementationStorage.layout();
 
@@ -240,6 +253,9 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
 
         // Decrease the total supply of the token
         s.totalSupply[tokenId] -= amount;
+
+        // Decrease the total minted amount for the scout
+        _decrementTotalMinted(scout, amount);
 
         // Emit TransferSingle event with the burn details
         emit TransferSingle(msg.sender, account, address(0), tokenId, amount);
