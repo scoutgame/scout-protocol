@@ -5,7 +5,8 @@ import path from 'node:path';
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
 import inquirer from 'inquirer';
-import { createPublicClient, createWalletClient, encodeDeployData, http, isAddress, parseAbiItem } from 'viem';
+import type { Address } from 'viem';
+import { createPublicClient, createWalletClient, http, isAddress, parseAbiItem } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
@@ -38,28 +39,11 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
   // Deploy the implementation contract first
   console.log('Deploying the implementation contract...');
 
-  const implementationArtifactPath = path.resolve(
-    __dirname,
-    '../../artifacts/contracts/protocol/ProtocolImplementation.sol/ScoutProtocolImplementation.json'
-  );
-  const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
-  const implementationBytecode = implementationArtifact.bytecode;
-  const implementationABI = implementationArtifact.abi;
-
-  // console.log(implementationABI)
-
-  const encodedImplementationData = encodeDeployData({
-    abi: implementationABI,
-    bytecode: implementationBytecode,
-    args: []
+  const deployedImplementation = await hre.viem.deployContract('ScoutProtocolImplementation', [], {
+    client: walletClient as any
   });
 
-  const implementationDeployTx = await walletClient.sendTransaction({
-    data: encodedImplementationData
-  });
-
-  const implementationReceipt = await client.waitForTransactionReceipt({ hash: implementationDeployTx });
-  const implementationAddress = implementationReceipt.contractAddress;
+  const implementationAddress = deployedImplementation.address;
 
   if (!implementationAddress) {
     throw new Error('Failed to deploy implementation contract');
@@ -77,24 +61,28 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
   }
 
   fs.writeFileSync(
-    path.resolve(__dirname, '..', '..', 'abis', 'ScoutProtocolImplementation.json'),
-    JSON.stringify(implementationArtifact.abi, null, 2)
+    path.resolve('abis', 'ScoutProtocolImplementation.json'),
+    JSON.stringify(deployedImplementation.abi, null, 2)
   );
 
   const proxyOptions = [];
 
-  if (connector.scoutgameScoutProtocolProxy) {
-    proxyOptions.push({ address: connector.scoutgameScoutProtocolProxy, env: 'prod' });
+  if (connector.scoutProtocol?.prod?.protocol) {
+    proxyOptions.push({ address: connector.scoutProtocol?.prod.protocol, env: 'prod' });
   }
 
-  if (connector.scoutgameScoutProtocolProxyDev) {
-    proxyOptions.push({ address: connector.scoutgameScoutProtocolProxyDev, env: 'dev' });
+  if (connector.scoutProtocol?.stg?.protocol) {
+    proxyOptions.push({ address: connector.scoutProtocol?.stg.protocol, env: 'stg' });
+  }
+
+  if (connector.scoutProtocol?.dev?.protocol) {
+    proxyOptions.push({ address: connector.scoutProtocol?.dev.protocol, env: 'dev' });
   }
 
   let deployNew = true;
 
   // Prompt the user to update the implementation if the proxy already exists
-  if (connector.scoutgameScoutProtocolProxy) {
+  if (proxyOptions.length > 0) {
     console.log('Proxy options:', proxyOptions);
 
     const newProxyOption = 'New Proxy';
@@ -150,14 +138,6 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
   }
 
   if (deployNew) {
-    const proxyArtifactPath = path.resolve(
-      __dirname,
-      '../../artifacts/contracts/protocol/ScoutProtocolProxy.sol/ScoutProtocolProxy.json'
-    );
-    const proxyArtifact = JSON.parse(fs.readFileSync(proxyArtifactPath, 'utf8'));
-    const proxyBytecode = proxyArtifact.bytecode;
-    const proxyABI = proxyArtifact.abi;
-
     const { paymentTokenAddress } = await inquirer.prompt([
       {
         type: 'input',
@@ -171,24 +151,12 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
       throw new Error('Payment token address (Scout ERC20 contract) not specified in the connector');
     }
 
-    const deployArgs = [implementationAddress, paymentTokenAddress];
+    const deployArgs = [implementationAddress, paymentTokenAddress] as [Address, Address];
 
-    const encodedProxyData = encodeDeployData({
-      abi: proxyABI,
-      bytecode: proxyBytecode,
-      args: deployArgs
+    const deployedProxy = await hre.viem.deployContract('ScoutProtocolProxy', deployArgs, {
+      client: walletClient as any
     });
-
-    const gasPrice = await client.getGasPrice();
-
-    const proxyDeployTx = await walletClient.sendTransaction({
-      data: encodedProxyData,
-      gasPrice
-    });
-
-    const proxyReceipt = await client.waitForTransactionReceipt({ hash: proxyDeployTx });
-
-    const proxyAddress = proxyReceipt.contractAddress;
+    const proxyAddress = deployedProxy.address;
 
     if (!proxyAddress) {
       throw new Error(`Failed to deploy proxy`);
@@ -205,10 +173,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
       console.warn('Error verifying contract', err);
     }
 
-    fs.writeFileSync(
-      path.resolve(__dirname, '..', '..', 'abis', 'ScoutProtocolProxy.json'),
-      JSON.stringify(proxyArtifact.abi, null, 2)
-    );
+    fs.writeFileSync(path.resolve('abis', 'ScoutProtocolProxy.json'), JSON.stringify(deployedProxy.abi, null, 2));
   }
 
   console.log('Deployment and update process completed.');

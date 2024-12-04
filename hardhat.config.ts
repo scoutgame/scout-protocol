@@ -1,6 +1,7 @@
 import { vars } from 'hardhat/config';
 import type { HardhatUserConfig } from 'hardhat/config';
 
+import 'solidity-coverage';
 import '@nomicfoundation/hardhat-ethers';
 import '@nomicfoundation/hardhat-ignition-viem';
 import '@nomicfoundation/hardhat-toolbox-viem';
@@ -21,6 +22,7 @@ import './scripts/deploy/deployScoutGameErc20';
 import './scripts/deploy/deployScoutProtocol';
 import './scripts/deploy/deployEASSchemas';
 import './scripts/deploy/nfts/deployBuilderNftStarterPack';
+import './scripts/deploy/deployVesting';
 
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';
@@ -81,8 +83,7 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
       basesepolia: {
         url: connectors.basesepolia.rpcUrl,
         accounts: [PRIVATE_KEY],
-        gasPrice: 4e8,
-        gas: 1e9
+        gasPrice: 4e8
       },
       base: {
         url: connectors.basesepolia.rpcUrl,

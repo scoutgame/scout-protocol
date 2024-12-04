@@ -26,6 +26,10 @@ type Connector = {
   easAttestationContract?: Address | null;
   scoutgameBuilderNftSeason02?: ContractDeployment<'proxy'>;
   seasonOneStarterPack?: ContractDeployment<'starterPack'>;
+  sablier?: {
+    SablierV2LockupTranched: Address | null;
+  };
+  scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'scoutERC20' | 'season02NFT' | 'sablierLockup'>;
   scoutgameEASResolver?: Address | null;
   scoutgameErc20TokenDev?: Address | null;
   scoutgameScoutProtocolProxyDev?: Address | null;
@@ -100,7 +104,20 @@ export const connectors = {
     scoutgameErc20TokenDev: '0x8a392ed8dafd051998fcba376468c6e2992b92f0',
     scoutgameScoutProtocolProxyDev: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
     easAttestationContract: '0x4200000000000000000000000000000000000021',
-    easBaseUrl: 'https://base-sepolia.easscan.org'
+    easBaseUrl: 'https://base-sepolia.easscan.org',
+    scoutProtocol: {
+      stg: {
+        protocol: '0x2271eac711b718110996c2a5dceb3d50eca942b2',
+        easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
+        scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0',
+        season02NFT: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c',
+        sablierLockup: '' as Address
+      }
+    },
+    sablier: {
+      // https://docs.sablier.com/contracts/v2/deployments#base-sepolia
+      SablierV2LockupTranched: '0xb8c724df3eC8f2Bf8fA808dF2cB5dbab22f3E68c'
+    }
   } as Connector,
   base: {
     rpcUrl: 'https://mainnet.base.org',

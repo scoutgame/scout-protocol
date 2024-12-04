@@ -52,6 +52,19 @@
   },
   {
     "inputs": [],
+    "name": "acceptUpgrade",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "admin",
     "outputs": [
       {
@@ -66,19 +79,26 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "week",
-        "type": "string"
-      },
-      {
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "proofs",
-        "type": "bytes32[]"
+        "components": [
+          {
+            "internalType": "string",
+            "name": "week",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "proofs",
+            "type": "bytes32[]"
+          }
+        ],
+        "internalType": "struct ScoutProtocolImplementation.Claim",
+        "name": "claimData",
+        "type": "tuple"
       }
     ],
     "name": "claim",
@@ -113,12 +133,34 @@
         "type": "string"
       }
     ],
-    "name": "getMerkleRoot",
+    "name": "getWeeklyMerkleRoot",
     "outputs": [
       {
-        "internalType": "bytes32",
+        "components": [
+          {
+            "internalType": "string",
+            "name": "isoWeek",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "validUntil",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "merkleRoot",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "merkleTreeUri",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct ScoutProtocolImplementation.WeeklyMerkleRoot",
         "name": "",
-        "type": "bytes32"
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -162,6 +204,36 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "week",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "proofs",
+            "type": "bytes32[]"
+          }
+        ],
+        "internalType": "struct ScoutProtocolImplementation.Claim[]",
+        "name": "claims",
+        "type": "tuple[]"
+      }
+    ],
+    "name": "multiClaim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "pause",
     "outputs": [],
@@ -171,6 +243,19 @@
   {
     "inputs": [],
     "name": "pauser",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "scoutTokenERC20",
     "outputs": [
       {
         "internalType": "address",
@@ -197,17 +282,12 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "week",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "merkleRoot",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "_newPauser",
+        "type": "address"
       }
     ],
-    "name": "setMerkleRoot",
+    "name": "setPauser",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -216,12 +296,53 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_newPauser",
+        "name": "token",
         "type": "address"
       }
     ],
-    "name": "setPauser",
+    "name": "setScoutTokenERC20",
     "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "string",
+            "name": "isoWeek",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "validUntil",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "merkleRoot",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "string",
+            "name": "merkleTreeUri",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct ScoutProtocolImplementation.WeeklyMerkleRoot",
+        "name": "weeklyRoot",
+        "type": "tuple"
+      }
+    ],
+    "name": "setWeeklyMerkleRoot",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "function"
   },
