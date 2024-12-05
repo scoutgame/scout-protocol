@@ -125,10 +125,7 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         string calldata scoutId,
         uint256 amount
     ) internal {
-        uint256 alreadyMinted = totalMinted(scoutId);
-        ImplementationStorage.layout().totalMinted[scoutId] +=
-            amount +
-            alreadyMinted;
+        ImplementationStorage.layout().totalMinted[scoutId] += amount;
     }
 
     function _decrementTotalMinted(
