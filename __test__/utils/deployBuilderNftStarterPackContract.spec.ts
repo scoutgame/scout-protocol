@@ -15,7 +15,7 @@ describe('Proxy and Initialization', function () {
 
     const proxyAdmin = await builderProxyContract.read.admin();
     const proxyImplementation = await builderProxyContract.read.implementation();
-    const erc20Contract = await builderNftContract.read.getERC20ContractV2();
+    const erc20Contract = await builderNftContract.read.getERC20Contract();
 
     expect(proxyAdmin).toBe(getAddress(builderNftAdminAccount.account.address));
     expect(proxyImplementation).not.toBe(NULL_ADDRESS);

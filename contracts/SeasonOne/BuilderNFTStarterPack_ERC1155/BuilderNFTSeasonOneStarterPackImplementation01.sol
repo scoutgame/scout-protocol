@@ -324,7 +324,15 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         _getBuilderIdForToken(tokenId);
     }
 
-    function getERC20ContractV2() external view returns (address) {
+    function updateERC20Contract(address newContract) external onlyAdmin {
+        require(newContract != address(0), "Invalid address");
+        MemoryUtils.setAddress(
+            MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT,
+            newContract
+        );
+    }
+
+    function getERC20Contract() external view returns (address) {
         return MemoryUtils.getAddress(MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT);
     }
 

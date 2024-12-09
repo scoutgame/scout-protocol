@@ -77,7 +77,7 @@ export const connectors = {
         starterPack: '0xd85b1e922b70f4577aeff71c027efa5b6c1c9598'
       },
       prod: {
-        starterPack: '0x66cb3bd53f899aed2306f64ec9f36987e4cc742b'
+        starterPack: '0xd0b718589a51b07d05f03b8150e830d3627da972'
       }
     }
   } as Connector,
