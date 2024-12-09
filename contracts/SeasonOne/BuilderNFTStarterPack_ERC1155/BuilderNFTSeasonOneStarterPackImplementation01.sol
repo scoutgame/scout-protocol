@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 library ImplementationStorage {
     struct Layout {
         mapping(uint256 => mapping(address => uint256)) balances;
+        mapping(uint256 => mapping(string => uint256)) scoutBalances;
         mapping(string => uint256) totalMinted;
         mapping(uint256 => uint256) totalSupply;
         mapping(uint256 => string) tokenToBuilderRegistry;
@@ -115,29 +116,45 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         return _balanceOf(account, id);
     }
 
-    function totalMinted(
-        string calldata scoutId
+    function balanceOfScout(
+        string calldata scout,
+        uint256 tokenId
     ) public view returns (uint256) {
-        return ImplementationStorage.layout().totalMinted[scoutId];
+        return ImplementationStorage.layout().scoutBalances[tokenId][scout];
+    }
+
+    function scoutHasMintedNft(
+        address account,
+        uint256 id
+    ) internal view returns (bool) {
+        return _balanceOf(account, id) > 0;
+    }
+
+    function totalMinted(string calldata scout) public view returns (uint256) {
+        return ImplementationStorage.layout().totalMinted[scout];
     }
 
     function _incrementTotalMinted(
-        string calldata scoutId,
-        uint256 amount
+        string calldata scout,
+        uint256 amount,
+        uint256 tokenId
     ) internal {
-        ImplementationStorage.layout().totalMinted[scoutId] += amount;
+        ImplementationStorage.layout().totalMinted[scout] += amount;
+        ImplementationStorage.layout().scoutBalances[tokenId][scout] += amount;
     }
 
     function _decrementTotalMinted(
-        string calldata scoutId,
-        uint256 amount
+        string calldata scout,
+        uint256 amount,
+        uint256 tokenId
     ) internal {
-        uint256 alreadyMinted = totalMinted(scoutId);
+        uint256 alreadyMinted = totalMinted(scout);
         require(
             alreadyMinted >= amount,
             "Amount to burn exceeds already minted amount"
         );
-        ImplementationStorage.layout().totalMinted[scoutId] -= amount;
+        ImplementationStorage.layout().totalMinted[scout] -= amount;
+        ImplementationStorage.layout().scoutBalances[tokenId][scout] -= amount;
     }
 
     function _balanceOf(
@@ -252,7 +269,7 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         s.totalSupply[tokenId] -= amount;
 
         // Decrease the total minted amount for the scout
-        _decrementTotalMinted(scout, amount);
+        _decrementTotalMinted(scout, amount, tokenId);
 
         // Emit TransferSingle event with the burn details
         emit TransferSingle(msg.sender, account, address(0), tokenId, amount);
@@ -291,7 +308,7 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         // Update total supply
         s.totalSupply[tokenId] += amount;
 
-        _incrementTotalMinted(scout, amount);
+        _incrementTotalMinted(scout, amount, tokenId);
 
         // Emit TransferSingle event
         emit TransferSingle(msg.sender, address(0), account, tokenId, amount);
@@ -306,8 +323,13 @@ contract BuilderNFTSeasonOneStarterPackImplementation01 is
         uint256 amount,
         string calldata scout
     ) internal view {
-        require(account != address(0), "Invalid account address");
         require(_isValidUUID(scout), "Scout must be a valid UUID");
+        require(amount == 1, "Can only mint 1 token per builder and scout");
+        require(
+            balanceOfScout(scout, tokenId) == 0,
+            "Scout already minted this NFT"
+        );
+        require(account != address(0), "Invalid account address");
 
         uint256 MAX_MINT_AMOUNT = 3;
 
