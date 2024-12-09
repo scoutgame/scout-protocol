@@ -120,18 +120,6 @@ contract BuilderNFTSeasonOneStarterPackUpgradeable {
         return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
     }
 
-    function updateERC20Contract(address newContract) external onlyAdmin {
-        require(newContract != address(0), "Invalid address");
-        MemoryUtils.setAddress(
-            MemoryUtils.PAYMENT_ERC20_TOKEN_SLOT,
-            newContract
-        );
-    }
-
-    function getERC20Contract() external view returns (uint256) {
-        return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
-    }
-
     // Helper function to extract revert message from delegatecall
     function _getRevertMsg(
         bytes memory _returnData

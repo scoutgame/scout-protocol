@@ -134,14 +134,14 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
     });
   });
 
-  describe('getERC20ContractV2()', function () {
+  describe('getERC20Contract()', function () {
     it('Returns the address of USDC contract', async function () {
       const {
         builderNftStarterPack: { builderNftContract },
         usdc: { USDC }
       } = await loadContractWithStarterPackFixtures();
 
-      const paymentTokenAddress = await builderNftContract.read.getERC20ContractV2();
+      const paymentTokenAddress = await builderNftContract.read.getERC20Contract();
 
       expect(paymentTokenAddress).toBe(getAddress(USDC.address));
     });

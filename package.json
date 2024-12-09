@@ -8,17 +8,21 @@
     "setkey": "npx hardhat vars set PRIVATE_KEY",
     "compile": "npx hardhat compile",
     "deploybuilders": "npm run compile && npx hardhat deployBuilderNFTSeasonOne --network",
+    "deploybuilders:s02": "npm run compile && npx hardhat deployBuilderNFTSeason02 --network",
     "deploybuilders:starterpack": "npm run compile && npx hardhat deployBuilderNFTSeasonOneStarterPack --network",
     "proxy:update": "npx hardhat updateProxyImplementation --network",
     "scout:deploy:erc20": "npx hardhat deployScoutGameERC20 --network",
     "scout:deploy:schemas": "npx hardhat deployEASSchemas --network",
     "scout:deploy:protocol": "npx hardhat deployScoutProtocol --network",
+    "scout:deploy:vesting": "npx hardhat deployVesting --network",
     "scout:protocol": "npx hardhat interactProtocol --network",
     "scout:erc20": "npx hardhat interactProtocolERC20Token --network",
     "scout:easresolver": "npx hardhat interactProtocolEASResolver --network",
+    "scout:vesting": "npx hardhat interactSablierVesting --network",
     "buildernft": "npx hardhat interactBuilderNFT --network",
     "buildernft:starterpack": "npx hardhat interactBuilderNFTStarterPack --network",
-    "build:api": "npx tsx lib/generateApiClient.ts"
+    "build:api": "npx tsx lib/generateApiClient.ts",
+    "coverage": "SOLIDITY_COVERAGE=true TS_NODE_TRANSPILE_ONLY=true npx hardhat coverage --sources protocol"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
@@ -59,6 +63,7 @@
     "dotenv-cli": "^7.4.2",
     "hardhat-jest": "^1.0.8",
     "inquirer": "^11.0.1",
+    "solidity-coverage": "^0.8.14",
     "uuid": "^10.0.0",
     "viem": "^2.21.9"
   },

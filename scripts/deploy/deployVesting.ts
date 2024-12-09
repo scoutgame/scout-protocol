@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
+import type { Address } from 'viem';
 import { createWalletClient, http } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
@@ -15,7 +16,7 @@ const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
-task('deployScoutGameERC20', 'Deploys or updates the Scout Game ERC20 contract').setAction(async (taskArgs, hre) => {
+task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setAction(async (taskArgs, hre) => {
   const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
   await hre.run('compile');
@@ -30,35 +31,39 @@ task('deployScoutGameERC20', 'Deploys or updates the Scout Game ERC20 contract')
   console.log('Using account:', account.address, 'on chain:', connector.chain.name);
 
   // Deploy the implementation contract first
-  console.log('Deploying the ERC20 contract...');
+  console.log('Deploying the Sablier Vesting contract...');
 
-  const deployedErc20 = await hre.viem.deployContract('ScoutTokenERC20', [walletClient.account.address], {
+  const deployArgs = [
+    connector.scoutProtocol?.prod?.scoutERC20 ?? (connector.scoutProtocol?.stg?.scoutERC20 as Address),
+    connector.sablier?.SablierV2LockupTranched as Address
+  ] as [Address, Address];
+
+  const deployedSablierLockup = await hre.viem.deployContract('LockupWeeklyStreamCreator', deployArgs, {
     client: walletClient as any
   });
 
-  const erc20Address = deployedErc20.address;
+  const sablierLockupAddress = deployedSablierLockup.address;
 
-  if (!erc20Address) {
+  if (!sablierLockupAddress) {
     throw new Error('Failed to deploy erc20 contract');
   }
 
-  console.log('Implementation contract deployed at address:', erc20Address);
+  console.log('Implementation contract deployed at address:', sablierLockupAddress);
 
   // Verify contract in the explorer
 
   console.log('Verifying implementation with etherscan');
   try {
-    execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${erc20Address}`);
+    execSync(
+      `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${sablierLockupAddress} ${deployArgs.join(' ')}`
+    );
   } catch (err) {
     console.warn('Error verifying contract', err);
   }
 
   console.log('Writing ABI to file');
 
-  fs.writeFileSync(
-    path.resolve(__dirname, '..', '..', 'abis', 'ScoutTokenERC20.json'),
-    JSON.stringify(deployedErc20.abi, null, 2)
-  );
+  fs.writeFileSync(path.resolve('abis', 'SablierLockup.json'), JSON.stringify(deployedSablierLockup.abi, null, 2));
 
   console.log('Complete');
 });

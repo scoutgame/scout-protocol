@@ -450,8 +450,9 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
       const scoutId = uuid();
 
-      const tokenAmount = BigInt(3);
-      const price = await builderNftContract.read.getTokenPurchasePrice([tokenAmount]);
+      const tokenAmount = BigInt(1);
+      const purchases = BigInt(3);
+      const price = (await builderNftContract.read.getTokenPurchasePrice([tokenAmount])) * purchases;
 
       await mintUSDCTo({
         account: secondUserAccount.account.address,
@@ -463,11 +464,13 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
         args: { spender: builderNftContract.address, amount: Number(price) }
       });
 
-      await expect(
-        builderNftContract.write.mint([testUserAddress, tokenId, tokenAmount, scoutId], {
-          account: secondUserAccount.account
-        })
-      ).resolves.toBeDefined();
+      for (let i = 0; i < purchases; i++) {
+        await expect(
+          builderNftContract.write.mint([testUserAddress, tokenId, tokenAmount, scoutId], {
+            account: secondUserAccount.account
+          })
+        ).resolves.toBeDefined();
+      }
 
       await expect(
         builderNftContract.write.mint([testUserAddress, secondTokenId, tokenAmount, scoutId], {
@@ -488,9 +491,10 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
       });
 
       const secondScoutId = uuid();
+      const secondScoutBalance = BigInt(3);
 
       await expect(
-        builderNftContract.write.mint([otherUser.account.address, secondTokenId, tokenAmount, secondScoutId], {
+        builderNftContract.write.mint([otherUser.account.address, secondTokenId, secondScoutBalance, secondScoutId], {
           account: otherUser.account
         })
       ).resolves.toBeDefined();
@@ -502,7 +506,7 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
       ).rejects.toThrow('Amount exceeds max mint amount');
 
       const balance = await builderNftContract.read.balanceOf([otherUser.account.address, secondTokenId]);
-      expect(balance).toBe(tokenAmount);
+      expect(balance).toBe(secondScoutBalance);
     });
   });
 

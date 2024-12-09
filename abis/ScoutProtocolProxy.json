@@ -39,19 +39,6 @@
   },
   {
     "inputs": [],
-    "name": "getERC20Contract",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "getPriceIncrement",
     "outputs": [
       {
@@ -157,19 +144,6 @@
         "type": "address"
       }
     ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newContract",
-        "type": "address"
-      }
-    ],
-    "name": "updateERC20Contract",
-    "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },

@@ -17,7 +17,7 @@ const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
-task('deployBuilderNFTSeasonOneStarterPack', 'Deploys or updates the BuilderNFT Season 02 contracts').setAction(
+task('deployBuilderNFTSeasonOneStarterPack', 'Deploys or updates the BuilderNFT Starter Pack contracts').setAction(
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
@@ -66,21 +66,20 @@ task('deployBuilderNFTSeasonOneStarterPack', 'Deploys or updates the BuilderNFT 
 
     let deployNew = true;
 
-    // Prompt the user to update the implementation if the proxy already exists
-    if (connector.seasonOneStarterPack?.prod?.starterPack) {
-      const proxyOptions = [];
+    const proxyOptions = [];
 
-      const devProxy = connector.seasonOneStarterPack.dev?.starterPack;
-      if (devProxy) {
-        proxyOptions.push({ address: devProxy, env: 'prod' });
+    if (connector.seasonOneStarterPack) {
+      if (connector.seasonOneStarterPack.dev?.starterPack) {
+        proxyOptions.push({ address: connector.seasonOneStarterPack.dev.starterPack, env: 'dev' });
       }
 
-      const prodProxy = connector.seasonOneStarterPack.prod?.starterPack;
-      if (prodProxy) {
-        proxyOptions.push({ address: prodProxy, env: 'prod' });
+      if (connector.seasonOneStarterPack.stg?.starterPack) {
+        proxyOptions.push({ address: connector.seasonOneStarterPack.stg.starterPack, env: 'stg' });
       }
 
-      console.log('Proxy options:', proxyOptions);
+      if (connector.seasonOneStarterPack.prod?.starterPack) {
+        proxyOptions.push({ address: connector.seasonOneStarterPack.prod.starterPack, env: 'prod' });
+      }
 
       const newProxyOption = 'New Proxy';
 

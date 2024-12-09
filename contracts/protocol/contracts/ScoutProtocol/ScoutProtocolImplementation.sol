@@ -182,6 +182,12 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }
 
+    function setScoutTokenERC20(address token) external onlyAdmin {
+        require(token != address(0), "Invalid token address");
+        require(MemoryUtils._isContract(token), "Token is not a contract");
+        MemoryUtils._setAddress(MemoryUtils.CLAIMS_TOKEN_SLOT, token);
+    }
+
     function _getMerkleRootSlot(
         string memory week
     ) internal pure returns (bytes32) {
