@@ -1,11 +1,12 @@
 import fs from 'fs';
 import path from 'path';
 
-import inquirer from 'inquirer';
+import { log } from '@charmverse/core/log';
+import type { Abi } from 'viem';
 
 // Helper to convert Solidity types to TypeScript types
 function solidityTypeToTsType(solType: string): string {
-  if (solType === 'address') return 'string';
+  if (solType === 'address') return 'Address';
   if (solType.startsWith('uint') || solType.startsWith('int')) return 'BigInt';
   if (solType === 'bool') return 'boolean';
   if (solType === 'string') return 'string';
@@ -26,10 +27,10 @@ function generateMethodImplementation(abiItem: any): string {
   const inputNames = inputs.map((input: any) => `params.args.${input.name}`).join(', ');
 
   // Function to handle the output parsing based on ABI output types
-  function getReturnType(outputs: any[]): string {
-    if (!outputs.length) return 'null';
-    if (outputs.length === 1) return solidityTypeToTsType(outputs[0].type);
-    return `{ ${outputs.map((output: any, i: number) => `${output.name || `output${i}`}: ${solidityTypeToTsType(output.type)}`).join(', ')} }`;
+  function getReturnType(returnOutputs: any[]): string {
+    if (!returnOutputs.length) return 'null';
+    if (returnOutputs.length === 1) return solidityTypeToTsType(returnOutputs[0].type);
+    return `{ ${returnOutputs.map((output: any, i: number) => `${output.name || `output${i}`}: ${solidityTypeToTsType(output.type)}`).join(', ')} }`;
   }
 
   const isReadOperation = abiItem.stateMutability === 'view' || abiItem.stateMutability === 'pure';
@@ -104,16 +105,31 @@ function generateMethodImplementation(abiItem: any): string {
 }
 
 // Main function to generate the API client
-async function generateApiClient({
+export async function generateApiClient({
   abi,
   selectedFunctionIndices,
   abiPath
 }: {
-  abi: any[];
-  selectedFunctionIndices: number[];
+  abi: Abi;
+  selectedFunctionIndices?: number[];
   abiPath: string;
 }) {
-  const selectedFunctions = selectedFunctionIndices.map((index) => abi[index]);
+  // If no selectedFunctionIndices are provided, select all functions
+
+  const selectedFunctions = (
+    !selectedFunctionIndices
+      ? Array.from({ length: abi.length }).map((_, index) => abi[index])
+      : selectedFunctionIndices.map((index) => abi[index])
+  ).filter((value) => {
+    if (value.type === 'function' && value.inputs.every((input) => !!input.name)) {
+      return true;
+    } else if (value.type === 'function') {
+      log.warn(`Function ${value.name} has unnamed inputs. Skipping...`);
+    }
+    return false;
+  });
+
+  const events = abi.filter((value) => value.type === 'event');
 
   const apiClientName = `${abiPath.split('/').pop()?.replace('.json', '')}Client`;
 
@@ -143,7 +159,7 @@ async function generateApiClient({
     private walletClient?: ReadWriteWalletClient;
     private chain: Chain;
 
-    public abi: Abi = ${JSON.stringify(selectedFunctions, null, 2)};
+    public abi: Abi = ${JSON.stringify([...selectedFunctions, ...events], null, 2)};
 
     constructor({
       contractAddress,
@@ -190,7 +206,7 @@ async function generateApiClient({
 }
 
 // Function to load the ABI from a file
-function loadAbiFromFile(abiFilePath: string): any[] {
+export function loadAbiFromFile(abiFilePath: string): any[] {
   try {
     const resolvedPath = path.resolve(abiFilePath);
     if (!fs.existsSync(resolvedPath)) {
@@ -213,80 +229,3 @@ function loadAbiFromFile(abiFilePath: string): any[] {
     throw new Error(`Failed to load ABI: ${error}`);
   }
 }
-
-// Main execution flow
-async function main() {
-  // Ask the user for the ABI file path
-  const { abiFilePath } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'abiFilePath',
-      message: 'Enter the path to the ABI file:',
-      validate: (input: string) => (input.length > 0 ? true : 'ABI file path cannot be empty')
-    }
-  ]);
-
-  // Load ABI from the file
-  let abi: any[] = [];
-  try {
-    abi = loadAbiFromFile(abiFilePath);
-  } catch (error) {
-    console.error(error);
-    return;
-  }
-
-  // Display available contract methods
-  console.log('Available contract methods:');
-  abi.forEach((method, index) => {
-    console.log(`${index + 1}. ${method.name} (${method.stateMutability})`);
-  });
-
-  // Ask the user which functions to include
-  const { functionIndices } = await inquirer.prompt([
-    {
-      type: 'input',
-      name: 'functionIndices',
-      message: 'Enter the numbers of the functions you want in the API client, separated by commas:',
-      validate: (input) => {
-        const indices = input.split(',').map(Number);
-        return indices.every((index) => index > 0 && index <= abi.length) ? true : 'Invalid function number(s)';
-      }
-    }
-  ]);
-
-  // Map selected functions and display them for confirmation
-  const selectedFunctionIndices = functionIndices
-    .split(',')
-    .map((num: string) => parseInt(num.trim(), 10) - 1) as number[];
-  const selectedFunctions = selectedFunctionIndices.map((index) => ({
-    index: index + 1, // +1 to display correct user-facing index
-    name: abi[index].name,
-    stateMutability: abi[index].stateMutability
-  }));
-
-  // Display selected methods to the user
-  console.log('\nYou have selected the following methods:');
-  selectedFunctions.forEach((method) => {
-    console.log(`${method.index}. ${method.name} (${method.stateMutability})`);
-  });
-
-  // Ask for confirmation
-  const { confirmSelection } = await inquirer.prompt([
-    {
-      type: 'confirm',
-      name: 'confirmSelection',
-      message: 'Do you want to proceed with these methods?'
-    }
-  ]);
-
-  if (!confirmSelection) {
-    console.log('\nRestarting selection process...\n');
-    return main(); // Restart the process if the user says no
-  }
-
-  // Generate the API client with the selected functions
-  await generateApiClient({ abi, selectedFunctionIndices, abiPath: abiFilePath });
-}
-
-// Run the script
-main();

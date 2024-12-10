@@ -22,7 +22,8 @@
     "buildernft": "npx hardhat interactBuilderNFT --network",
     "buildernft:starterpack": "npx hardhat interactBuilderNFTStarterPack --network",
     "buildernft:season02": "npx hardhat interactBuilderNFTSeason02 --network",
-    "build:api": "npx tsx lib/generateApiClient.ts",
+    "build:api:all": "npx tsx scripts/utility/generateAllApiClients.ts && npx eslint lib/apiClients --fix",
+    "build:api": "npx tsx scripts/utility/generateApiClient.ts",
     "coverage": "SOLIDITY_COVERAGE=true TS_NODE_TRANSPILE_ONLY=true npx hardhat coverage --sources protocol"
   },
   "devDependencies": {
@@ -52,7 +53,7 @@
     "typechain": "^8.3.2"
   },
   "dependencies": {
-    "@charmverse/core": "^0.94.1-rc-weekly-claims.10",
+    "@charmverse/core": "^0.98.6",
     "@ethereum-attestation-service/eas-contracts": "^1.7.1",
     "@ethereum-attestation-service/eas-sdk": "^2.7.0",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
