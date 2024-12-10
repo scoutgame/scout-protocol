@@ -21,7 +21,7 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
       await builderNftContract.write.registerBuilderToken([builderId, tokenId]);
 
       const scoutId = uuid();
-      const amount = BigInt(2);
+      const amount = BigInt(1);
       const price = await builderNftContract.read.getTokenPurchasePrice([amount]);
 
       await mintUSDCTo({
@@ -75,7 +75,7 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
       await builderNftContract.write.registerBuilderToken([builderId1, tokenId1]);
       await builderNftContract.write.registerBuilderToken([builderId2, tokenId2]);
 
-      const amount1 = BigInt(2);
+      const amount1 = BigInt(1);
       const amount2 = BigInt(1);
 
       const price1 = await builderNftContract.read.getTokenPurchasePrice([amount1]);
@@ -171,7 +171,7 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
       expect(priceForThreeTokens).toBe(BigInt(6e6));
 
-      const minted = BigInt(3);
+      const minted = BigInt(1);
 
       await builderNftContract.write.mintTo([userAccount.account.address, tokenId, minted, builderId], {
         account: builderNftAdminAccount.account
@@ -209,7 +209,7 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
       await builderNftContract.write.registerBuilderToken([builderId, tokenId]);
 
       const scoutId = uuid();
-      const amount = BigInt(2);
+      const amount = BigInt(1);
       const price = await builderNftContract.read.getTokenPurchasePrice([amount]);
 
       await mintUSDCTo({

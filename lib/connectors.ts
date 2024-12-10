@@ -24,7 +24,6 @@ type Connector = {
   testDevProxy?: Address | null;
   easBaseUrl?: string;
   easAttestationContract?: Address | null;
-  scoutgameBuilderNftSeason02?: ContractDeployment<'proxy'>;
   seasonOneStarterPack?: ContractDeployment<'starterPack'>;
   sablier?: {
     SablierV2LockupTranched: Address | null;

@@ -995,4 +995,31 @@ describe('BuilderNFTSeason02Implementation', function () {
       });
     });
   });
+
+  describe('setBaseUri()', function () {
+    const newBaseUri = 'https://newbase.uri';
+    const uriSuffix = 'metadata.json';
+    describe('effects', function () {
+      it('Updates the base URI when called with a valid newBaseUri', async function () {
+        await expect(
+          builderNftSeason02.builderNftContract.write.setBaseUri([newBaseUri, uriSuffix], {
+            account: erc1155AdminAccount.account
+          })
+        ).resolves.toBeDefined();
+
+        const uri = await builderNftSeason02.builderNftContract.read.uri([BigInt(1)]);
+        expect(uri).toEqual(`${newBaseUri}/${1}/${uriSuffix}`);
+      });
+    });
+
+    describe('permissions', function () {
+      it('Only admin can set the base URI', async function () {
+        await expect(
+          builderNftSeason02.builderNftContract.write.setBaseUri([newBaseUri, uriSuffix], {
+            account: userAccount.account
+          })
+        ).rejects.toThrow('Caller is not the admin');
+      });
+    });
+  });
 });
