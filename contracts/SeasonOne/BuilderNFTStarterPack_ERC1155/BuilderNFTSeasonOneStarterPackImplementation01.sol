@@ -12,7 +12,6 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 library ImplementationStorage {
     struct Layout {
         mapping(uint256 => mapping(address => uint256)) balances;
-        mapping(uint256 => mapping(string => uint256)) scoutBalances;
         mapping(string => uint256) totalMinted;
         mapping(uint256 => uint256) totalSupply;
         mapping(uint256 => string) tokenToBuilderRegistry;
@@ -21,6 +20,7 @@ library ImplementationStorage {
         string uriPrefix;
         string uriSuffix;
         uint256 totalBuilders;
+        mapping(uint256 => mapping(string => uint256)) scoutBalances;
     }
 
     bytes32 internal constant STORAGE_SLOT =
