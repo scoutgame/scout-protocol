@@ -307,7 +307,7 @@ describe('BuilderNFTSeason02Implementation', function () {
         const tokenId = BigInt(1);
 
         // Set the URI prefix and suffix
-        await builderNftContract.write.setTokenURI([prefix, suffix]);
+        await builderNftContract.write.setBaseUri([prefix, suffix]);
 
         const uri = await builderNftContract.read.uri([tokenId]);
 
@@ -325,7 +325,7 @@ describe('BuilderNFTSeason02Implementation', function () {
         const tokenId = BigInt(1);
 
         // Set the URI prefix and suffix
-        await builderNftContract.write.setTokenURI([prefix, suffix]);
+        await builderNftContract.write.setBaseUri([prefix, suffix]);
 
         const uri = await builderNftContract.read.tokenURI([tokenId]);
 

@@ -217,6 +217,30 @@
   {
     "inputs": [
       {
+        "internalType": "string",
+        "name": "scout",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "balanceOfScout",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "account",
         "type": "address"
@@ -266,9 +290,9 @@
     "name": "getERC20Contract",
     "outputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "",
-        "type": "uint256"
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -690,7 +714,7 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "scoutId",
+        "name": "scout",
         "type": "string"
       }
     ],
