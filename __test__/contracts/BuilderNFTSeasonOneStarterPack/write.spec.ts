@@ -447,6 +447,48 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
         ).rejects.toThrow('Can only mint 1 token per builder and scout');
       });
 
+      it('Reverts if user already minted a specific NFT', async function () {
+        const {
+          builderNftStarterPack: { builderNftContract },
+          usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER }
+        } = await loadContractWithStarterPackFixtures();
+
+        const { secondUserAccount } = await generateWallets();
+
+        const testUserAddress = secondUserAccount.account.address;
+
+        const builderId = uuid();
+        const tokenId = randomBigIntFromInterval();
+        await builderNftContract.write.registerBuilderToken([builderId, tokenId]);
+
+        const scoutId = uuid();
+
+        const tokenAmount = BigInt(1);
+        const price = await builderNftContract.read.getTokenPurchasePrice([tokenAmount]);
+
+        await mintUSDCTo({
+          account: secondUserAccount.account.address,
+          amount: Number(price / USDC_DECIMALS_MULTIPLIER) * 2
+        });
+
+        await approveUSDC({
+          wallet: secondUserAccount,
+          args: { spender: builderNftContract.address, amount: Number(price) }
+        });
+
+        await expect(
+          builderNftContract.write.mint([testUserAddress, tokenId, tokenAmount, scoutId], {
+            account: secondUserAccount.account
+          })
+        ).resolves.toBeDefined();
+
+        await expect(
+          builderNftContract.write.mint([testUserAddress, tokenId, tokenAmount, scoutId], {
+            account: secondUserAccount.account
+          })
+        ).rejects.toThrow('Scout already minted this NFT');
+      });
+
       it('Reverts if the user has already minted the max amount of NFTs', async function () {
         const {
           builderNftStarterPack: { builderNftContract },
