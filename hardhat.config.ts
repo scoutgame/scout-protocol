@@ -32,6 +32,7 @@ import './scripts/interact/scoutProtocolResolver';
 import './scripts/interact/updateProxyImplementation';
 import './scripts/interact/builderNftStarterPackApp';
 import './scripts/interact/vesting';
+import './scripts/interact/builderNftSeason02';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 

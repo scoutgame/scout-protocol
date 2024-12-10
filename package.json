@@ -21,6 +21,7 @@
     "scout:vesting": "npx hardhat interactSablierVesting --network",
     "buildernft": "npx hardhat interactBuilderNFT --network",
     "buildernft:starterpack": "npx hardhat interactBuilderNFTStarterPack --network",
+    "buildernft:season02": "npx hardhat interactBuilderNFTSeason02 --network",
     "build:api": "npx tsx lib/generateApiClient.ts",
     "coverage": "SOLIDITY_COVERAGE=true TS_NODE_TRANSPILE_ONLY=true npx hardhat coverage --sources protocol"
   },
