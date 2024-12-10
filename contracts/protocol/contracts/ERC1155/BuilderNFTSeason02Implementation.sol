@@ -283,7 +283,7 @@ contract BuilderNFTSeason02Implementation is
     function setBaseUri(
         string memory _prefix,
         string memory _suffix
-    ) external onlyAdmin {
+    ) external onlyAdminOrMinter {
         require(bytes(_prefix).length > 0, "Empty base URI prefix not allowed");
         require(bytes(_suffix).length > 0, "Empty base URI suffix not allowed");
         BuilderNFTStorage.setUriPrefix(_prefix);
@@ -427,14 +427,6 @@ contract BuilderNFTSeason02Implementation is
 
     function getPriceIncrement() external view returns (uint256) {
         return MemoryUtils._getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
-    }
-
-    function setTokenURI(
-        string memory newPrefix,
-        string memory newSuffix
-    ) external onlyAdminOrMinter {
-        BuilderNFTStorage.setUriPrefix(newPrefix);
-        BuilderNFTStorage.setUriSuffix(newSuffix);
     }
 
     function tokenURI(uint256 _tokenId) external view returns (string memory) {
