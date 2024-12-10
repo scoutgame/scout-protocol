@@ -26,6 +26,23 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
         const totalBuilders = await builderNftContract.read.totalBuilderTokens();
         expect(totalBuilders).toBe(BigInt(1));
       });
+
+      it('increments the total builders count', async function () {
+        const {
+          builderNftStarterPack: { builderNftContract }
+        } = await loadContractWithStarterPackFixtures();
+
+        const builders = [uuid(), uuid(), uuid()];
+
+        for (let i = 0; i < builders.length; i++) {
+          const builderId = builders[i];
+          const tokenId = BigInt(i + 1);
+          await expect(builderNftContract.write.registerBuilderToken([builderId, tokenId])).resolves.toBeDefined();
+        }
+
+        const totalBuilders = await builderNftContract.read.totalBuilderTokens();
+        expect(totalBuilders).toBe(BigInt(3));
+      });
     });
 
     describe('events', function () {
