@@ -12,7 +12,7 @@
     "deploybuilders:s02": "npm run compile && npx hardhat deployBuilderNFTSeason02 --network",
     "deploybuilders:starterpack": "npm run compile && npx hardhat deployBuilderNFTSeasonOneStarterPack --network",
     "proxy:update": "npx hardhat updateProxyImplementation --network",
-    "scout:deploy:erc20": "npx hardhat deployScoutGameERC20 --network",
+    "scout:deploy:erc20": "npx hardhat deployDeterministicScoutGameERC20 --network",
     "scout:deploy:schemas": "npx hardhat deployEASSchemas --network",
     "scout:deploy:protocol": "npx hardhat deployScoutProtocol --network",
     "scout:deploy:vesting": "npx hardhat deployVesting --network",

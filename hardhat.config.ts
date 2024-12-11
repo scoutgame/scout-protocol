@@ -23,6 +23,7 @@ import './scripts/deploy/deployScoutProtocol';
 import './scripts/deploy/deployEASSchemas';
 import './scripts/deploy/nfts/deployBuilderNftStarterPack';
 import './scripts/deploy/deployVesting';
+import './scripts/deploy/deployDeterministicScoutgameErc20';
 
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';
