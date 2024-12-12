@@ -6,7 +6,15 @@ import { log } from '@charmverse/core/log';
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
 import type { Address } from 'viem';
-import { createWalletClient, encodePacked, getAddress, http, keccak256, publicActions } from 'viem';
+import {
+  createWalletClient,
+  encodeAbiParameters,
+  encodePacked,
+  getAddress,
+  http,
+  keccak256,
+  publicActions
+} from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
@@ -62,8 +70,8 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
 
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
-    // const filePath = 'artifacts/contracts/protocol/contracts/ERC20/ScoutTokenERC20.sol/ScoutTokenERC20.json';
-    const filePath = 'artifacts/contracts/Greeter.sol/Greeter.json';
+    const filePath = 'artifacts/contracts/protocol/contracts/ERC20/ScoutTokenERC20.sol/ScoutTokenERC20.json';
+    // const filePath = 'artifacts/contracts/Greeter.sol/Greeter.json';
 
     const contract = JSON.parse(fs.readFileSync(path.resolve(filePath), 'utf8'));
 
@@ -86,15 +94,21 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
     log.info('Using account:', account.address, 'on chain:', connector.chain.name);
 
     // Encode the function call with parameters
-    const salt = '0x9a55cf59f3e8b3721283d1d5b88848fb799cdaaae328fbdd36ff0682012294c3';
+    const salt = '0x0055cf59f3e8b3721283d1d5b88848fb799cdaaae328fbdd36ff0682012290d6';
 
     log.info('Salt:', salt);
 
-    const expectedAddress = computeAddress(DETERMINISTIC_DEPLOYER_CONTRACT, salt, bytecode);
+    const deployArgs = [account.address] as const;
+
+    const encodedArgs = encodeAbiParameters([{ type: 'address' }], deployArgs);
+
+    const bytecodeWithArgs = String(bytecode).concat(encodedArgs.slice(2)) as `0x${string}`;
+
+    const expectedAddress = computeAddress(DETERMINISTIC_DEPLOYER_CONTRACT, salt, bytecodeWithArgs);
 
     log.info('Expected address:', expectedAddress);
 
-    const encodedData = encodePacked(['bytes32', 'bytes'], [salt, bytecode]);
+    const encodedData = encodePacked(['bytes32', 'bytes'], [salt, bytecodeWithArgs]);
 
     log.info('\r\n---------------- Creating transaction ------------------\r\n');
 
@@ -118,12 +132,14 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
 
     log.info('\r\n---------------- Performing interaction ------------------\r\n');
 
-    const deployedContract = await hre.viem.getContractAt('Greeter', expectedAddress);
+    const deployedContract = await hre.viem.getContractAt('ScoutTokenERC20', expectedAddress);
 
-    const greeting = await deployedContract.read.hello();
+    const decimals = await deployedContract.read.decimals();
+
+    const balance = await deployedContract.read.balanceOf([account.address]);
 
     log.info('Deployed contract:', deployedContract.address);
-    log.info('Greeting:', greeting);
+    log.info('Balance:', balance / BigInt(10 ** decimals));
   }
 );
 
