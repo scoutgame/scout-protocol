@@ -2,22 +2,11 @@ import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
+import { log } from '@charmverse/core/log';
 import dotenv from 'dotenv';
-import { Contract } from 'ethers';
 import { task } from 'hardhat/config';
-import type { Abi, Address } from 'viem';
-import {
-  createWalletClient,
-  encodeAbiParameters,
-  encodeDeployData,
-  encodePacked,
-  http,
-  parseEventLogs,
-  publicActions,
-  keccak256,
-  toHex,
-  pad
-} from 'viem';
+import type { Address } from 'viem';
+import { createWalletClient, encodePacked, getAddress, http, keccak256, publicActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
@@ -31,7 +20,7 @@ import { DETERMINISTIC_DEPLOYER_CONTRACT } from '../../lib/constants';
  * @param {string} bytecode - The raw bytecode of the contract to deploy
  * @returns {string} The calculated deterministic contract address
  */
-export function computeAddress(deployerAddress: string, salt: string, bytecode: string): string {
+export function computeAddress(deployerAddress: string, salt: string, bytecode: string): Address {
   // 1. Ensure deployer address is 20 bytes (40 hex characters)
   const deployerAddressCleaned = deployerAddress.toLowerCase().replace(/^0x/, '');
   if (deployerAddressCleaned.length !== 40) {
@@ -47,7 +36,7 @@ export function computeAddress(deployerAddress: string, salt: string, bytecode: 
   }
 
   // 3. Calculate the keccak256 hash of the contract's bytecode
-  const creationCodeHash = keccak256(bytecode.replace(/^0x/, ''));
+  const creationCodeHash = keccak256(bytecode as `0x${string}`);
 
   // 4. Concatenate the CREATE2 inputs (ff + deployerAddress + salt + creationCodeHash)
   const data = `ff${deployerAddressCleaned}${saltCleaned}${creationCodeHash.slice(2)}`;
@@ -55,13 +44,10 @@ export function computeAddress(deployerAddress: string, salt: string, bytecode: 
   // 5. Hash the data with keccak256
   const hashedData = keccak256(`0x${data}`);
 
-  console.log('Hashed data:', hashedData);
-  console.log('Hashed data length:', hashedData.length);
-
   // 6. Return the last 20 bytes of the hash (skip first 12 bytes = 24 hex characters)
   const contractAddress = `0x${hashedData.slice(26)}`; // Skip 24 hex chars (12 bytes)
 
-  return contractAddress.toLowerCase();
+  return contractAddress.toLowerCase() as Address;
 }
 
 dotenv.config();
@@ -83,7 +69,12 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
 
     const bytecode = contract.bytecode;
 
-    console.log('Bytecode:', bytecode.length);
+    // In case it's just 0x
+    if (bytecode.length <= 2) {
+      throw new Error('Bytecode is empty');
+    }
+
+    log.info('Bytecode len:', bytecode.length);
 
     const account = privateKeyToAccount(PRIVATE_KEY);
     const walletClient = createWalletClient({
@@ -92,112 +83,47 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
       transport: http(connector.rpcUrl)
     }).extend(publicActions);
 
-    console.log('Using account:', account.address, 'on chain:', connector.chain.name);
-
-    // Assuming you have the ABI of the DeterministicDeployer contract
-
-    const abi: Abi = [
-      {
-        name: 'deploy',
-        type: 'function',
-        inputs: [
-          { name: 'salt', type: 'bytes32' },
-          { name: 'bytecode', type: 'bytes' }
-        ],
-        stateMutability: 'nonpayable',
-        outputs: []
-      }
-    ];
-
-    // Randomly generate a salt while we test deployment
-    function generateRandomBytes32Salt(): `0x${string}` {
-      // Generate 64 random hexadecimal characters (since 1 byte = 2 hex characters)
-      const randomHex = Array.from(
-        { length: 64 },
-        () => Math.floor(Math.random() * 16).toString(16) // Random hex digit (0-15)
-      ).join('');
-
-      // Prefix with '0x' to match the bytes32 format
-      return `0x${randomHex}`;
-    }
+    log.info('Using account:', account.address, 'on chain:', connector.chain.name);
 
     // Encode the function call with parameters
-    // const salt = '0x100000000000000000000000033B9BbB7B33286A08CafaFF9Ac259F6D53B4CD4';
-    const salt = generateRandomBytes32Salt();
-    const data = encodeDeployData({
-      abi,
-      bytecode,
-      args: []
-    });
+    const salt = '0x9a55cf59f3e8b3721283d1d5b88848fb799cdaaae328fbdd36ff0682012294c3';
+
+    log.info('Salt:', salt);
 
     const expectedAddress = computeAddress(DETERMINISTIC_DEPLOYER_CONTRACT, salt, bytecode);
 
-    console.log('Expected address:', expectedAddress);
+    log.info('Expected address:', expectedAddress);
 
     const encodedData = encodePacked(['bytes32', 'bytes'], [salt, bytecode]);
 
+    log.info('\r\n---------------- Creating transaction ------------------\r\n');
+
     // Send the transaction with the encoded data
+    await walletClient
+      .sendTransaction({
+        to: DETERMINISTIC_DEPLOYER_CONTRACT,
+        data: encodedData as `0x${string}`,
+        from: account.address,
+        value: BigInt(0)
+      })
+      .then((_tx) => walletClient.waitForTransactionReceipt({ hash: _tx }));
 
-    // const tx = await walletClient.sendTransaction({
-    //   to: DETERMINISTIC_DEPLOYER_CONTRACT,
-    //   data: encodedData as `0x${string}`,
-    //   from: account.address,
-    //   value: BigInt(0)
-    // });
+    log.info('\r\n---------------- Verifying contract ------------------\r\n');
 
-    // const result = await walletClient.call({
-    //   to: DETERMINISTIC_DEPLOYER_CONTRACT,
-    //   data: encodedData as `0x${string}`
-    // });
+    try {
+      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${getAddress(expectedAddress)}`);
+    } catch (err) {
+      log.error('Error verifying contract', err);
+    }
 
-    const result = await walletClient.writeContract({
-      address: DETERMINISTIC_DEPLOYER_CONTRACT,
-      abi: [
-        {
-          type: 'function',
-          name: 'deploy',
-          inputs: [
-            { name: 'salt', type: 'bytes32' },
-            { name: 'bytecode', type: 'bytes' }
-          ],
-          outputs: [{ name: 'deployedAddress', type: 'address' }],
-          stateMutability: 'nonpayable'
-        }
-      ],
-      functionName: 'deploy',
-      args: [salt, bytecode]
-    });
-    console.log('Result:', result);
+    log.info('\r\n---------------- Performing interaction ------------------\r\n');
 
-    const receipt = await walletClient.waitForTransactionReceipt({ hash: result as `0x${string}` });
+    const deployedContract = await hre.viem.getContractAt('Greeter', expectedAddress);
 
-    console.log('Receipt:', receipt);
+    const greeting = await deployedContract.read.hello();
 
-    // const erc20Address = deployedErc20.address;
-
-    // if (!erc20Address) {
-    //   throw new Error('Failed to deploy erc20 contract');
-    // }
-
-    // console.log('Implementation contract deployed at address:', erc20Address);
-
-    // // Verify contract in the explorer
-
-    // console.log('Verifying implementation with etherscan');
-    // try {
-    //   execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${erc20Address}`);
-    // } catch (err) {
-    //   console.warn('Error verifying contract', err);
-    // }
-
-    // console.log('Writing ABI to file');
-
-    // fs.writeFileSync(
-    //   path.resolve(__dirname, '..', '..', 'abis', 'ScoutTokenERC20.json'),
-    //   JSON.stringify(deployedErc20.abi, null, 2)
-    // );
-
-    // console.log('Complete');
+    log.info('Deployed contract:', deployedContract.address);
+    log.info('Greeting:', greeting);
   }
 );
 
