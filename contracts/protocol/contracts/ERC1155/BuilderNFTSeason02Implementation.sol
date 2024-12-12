@@ -318,7 +318,11 @@ contract BuilderNFTSeason02Implementation is
     function mint(address account, uint256 tokenId, uint256 amount) external {
         require(account != address(0), "Invalid account address");
         // Throws if token ID is not registered
-        BuilderNFTStorage.getTokenToBuilderRegistry(tokenId);
+        require(
+            bytes(BuilderNFTStorage.getTokenToBuilderRegistry(tokenId))
+                .length != 0,
+            "Token ID not registered"
+        );
 
         uint256 _price = getTokenPurchasePrice(tokenId, amount);
         address _paymentToken = MemoryUtils._getAddress(
