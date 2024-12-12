@@ -24,7 +24,7 @@ import './scripts/deploy/deployEASSchemas';
 import './scripts/deploy/nfts/deployBuilderNftStarterPack';
 import './scripts/deploy/deployVesting';
 import './scripts/deploy/deployDeterministicScoutgameErc20';
-
+import './scripts/deploy/deployFoundryCreate2Deployer';
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';
 import './scripts/interact/scoutProtocol';

@@ -12,6 +12,19 @@ contract ScoutTokenERC20 is Context, AccessControlEnumerable, ERC20Pausable {
     bytes32 public constant VESTING_ROLE = keccak256("VESTING_ROLE");
     uint256 public constant SUPPLY = 1e9 * 10 ** 18;
 
+    // https://specs.optimism.io/interop/token-bridging.html#crosschainmint
+    event CrosschainMint(
+        address indexed _to,
+        uint256 _amount,
+        address indexed _sender
+    );
+
+    event CrosschainBurn(
+        address indexed _from,
+        uint256 _amount,
+        address indexed _sender
+    );
+
     modifier onlyAdmin() {
         require(
             hasRole(DEFAULT_ADMIN_ROLE, _msgSender()),

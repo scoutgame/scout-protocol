@@ -11,6 +11,7 @@
     "deploybuilders": "npm run compile && npx hardhat deployBuilderNFTSeasonOne --network",
     "deploybuilders:s02": "npm run compile && npx hardhat deployBuilderNFTSeason02 --network",
     "deploybuilders:starterpack": "npm run compile && npx hardhat deployBuilderNFTSeasonOneStarterPack --network",
+    "deploy:create2deployer": "npx hardhat deployFoundryCreate2Deployer --network",
     "proxy:update": "npx hardhat updateProxyImplementation --network",
     "scout:deploy:erc20": "npx hardhat deployDeterministicScoutGameERC20 --network",
     "scout:deploy:schemas": "npx hardhat deployEASSchemas --network",

@@ -12,13 +12,13 @@ import {
   encodePacked,
   getAddress,
   http,
+  isAddress,
   keccak256,
   publicActions
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
-import { DETERMINISTIC_DEPLOYER_CONTRACT } from '../../lib/constants';
 
 /**
  * Computes the deterministic address for a contract using the CREATE2 formula.
@@ -69,6 +69,12 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
     await hre.run('compile');
 
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
+
+    if (!isAddress(connector.foundryCreate2Deployer as string)) {
+      throw new Error('DETERMINISTIC_DEPLOYER_CONTRACT_DEPLOY_CODE is not a valid address');
+    }
+
+    const DETERMINISTIC_DEPLOYER_CONTRACT = connector.foundryCreate2Deployer as Address;
 
     const filePath = 'artifacts/contracts/protocol/contracts/ERC20/ScoutTokenERC20.sol/ScoutTokenERC20.json';
     // const filePath = 'artifacts/contracts/Greeter.sol/Greeter.json';

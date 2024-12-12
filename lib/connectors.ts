@@ -15,9 +15,9 @@ type Connector = {
   chain: Chain;
   rpcUrl: string;
   // See https://docs.attest.org/docs/quick--start/contracts for full list
-  easContract: Address;
-  luckyStarCoinContract: Address;
-  builderNFTContract: Address;
+  easContract?: Address;
+  foundryCreate2Deployer?: string;
+  builderNFTContract?: Address;
   usdcContract?: Address;
   seasonOneProxy?: Address | null;
   devProxy?: Address | null;
@@ -36,6 +36,9 @@ type Connector = {
   scoutgameErc20Token?: Address | null;
   scoutgameScoutProtocolProxy?: Address | null;
 };
+
+const supersimRpcUrl = 'http://127.0.0.1:9545';
+
 /**
  *
  * USDC Mainnet https://developers.circle.com/stablecoins/docs/usdc-on-main-networks
@@ -45,9 +48,9 @@ type Connector = {
 export const connectors = {
   opsepolia: {
     rpcUrl: 'https://opt-sepolia.g.alchemy.com/v2/0rLYBVk_UG9HAInXCNbYMX-gO5t1UxCM',
+    foundryCreate2Deployer: '0x4e59b44847b379578588920ca78fbf26c0b4956c',
     chain: optimismSepolia,
     easContract: '0x4200000000000000000000000000000000000021',
-    luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
     seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
@@ -93,6 +96,7 @@ export const connectors = {
     chain: baseSepolia,
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
+    foundryCreate2Deployer: '0x4e59b44847b379578588920ca78fbf26c0b4956c',
     // This is the new version of the contract with a sudo-type mint
     builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
     usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
@@ -127,6 +131,27 @@ export const connectors = {
     usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     easAttestationContract: '0x4200000000000000000000000000000000000021',
     easBaseUrl: 'https://base.easscan.org'
+  } as Connector,
+  supersimChainA: {
+    rpcUrl: supersimRpcUrl,
+
+    chain: {
+      ...optimismSepolia,
+      id: 901,
+      rpcUrls: {
+        default: supersimRpcUrl as any
+      }
+    }
+  } as Connector,
+  supersimChainB: {
+    rpcUrl: supersimRpcUrl,
+    chain: {
+      ...optimismSepolia,
+      rpcUrls: {
+        default: supersimRpcUrl as any
+      },
+      id: 902
+    }
   } as Connector
 } as const;
 
