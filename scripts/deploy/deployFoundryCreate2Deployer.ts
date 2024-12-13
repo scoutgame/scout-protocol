@@ -14,10 +14,6 @@ task('deployFoundryCreate2Deployer', 'Deploys or updates the Scout Game ERC20 co
 
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
-    if (!isAddress(connector.foundryCreate2Deployer as string)) {
-      throw new Error('DETERMINISTIC_DEPLOYER_CONTRACT_DEPLOY_CODE is not a valid address');
-    }
-
     const walletClient = getWalletClient({
       privateKey: process.env.PRIVATE_KEY as string,
       chain: connector.chain,

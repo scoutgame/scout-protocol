@@ -34,6 +34,7 @@ import './scripts/interact/updateProxyImplementation';
 import './scripts/interact/builderNftStarterPackApp';
 import './scripts/interact/vesting';
 import './scripts/interact/builderNftSeason02';
+import './scripts/interact/superchainBridge';
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
@@ -90,6 +91,21 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
       },
       base: {
         url: connectors.basesepolia.rpcUrl,
+        accounts: [PRIVATE_KEY],
+        gasPrice: 3e7
+      },
+      supersimL1: {
+        url: connectors.supersimL1.rpcUrl,
+        accounts: [PRIVATE_KEY],
+        gasPrice: 3e7
+      },
+      supersimL2A: {
+        url: connectors.supersimL2A.rpcUrl,
+        accounts: [PRIVATE_KEY],
+        gasPrice: 3e7
+      },
+      supersimL2B: {
+        url: connectors.supersimL2B.rpcUrl,
         accounts: [PRIVATE_KEY],
         gasPrice: 3e7
       }

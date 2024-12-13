@@ -104,9 +104,9 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
 
     log.info('Salt:', salt);
 
-    const deployArgs = [account.address] as const;
+    const deployArgs = [account.address, account.address] as const;
 
-    const encodedArgs = encodeAbiParameters([{ type: 'address' }], deployArgs);
+    const encodedArgs = encodeAbiParameters([{ type: 'address' }, { type: 'address' }], deployArgs);
 
     const bytecodeWithArgs = String(bytecode).concat(encodedArgs.slice(2)) as `0x${string}`;
 
@@ -128,12 +128,15 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
       })
       .then((_tx) => walletClient.waitForTransactionReceipt({ hash: _tx }));
 
-    log.info('\r\n---------------- Verifying contract ------------------\r\n');
+    // Skip verification for supersim chains
+    if (connector.chain.id !== 901 && connector.chain.id !== 902) {
+      log.info('\r\n---------------- Verifying contract ------------------\r\n');
 
-    try {
-      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${getAddress(expectedAddress)}`);
-    } catch (err) {
-      log.error('Error verifying contract', err);
+      try {
+        execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${getAddress(expectedAddress)}`);
+      } catch (err) {
+        log.error('Error verifying contract', err);
+      }
     }
 
     log.info('\r\n---------------- Performing interaction ------------------\r\n');

@@ -28,16 +28,10 @@ type Connector = {
   sablier?: {
     SablierV2LockupTranched: Address | null;
   };
-  scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'scoutERC20' | 'season02NFT' | 'sablierLockup'>;
-  scoutgameEASResolver?: Address | null;
-  scoutgameErc20TokenDev?: Address | null;
-  scoutgameScoutProtocolProxyDev?: Address | null;
-  scoutgameEASResolverDev?: Address | null;
-  scoutgameErc20Token?: Address | null;
-  scoutgameScoutProtocolProxy?: Address | null;
+  scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'season02NFT' | 'sablierLockup'>;
+  scoutERC20?: ContractDeployment<'scoutERC20'>;
+  superchainBridge?: Address | null;
 };
-
-const supersimRpcUrl = 'http://127.0.0.1:9545';
 
 /**
  *
@@ -132,26 +126,54 @@ export const connectors = {
     easAttestationContract: '0x4200000000000000000000000000000000000021',
     easBaseUrl: 'https://base.easscan.org'
   } as Connector,
-  supersimChainA: {
-    rpcUrl: supersimRpcUrl,
-
+  supersimL1: {
+    rpcUrl: 'http://127.0.0.1:8545',
+    chain: {
+      ...optimismSepolia,
+      id: 900,
+      rpcUrls: {
+        default: 'http://127.0.0.1:8545' as any
+      }
+    },
+    scoutERC20: {
+      dev: {
+        scoutERC20: '0x53757c18a094d61b25b380e4834c17af5e56d16a'
+      }
+    }
+  } as Connector,
+  supersimL2A: {
+    rpcUrl: 'http://127.0.0.1:9545',
+    foundryCreate2Deployer: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     chain: {
       ...optimismSepolia,
       id: 901,
       rpcUrls: {
-        default: supersimRpcUrl as any
+        default: 'http://127.0.0.1:9545' as any
       }
-    }
+    },
+    scoutERC20: {
+      dev: {
+        scoutERC20: '0xb3397c8011a0349d696d4f0e27d8883adc56cd05'
+      }
+    },
+    superchainBridge: '0x4200000000000000000000000000000000000028'
   } as Connector,
-  supersimChainB: {
-    rpcUrl: supersimRpcUrl,
+  supersimL2B: {
+    rpcUrl: 'http://127.0.0.1:9546',
+    foundryCreate2Deployer: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     chain: {
       ...optimismSepolia,
       rpcUrls: {
-        default: supersimRpcUrl as any
+        default: 'http://127.0.0.1:9546' as any
       },
       id: 902
-    }
+    },
+    scoutERC20: {
+      dev: {
+        scoutERC20: '0xb3397c8011a0349d696d4f0e27d8883adc56cd05'
+      } as any
+    },
+    superchainBridge: '0x4200000000000000000000000000000000000028'
   } as Connector
 } as const;
 

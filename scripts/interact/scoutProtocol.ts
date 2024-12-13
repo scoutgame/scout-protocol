@@ -1,6 +1,3 @@
-import fs from 'fs';
-import path from 'path';
-
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
@@ -16,7 +13,7 @@ dotenv.config();
 task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').setAction(async (taskArgs, hre) => {
   const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
-  if (!connector.scoutgameScoutProtocolProxy) {
+  if (!connector.scoutERC20) {
     throw new Error('Proxy contract address not found in connector');
   }
 
@@ -24,28 +21,22 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
     ? (process.env.PRIVATE_KEY as `0x${string}`)
     : (`0x${process.env.PRIVATE_KEY}` as `0x${string}`);
 
-  let mode: 'realProxy' | 'devProxy' = 'realProxy';
+  let mode: 'realProxy' | 'stgProxy' | 'devProxy' = 'realProxy';
 
-  const choices: string[] = [`🟢 Prod ${connector.scoutgameScoutProtocolProxy!.slice(0, 6)}`];
+  // const choices: string[] = [`🟢 Prod ${connector.scoutgameScoutProtocolProxy!.slice(0, 6)}`];
 
-  if (connector.scoutgameScoutProtocolProxyDev) {
-    choices.push(`🟡 Dev ${connector.scoutgameScoutProtocolProxyDev.slice(0, 6)}`);
+  const choices: string[] = [];
+
+  if (connector.scoutProtocol?.prod?.protocol) {
+    choices.push(`🟢 Prod ${connector.scoutProtocol.prod.protocol.slice(0, 6)}`);
   }
 
-  const ScoutProtocolProxyClient = new _ScoutProtocolProxyClient({
-    chain: connector.chain,
-    contractAddress: connector.scoutgameScoutProtocolProxy,
-    walletClient: getWalletClient({ chain: connector.chain, privateKey, rpcUrl: connector.rpcUrl })
-  });
+  if (connector.scoutProtocol?.stg?.protocol) {
+    choices.push(`🟡 Stg ${connector.scoutProtocol.stg.protocol.slice(0, 6)}`);
+  }
 
-  const currentAccount = privateKeyToAccount(privateKey);
-
-  const currentAdmin = await ScoutProtocolProxyClient.admin();
-
-  if (currentAccount.address === currentAdmin) {
-    console.log('ℹ️ You are connected with the production wallet. Please be careful with the actions you perform.');
-  } else {
-    console.log('🟡 You are connected with the test wallet');
+  if (connector.scoutProtocol?.dev?.protocol) {
+    choices.push(`🟡 Dev ${connector.scoutProtocol.dev.protocol.slice(0, 6)}`);
   }
 
   // Prompt the user to choose between admin functions or user functions
@@ -60,6 +51,8 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
 
   if (String(devOrReal).startsWith('🟢 Prod')) {
     mode = 'realProxy';
+  } else if (String(devOrReal).startsWith('🟡 Stg')) {
+    mode = 'stgProxy';
   } else if (String(devOrReal).startsWith('🟡 Dev')) {
     mode = 'devProxy';
   }
@@ -75,7 +68,11 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
   ]);
 
   const contractAddress =
-    mode === 'realProxy' ? connector.scoutgameScoutProtocolProxy : connector.scoutgameScoutProtocolProxyDev;
+    mode === 'realProxy'
+      ? connector.scoutProtocol?.prod?.protocol
+      : mode === 'stgProxy'
+        ? connector.scoutProtocol?.stg?.protocol
+        : connector.scoutProtocol?.dev?.protocol;
 
   const contract = await hre.viem.getContractAt(
     (functionType === 'Admin Functions' ? 'ScoutProtocolProxy' : 'ScoutProtocolImplementation') as any,
@@ -86,6 +83,22 @@ task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').se
 
   if (!contractAddress) {
     throw new Error('Proxy contract address not found in connector');
+  }
+
+  const ScoutProtocolProxyClient = new _ScoutProtocolProxyClient({
+    chain: connector.chain,
+    contractAddress,
+    walletClient: getWalletClient({ chain: connector.chain, privateKey, rpcUrl: connector.rpcUrl })
+  });
+
+  const currentAccount = privateKeyToAccount(privateKey);
+
+  const currentAdmin = await ScoutProtocolProxyClient.admin();
+
+  if (currentAccount.address === currentAdmin) {
+    console.log('ℹ️ You are connected with the admin wallet. Please be careful with the actions you perform.');
+  } else {
+    console.log('🟡 You are connected with the test wallet');
   }
 
   // Proceed to interact with the contract using the selected ABI and contract address

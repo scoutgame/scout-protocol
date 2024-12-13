@@ -26,6 +26,7 @@
     "buildernft:season02": "npx hardhat interactBuilderNFTSeason02 --network",
     "build:api:all": "npx tsx scripts/utility/generateAllApiClients.ts && npx eslint lib/apiClients --fix",
     "build:api": "npx tsx scripts/utility/generateApiClient.ts",
+    "superchain:bridge": "npx hardhat interactSuperchainBridge --network",
     "coverage": "SOLIDITY_COVERAGE=true TS_NODE_TRANSPILE_ONLY=true npx hardhat coverage --sources protocol"
   },
   "devDependencies": {
