@@ -29,15 +29,9 @@ contract ScoutTokenERC20 is Context, ERC20, ProtocolAccessControl, IERC7802 {
         _;
     }
 
-    constructor(
-        address _admin,
-        address _distributionWallet
-    ) ERC20("Scout Token", "$SCOUT") {
-        // Enables us to only mint tokens if the distribution wallet is set. This paves the way for IERC7802 to be implemented by ensuring we do not duplicate the supply.
-        if (_distributionWallet != address(0)) {
-            _mint(_distributionWallet, SUPPLY);
-        }
+    constructor(address _admin) ERC20("Scout Token", "$SCOUT") {
         MemoryUtils._setAddress(MemoryUtils.ADMIN_SLOT, _admin);
+        _mint(_admin, SUPPLY);
         StorageSlot
             .getAddressSlot(SUPERCHAIN_BRIDGE_SLOT)
             .value = DEFAULT_SUPERCHAIN_BRIDGE_ADDRESS;
@@ -110,5 +104,9 @@ contract ScoutTokenERC20 is Context, ERC20, ProtocolAccessControl, IERC7802 {
             _interfaceId == type(IERC7802).interfaceId ||
             _interfaceId == type(IERC20).interfaceId ||
             _interfaceId == type(IERC165).interfaceId;
+    }
+
+    function burn(uint256 amount) external {
+        _burn(_msgSender(), amount);
     }
 }

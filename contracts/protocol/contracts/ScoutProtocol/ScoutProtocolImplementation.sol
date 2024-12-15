@@ -24,6 +24,13 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         bytes32[] proofs;
     }
 
+    event TokensClaimed(
+        address indexed user,
+        uint256 amount,
+        string week,
+        bytes32 indexed merkleRoot
+    );
+
     modifier onlyAdminOrClaimManager() {
         require(
             _hasRole(MemoryUtils.CLAIM_MANAGER_SLOT) || _isAdmin(),
@@ -31,6 +38,8 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         );
         _;
     }
+
+    constructor() {}
 
     function multiClaim(Claim[] calldata claims) public {
         for (uint256 i = 0; i < claims.length; i++) {
@@ -91,6 +100,13 @@ contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
         token.transfer(
             _msgSender(),
             claimData.amount * (10 ** token.decimals())
+        );
+
+        emit TokensClaimed(
+            _msgSender(),
+            claimData.amount,
+            claimData.week,
+            weeklyMerkle.merkleRoot
         );
 
         return true;

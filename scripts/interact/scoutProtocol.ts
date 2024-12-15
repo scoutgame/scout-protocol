@@ -13,7 +13,7 @@ dotenv.config();
 task('interactProtocol', 'Interact with ScoutGame Protocol contract via CLI').setAction(async (taskArgs, hre) => {
   const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
-  if (!connector.scoutERC20) {
+  if (!connector.scoutProtocol) {
     throw new Error('Proxy contract address not found in connector');
   }
 

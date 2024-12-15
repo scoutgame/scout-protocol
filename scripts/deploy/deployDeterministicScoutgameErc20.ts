@@ -100,13 +100,17 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
     log.info('Using account:', account.address, 'on chain:', connector.chain.name);
 
     // Encode the function call with parameters
-    const salt = '0x0055cf59f3e8b3721283d1d5b88848fb799cdaaae328fbdd36ff0682012290d6';
+    const salt = '0x000055cf59f3e8b3721283d1d5b88848fb799cdaaae328fbdd36ff0682012290';
 
     log.info('Salt:', salt);
 
-    const deployArgs = [account.address, account.address] as const;
+    // Base will hold the supply, and other L2s will be compatible
 
-    const encodedArgs = encodeAbiParameters([{ type: 'address' }, { type: 'address' }], deployArgs);
+    const admin = account.address;
+
+    const deployArgs = [admin] as const;
+
+    const encodedArgs = encodeAbiParameters([{ type: 'address' }], deployArgs);
 
     const bytecodeWithArgs = String(bytecode).concat(encodedArgs.slice(2)) as `0x${string}`;
 
@@ -133,7 +137,9 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
       log.info('\r\n---------------- Verifying contract ------------------\r\n');
 
       try {
-        execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${getAddress(expectedAddress)}`);
+        execSync(
+          `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${getAddress(expectedAddress)} ${account.address}`
+        );
       } catch (err) {
         log.error('Error verifying contract', err);
       }

@@ -4,8 +4,9 @@ import path from 'node:path';
 
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
+import inquirer from 'inquirer';
 import type { Address } from 'viem';
-import { createWalletClient, http } from 'viem';
+import { createWalletClient, http, isAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
@@ -33,13 +34,21 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
   // Deploy the implementation contract first
   console.log('Deploying the Sablier Vesting contract...');
 
-  const deployArgs = [
-    connector.scoutProtocol?.prod?.scoutERC20 ?? (connector.scoutProtocol?.stg?.scoutERC20 as Address),
-    connector.sablier?.SablierV2LockupTranched as Address
-  ] as [Address, Address];
+  const { erc20Address } = await inquirer.prompt([
+    {
+      type: 'input',
+      name: 'erc20Address',
+      message: 'Enter the address for the Scout ERC20 token',
+      validate: (input) => (isAddress(input) ? true : 'Invalid address')
+    }
+  ]);
+
+  const deployArgs = [erc20Address, connector.sablier?.SablierV2LockupTranched as Address] as [Address, Address];
 
   const deployedSablierLockup = await hre.viem.deployContract('LockupWeeklyStreamCreator', deployArgs, {
-    client: walletClient as any
+    client: {
+      wallet: walletClient
+    }
   });
 
   const sablierLockupAddress = deployedSablierLockup.address;

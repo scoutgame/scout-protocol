@@ -3,22 +3,68 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "implementationAddress",
+        "name": "_implementationAddress",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "paymentTokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_proceedsReceiver",
+        "name": "_claimsTokenAddress",
         "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_callerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "Paused",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "roleName",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousHolder",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newHolder",
+        "type": "address"
+      }
+    ],
+    "name": "RoleTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "_callerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "Unpaused",
+    "type": "event"
   },
   {
     "stateMutability": "payable",
@@ -27,32 +73,6 @@
   {
     "inputs": [],
     "name": "admin",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getPriceIncrement",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getProceedsReceiver",
     "outputs": [
       {
         "internalType": "address",
@@ -78,12 +98,32 @@
   },
   {
     "inputs": [],
-    "name": "name",
+    "name": "isPaused",
     "outputs": [
       {
-        "internalType": "string",
+        "internalType": "bool",
         "name": "",
-        "type": "string"
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "pauser",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -106,26 +146,13 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "receiver",
+        "name": "_newPauser",
         "type": "address"
       }
     ],
-    "name": "setProceedsReceiver",
+    "name": "setPauser",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "symbol",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -137,31 +164,15 @@
       }
     ],
     "name": "transferAdmin",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "newIncrement",
-        "type": "uint256"
-      }
-    ],
-    "name": "updatePriceIncrement",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "stateMutability": "payable",
-    "type": "receive"
+    "inputs": [],
+    "name": "unPause",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   }
 ]

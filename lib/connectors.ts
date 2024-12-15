@@ -103,8 +103,15 @@ export const connectors = {
     easAttestationContract: '0x4200000000000000000000000000000000000021',
     easBaseUrl: 'https://base-sepolia.easscan.org',
     scoutProtocol: {
+      dev: {
+        protocol: '0xc33df3bfe9420d3f0fdb329211a5532212281f33',
+        easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
+        scoutERC20: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1',
+        season02NFT: '0x534a397b23b696cef4bddac783de0a7e65adab4b',
+        sablierLockup: '0x844419109deb3a82f6f4aea43cc7cc1de8f86a82'
+      },
       stg: {
-        protocol: '0x2271eac711b718110996c2a5dceb3d50eca942b2',
+        protocol: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
         scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0',
         season02NFT: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c',
@@ -137,7 +144,7 @@ export const connectors = {
     },
     scoutERC20: {
       dev: {
-        scoutERC20: '0x53757c18a094d61b25b380e4834c17af5e56d16a'
+        scoutERC20: '0xb3397c8011a0349d696d4f0e27d8883adc56cd05'
       }
     }
   } as Connector,
@@ -146,6 +153,7 @@ export const connectors = {
     foundryCreate2Deployer: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     chain: {
       ...optimismSepolia,
+      name: 'Supersim L2A',
       id: 901,
       rpcUrls: {
         default: 'http://127.0.0.1:9545' as any
@@ -153,7 +161,7 @@ export const connectors = {
     },
     scoutERC20: {
       dev: {
-        scoutERC20: '0xb3397c8011a0349d696d4f0e27d8883adc56cd05'
+        scoutERC20: '0xa08d278fb5dcb212bf0274e2728a8ec5fd951829'
       }
     },
     superchainBridge: '0x4200000000000000000000000000000000000028'
@@ -163,6 +171,7 @@ export const connectors = {
     foundryCreate2Deployer: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     chain: {
       ...optimismSepolia,
+      name: 'Supersim L2B',
       rpcUrls: {
         default: 'http://127.0.0.1:9546' as any
       },
@@ -170,7 +179,7 @@ export const connectors = {
     },
     scoutERC20: {
       dev: {
-        scoutERC20: '0xb3397c8011a0349d696d4f0e27d8883adc56cd05'
+        scoutERC20: '0xa08d278fb5dcb212bf0274e2728a8ec5fd951829'
       } as any
     },
     superchainBridge: '0x4200000000000000000000000000000000000028'

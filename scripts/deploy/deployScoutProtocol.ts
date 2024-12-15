@@ -40,7 +40,9 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
   console.log('Deploying the implementation contract...');
 
   const deployedImplementation = await hre.viem.deployContract('ScoutProtocolImplementation', [], {
-    client: walletClient as any
+    client: {
+      wallet: walletClient
+    }
   });
 
   const implementationAddress = deployedImplementation.address;
@@ -154,7 +156,9 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     const deployArgs = [implementationAddress, paymentTokenAddress] as [Address, Address];
 
     const deployedProxy = await hre.viem.deployContract('ScoutProtocolProxy', deployArgs, {
-      client: walletClient as any
+      client: {
+        wallet: walletClient
+      }
     });
     const proxyAddress = deployedProxy.address;
 
