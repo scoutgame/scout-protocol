@@ -7,7 +7,7 @@ import { NULL_ADDRESS } from './constants';
 // https://app.ens.domains/scoutgame.eth
 export const proceedsReceiver = '0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D';
 
-type ContractDeploymentEnvironment = 'dev' | 'stg' | 'prod';
+export type ContractDeploymentEnvironment = 'dev' | 'stg' | 'prod';
 
 type ContractDeployment<T extends string> = Partial<Record<ContractDeploymentEnvironment, Record<T, Address>>>;
 
@@ -28,7 +28,8 @@ type Connector = {
   sablier?: {
     SablierV2LockupTranched: Address | null;
   };
-  scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'season02NFT' | 'sablierLockup'>;
+  preseason02Nft?: ContractDeployment<'preseason02Nft'>;
+  scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'sablierLockup'>;
   scoutERC20?: ContractDeployment<'scoutERC20'>;
   superchainBridge?: Address | null;
 };
@@ -102,19 +103,31 @@ export const connectors = {
     scoutgameScoutProtocolProxyDev: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
     easAttestationContract: '0x4200000000000000000000000000000000000021',
     easBaseUrl: 'https://base-sepolia.easscan.org',
+    preseason02Nft: {
+      dev: {
+        preseason02Nft: '0x534a397b23b696cef4bddac783de0a7e65adab4b'
+      },
+      stg: {
+        preseason02Nft: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c'
+      }
+    },
+    scoutERC20: {
+      dev: {
+        scoutERC20: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1'
+      },
+      stg: {
+        scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0'
+      }
+    },
     scoutProtocol: {
       dev: {
         protocol: '0xc33df3bfe9420d3f0fdb329211a5532212281f33',
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
-        scoutERC20: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1',
-        season02NFT: '0x534a397b23b696cef4bddac783de0a7e65adab4b',
         sablierLockup: '0x844419109deb3a82f6f4aea43cc7cc1de8f86a82'
       },
       stg: {
         protocol: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
-        scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0',
-        season02NFT: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c',
         sablierLockup: '0xb24d94b9a502bdcaff14649026ef8a4d91a0c85d'
       }
     },

@@ -3,6 +3,7 @@ import { task } from 'hardhat/config';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
 import { privateKeyToAccount } from 'viem/accounts';
 
+import type { ContractDeploymentEnvironment } from '../../lib/connectors';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 import { interactWithContract } from '../../lib/interactWithContract';
 
@@ -16,8 +17,6 @@ task('interactBuilderNFTSeason02', 'Interact with BuilderNFT Season 02 contract 
       ? (process.env.PRIVATE_KEY as `0x${string}`)
       : (`0x${process.env.PRIVATE_KEY}` as `0x${string}`);
 
-    let mode: 'realProxy' | 'stgProxy' | 'devProxy' = 'realProxy';
-
     const choices: string[] = [];
 
     if (privateKeyToAccount(privateKey).address.startsWith('0x518')) {
@@ -26,34 +25,34 @@ task('interactBuilderNFTSeason02', 'Interact with BuilderNFT Season 02 contract 
       console.log('🟡 You are connected with the test wallet');
     }
 
-    if (connector.scoutProtocol?.prod?.season02NFT) {
-      choices.push(`🟢 Prod ${connector.scoutProtocol?.prod?.season02NFT!.slice(0, 6)}`);
+    if (connector.preseason02Nft?.prod?.preseason02Nft) {
+      choices.push(`🟢 Prod ${connector.preseason02Nft?.prod?.preseason02Nft!.slice(0, 6)}`);
     }
 
-    if (connector.scoutProtocol?.stg?.season02NFT) {
-      choices.push(`🟡 Stg ${connector.scoutProtocol?.stg?.season02NFT!.slice(0, 6)}`);
+    if (connector.preseason02Nft?.stg?.preseason02Nft) {
+      choices.push(`🟡 Stg ${connector.preseason02Nft?.stg?.preseason02Nft!.slice(0, 6)}`);
     }
 
-    if (connector.scoutProtocol?.dev?.season02NFT) {
-      choices.push(`🟡 Dev ${connector.scoutProtocol?.dev?.season02NFT!.slice(0, 6)}`);
+    if (connector.preseason02Nft?.dev?.preseason02Nft) {
+      choices.push(`🟡 Dev ${connector.preseason02Nft?.dev?.preseason02Nft!.slice(0, 6)}`);
     }
 
     // Prompt the user to choose between admin functions or user functions
-    const { stgOrReal } = await inquirer.prompt([
+    let { mode } = await inquirer.prompt([
       {
         type: 'list',
-        name: 'stgOrReal',
+        name: 'mode',
         message: 'Choose environment',
         choices
       }
     ]);
 
-    if (String(stgOrReal).startsWith('🟢 Prod')) {
-      mode = 'realProxy';
-    } else if (String(stgOrReal).startsWith('🟡 Stg')) {
-      mode = 'stgProxy';
+    if (String(mode).startsWith('🟢 Prod')) {
+      mode = 'prod';
+    } else if (String(mode).startsWith('🟡 Stg')) {
+      mode = 'stg';
     } else {
-      mode = 'devProxy';
+      mode = 'dev';
     }
 
     // Prompt the user to choose between admin functions or user functions
@@ -66,12 +65,7 @@ task('interactBuilderNFTSeason02', 'Interact with BuilderNFT Season 02 contract 
       }
     ]);
 
-    const contractAddress =
-      mode === 'realProxy'
-        ? connector.scoutProtocol?.prod?.season02NFT
-        : mode === 'stgProxy'
-          ? connector.scoutProtocol?.stg?.season02NFT
-          : connector.scoutProtocol?.dev?.season02NFT;
+    const contractAddress = connector.preseason02Nft?.[mode as ContractDeploymentEnvironment]?.preseason02Nft;
 
     if (!contractAddress) {
       throw new Error('Proxy contract address not found in connector');

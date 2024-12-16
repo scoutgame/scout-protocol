@@ -51,7 +51,7 @@ task('deployEASSchemas', 'Deploys or updates the EAS Resolver and scoutgame atte
 
     console.log('Deploying the resolver contract...');
 
-    const deployArgs = [connector.easAttestationContract as Address, account.address];
+    const deployArgs = [connector.easAttestationContract as Address, account.address] as [Address, Address];
 
     const deployedResolver = await viem.deployContract('ProtocolEASResolver', deployArgs, {
       client: {

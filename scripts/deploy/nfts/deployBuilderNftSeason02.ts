@@ -63,20 +63,20 @@ task('deployBuilderNFTSeason02', 'Deploys or updates the BuilderNFT Season 02 co
     let deployNew = true;
 
     // Prompt the user to update the implementation if the proxy already exists
-    if (connector.scoutProtocol) {
+    if (connector.preseason02Nft) {
       const proxyOptions = [];
 
-      const devProxy = connector.scoutProtocol.dev?.season02NFT;
+      const devProxy = connector.preseason02Nft.dev?.preseason02Nft;
       if (devProxy) {
         proxyOptions.push({ address: devProxy, env: 'dev' });
       }
 
-      const stgProxy = connector.scoutProtocol.stg?.season02NFT;
+      const stgProxy = connector.preseason02Nft.stg?.preseason02Nft;
       if (stgProxy) {
         proxyOptions.push({ address: stgProxy, env: 'stg' });
       }
 
-      const prodProxy = connector.scoutProtocol.prod?.season02NFT;
+      const prodProxy = connector.preseason02Nft.prod?.preseason02Nft;
       if (prodProxy) {
         proxyOptions.push({ address: prodProxy, env: 'prod' });
       }
