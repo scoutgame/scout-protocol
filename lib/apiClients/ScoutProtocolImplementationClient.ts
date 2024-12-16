@@ -396,6 +396,37 @@ export class ScoutProtocolImplementationClient {
       anonymous: false,
       inputs: [
         {
+          indexed: true,
+          internalType: 'address',
+          name: 'user',
+          type: 'address'
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'amount',
+          type: 'uint256'
+        },
+        {
+          indexed: false,
+          internalType: 'string',
+          name: 'week',
+          type: 'string'
+        },
+        {
+          indexed: true,
+          internalType: 'bytes32',
+          name: 'merkleRoot',
+          type: 'bytes32'
+        }
+      ],
+      name: 'TokensClaimed',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
           indexed: false,
           internalType: 'address',
           name: '_callerAddress',

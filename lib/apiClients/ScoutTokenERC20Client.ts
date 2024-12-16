@@ -40,51 +40,12 @@ export class ScoutTokenERC20Client {
   public abi: Abi = [
     {
       inputs: [],
-      name: 'DEFAULT_ADMIN_ROLE',
-      outputs: [
-        {
-          internalType: 'bytes32',
-          name: '',
-          type: 'bytes32'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [],
-      name: 'PAUSER_ROLE',
-      outputs: [
-        {
-          internalType: 'bytes32',
-          name: '',
-          type: 'bytes32'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [],
       name: 'SUPPLY',
       outputs: [
         {
           internalType: 'uint256',
           name: '',
           type: 'uint256'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [],
-      name: 'VESTING_ROLE',
-      outputs: [
-        {
-          internalType: 'bytes32',
-          name: '',
-          type: 'bytes32'
         }
       ],
       stateMutability: 'view',
@@ -171,6 +132,55 @@ export class ScoutTokenERC20Client {
       type: 'function'
     },
     {
+      inputs: [
+        {
+          internalType: 'uint256',
+          name: 'amount',
+          type: 'uint256'
+        }
+      ],
+      name: 'burn',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: '_from',
+          type: 'address'
+        },
+        {
+          internalType: 'uint256',
+          name: '_amount',
+          type: 'uint256'
+        }
+      ],
+      name: 'crosschainBurn',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: '_account',
+          type: 'address'
+        },
+        {
+          internalType: 'uint256',
+          name: '_amount',
+          type: 'uint256'
+        }
+      ],
+      name: 'crosschainMint',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
       inputs: [],
       name: 'decimals',
       outputs: [
@@ -210,110 +220,6 @@ export class ScoutTokenERC20Client {
     {
       inputs: [
         {
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
-        }
-      ],
-      name: 'getRoleAdmin',
-      outputs: [
-        {
-          internalType: 'bytes32',
-          name: '',
-          type: 'bytes32'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
-        },
-        {
-          internalType: 'uint256',
-          name: 'index',
-          type: 'uint256'
-        }
-      ],
-      name: 'getRoleMember',
-      outputs: [
-        {
-          internalType: 'address',
-          name: '',
-          type: 'address'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
-        }
-      ],
-      name: 'getRoleMemberCount',
-      outputs: [
-        {
-          internalType: 'uint256',
-          name: '',
-          type: 'uint256'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
-        },
-        {
-          internalType: 'address',
-          name: 'account',
-          type: 'address'
-        }
-      ],
-      name: 'grantRole',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
-        },
-        {
-          internalType: 'address',
-          name: 'account',
-          type: 'address'
-        }
-      ],
-      name: 'hasRole',
-      outputs: [
-        {
-          internalType: 'bool',
-          name: '',
-          type: 'bool'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
           internalType: 'address',
           name: 'spender',
           type: 'address'
@@ -333,6 +239,32 @@ export class ScoutTokenERC20Client {
         }
       ],
       stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'isPaused',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'l2Messenger',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
+        }
+      ],
+      stateMutability: 'view',
       type: 'function'
     },
     {
@@ -357,12 +289,12 @@ export class ScoutTokenERC20Client {
     },
     {
       inputs: [],
-      name: 'paused',
+      name: 'pauser',
       outputs: [
         {
-          internalType: 'bool',
+          internalType: 'address',
           name: '',
-          type: 'bool'
+          type: 'address'
         }
       ],
       stateMutability: 'view',
@@ -371,17 +303,12 @@ export class ScoutTokenERC20Client {
     {
       inputs: [
         {
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
-        },
-        {
           internalType: 'address',
-          name: 'callerConfirmation',
+          name: '_l2Messenger',
           type: 'address'
         }
       ],
-      name: 'renounceRole',
+      name: 'setL2Messenger',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function'
@@ -389,26 +316,47 @@ export class ScoutTokenERC20Client {
     {
       inputs: [
         {
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
-        },
-        {
           internalType: 'address',
-          name: 'account',
+          name: '_newPauser',
           type: 'address'
         }
       ],
-      name: 'revokeRole',
+      name: 'setPauser',
       outputs: [],
       stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: '_superchainBridge',
+          type: 'address'
+        }
+      ],
+      name: 'setSuperchainBridge',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'superchainBridge',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
+        }
+      ],
+      stateMutability: 'view',
       type: 'function'
     },
     {
       inputs: [
         {
           internalType: 'bytes4',
-          name: 'interfaceId',
+          name: '_interfaceId',
           type: 'bytes4'
         }
       ],
@@ -420,7 +368,7 @@ export class ScoutTokenERC20Client {
           type: 'bool'
         }
       ],
-      stateMutability: 'view',
+      stateMutability: 'pure',
       type: 'function'
     },
     {
@@ -517,7 +465,7 @@ export class ScoutTokenERC20Client {
     },
     {
       inputs: [],
-      name: 'unpause',
+      name: 'unPause',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function'
@@ -551,9 +499,59 @@ export class ScoutTokenERC20Client {
       anonymous: false,
       inputs: [
         {
+          indexed: true,
+          internalType: 'address',
+          name: 'from',
+          type: 'address'
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'amount',
+          type: 'uint256'
+        },
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'sender',
+          type: 'address'
+        }
+      ],
+      name: 'CrosschainBurn',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'to',
+          type: 'address'
+        },
+        {
+          indexed: false,
+          internalType: 'uint256',
+          name: 'amount',
+          type: 'uint256'
+        },
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'sender',
+          type: 'address'
+        }
+      ],
+      name: 'CrosschainMint',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
           indexed: false,
           internalType: 'address',
-          name: 'account',
+          name: '_callerAddress',
           type: 'address'
         }
       ],
@@ -564,75 +562,25 @@ export class ScoutTokenERC20Client {
       anonymous: false,
       inputs: [
         {
-          indexed: true,
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
-        },
-        {
-          indexed: true,
-          internalType: 'bytes32',
-          name: 'previousAdminRole',
-          type: 'bytes32'
-        },
-        {
-          indexed: true,
-          internalType: 'bytes32',
-          name: 'newAdminRole',
-          type: 'bytes32'
-        }
-      ],
-      name: 'RoleAdminChanged',
-      type: 'event'
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
+          indexed: false,
+          internalType: 'string',
+          name: 'roleName',
+          type: 'string'
         },
         {
           indexed: true,
           internalType: 'address',
-          name: 'account',
+          name: 'previousHolder',
           type: 'address'
         },
         {
           indexed: true,
           internalType: 'address',
-          name: 'sender',
+          name: 'newHolder',
           type: 'address'
         }
       ],
-      name: 'RoleGranted',
-      type: 'event'
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: true,
-          internalType: 'bytes32',
-          name: 'role',
-          type: 'bytes32'
-        },
-        {
-          indexed: true,
-          internalType: 'address',
-          name: 'account',
-          type: 'address'
-        },
-        {
-          indexed: true,
-          internalType: 'address',
-          name: 'sender',
-          type: 'address'
-        }
-      ],
-      name: 'RoleRevoked',
+      name: 'RoleTransferred',
       type: 'event'
     },
     {
@@ -666,7 +614,7 @@ export class ScoutTokenERC20Client {
         {
           indexed: false,
           internalType: 'address',
-          name: 'account',
+          name: '_callerAddress',
           type: 'address'
         }
       ],
@@ -709,52 +657,6 @@ export class ScoutTokenERC20Client {
     }
   }
 
-  async DEFAULT_ADMIN_ROLE(): Promise<any> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'DEFAULT_ADMIN_ROLE',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'DEFAULT_ADMIN_ROLE',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as any;
-  }
-
-  async PAUSER_ROLE(): Promise<any> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'PAUSER_ROLE',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'PAUSER_ROLE',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as any;
-  }
-
   async SUPPLY(): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
@@ -776,29 +678,6 @@ export class ScoutTokenERC20Client {
 
     // Parse the result based on the return type
     return result as bigint;
-  }
-
-  async VESTING_ROLE(): Promise<any> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'VESTING_ROLE',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'VESTING_ROLE',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as any;
   }
 
   async admin(): Promise<Address> {
@@ -899,6 +778,89 @@ export class ScoutTokenERC20Client {
     return result as bigint;
   }
 
+  async burn(params: { args: { amount: bigint }; value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'burn',
+      args: [params.args.amount]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async crosschainBurn(params: {
+    args: { _from: Address; _amount: bigint };
+    value?: bigint;
+    gasPrice?: bigint;
+  }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'crosschainBurn',
+      args: [params.args._from, params.args._amount]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async crosschainMint(params: {
+    args: { _account: Address; _amount: bigint };
+    value?: bigint;
+    gasPrice?: bigint;
+  }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'crosschainMint',
+      args: [params.args._account, params.args._amount]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
   async decimals(): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
@@ -951,127 +913,6 @@ export class ScoutTokenERC20Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async getRoleAdmin(params: { args: { role: any } }): Promise<any> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'getRoleAdmin',
-      args: [params.args.role]
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'getRoleAdmin',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as any;
-  }
-
-  async getRoleMember(params: { args: { role: any; index: bigint } }): Promise<Address> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'getRoleMember',
-      args: [params.args.role, params.args.index]
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'getRoleMember',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as Address;
-  }
-
-  async getRoleMemberCount(params: { args: { role: any } }): Promise<bigint> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'getRoleMemberCount',
-      args: [params.args.role]
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'getRoleMemberCount',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as bigint;
-  }
-
-  async grantRole(params: {
-    args: { role: any; account: Address };
-    value?: bigint;
-    gasPrice?: bigint;
-  }): Promise<TransactionReceipt> {
-    if (!this.walletClient) {
-      throw new Error('Wallet client is required for write operations.');
-    }
-
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'grantRole',
-      args: [params.args.role, params.args.account]
-    });
-
-    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
-      to: getAddress(this.contractAddress),
-      data: txData,
-      value: params.value ?? BigInt(0), // Optional value for payable methods
-      gasPrice: params.gasPrice // Optional gasPrice
-    };
-
-    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
-    const tx = await this.walletClient.sendTransaction(txInput as any);
-
-    // Return the transaction receipt
-    return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
-  async hasRole(params: { args: { role: any; account: Address } }): Promise<boolean> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'hasRole',
-      args: [params.args.role, params.args.account]
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'hasRole',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as boolean;
-  }
-
   async increaseAllowance(params: {
     args: { spender: Address; addedValue: bigint };
     value?: bigint;
@@ -1099,6 +940,52 @@ export class ScoutTokenERC20Client {
 
     // Return the transaction receipt
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async isPaused(): Promise<boolean> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'isPaused',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'isPaused',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as boolean;
+  }
+
+  async l2Messenger(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'l2Messenger',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'l2Messenger',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
   }
 
   async name(): Promise<string> {
@@ -1149,10 +1036,10 @@ export class ScoutTokenERC20Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async paused(): Promise<boolean> {
+  async pauser(): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'paused',
+      functionName: 'pauser',
       args: []
     });
 
@@ -1164,16 +1051,16 @@ export class ScoutTokenERC20Client {
     // Decode the result based on the expected return type
     const result = decodeFunctionResult({
       abi: this.abi,
-      functionName: 'paused',
+      functionName: 'pauser',
       data: data as `0x${string}`
     });
 
     // Parse the result based on the return type
-    return result as boolean;
+    return result as Address;
   }
 
-  async renounceRole(params: {
-    args: { role: any; callerConfirmation: Address };
+  async setL2Messenger(params: {
+    args: { _l2Messenger: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1183,8 +1070,8 @@ export class ScoutTokenERC20Client {
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'renounceRole',
-      args: [params.args.role, params.args.callerConfirmation]
+      functionName: 'setL2Messenger',
+      args: [params.args._l2Messenger]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -1201,8 +1088,8 @@ export class ScoutTokenERC20Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async revokeRole(params: {
-    args: { role: any; account: Address };
+  async setPauser(params: {
+    args: { _newPauser: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1212,8 +1099,8 @@ export class ScoutTokenERC20Client {
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'revokeRole',
-      args: [params.args.role, params.args.account]
+      functionName: 'setPauser',
+      args: [params.args._newPauser]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -1230,11 +1117,63 @@ export class ScoutTokenERC20Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async supportsInterface(params: { args: { interfaceId: any } }): Promise<boolean> {
+  async setSuperchainBridge(params: {
+    args: { _superchainBridge: Address };
+    value?: bigint;
+    gasPrice?: bigint;
+  }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'setSuperchainBridge',
+      args: [params.args._superchainBridge]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async superchainBridge(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'superchainBridge',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'superchainBridge',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
+  }
+
+  async supportsInterface(params: { args: { _interfaceId: any } }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'supportsInterface',
-      args: [params.args.interfaceId]
+      args: [params.args._interfaceId]
     });
 
     const { data } = await this.publicClient.call({
@@ -1386,14 +1325,14 @@ export class ScoutTokenERC20Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async unpause(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
+  async unPause(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
     if (!this.walletClient) {
       throw new Error('Wallet client is required for write operations.');
     }
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'unpause',
+      functionName: 'unPause',
       args: []
     });
 
