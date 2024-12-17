@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "../../libs/MemoryUtils.sol";
 import "../../libs/ScoutProtocolAccessControl.sol";
-import "../../libs/ScoutProtocolBuilderNFTStorage.sol";
+import "./libs/ScoutProtocolBuilderNFTStorage.sol";
 import "../../libs/StringUtils.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
@@ -374,6 +374,8 @@ contract ScoutProtocolBuilderNFTImplementation is
         require(_paymentToken != address(0), "Payment token not set");
         require(proceedsReceiver() != address(0), "Proceeds receiver not set");
 
+        forwardProceeds(tokenId, _price);
+
         ScoutProtocolBuilderNFTStorage.increaseBalance(
             account,
             tokenId,
@@ -384,63 +386,69 @@ contract ScoutProtocolBuilderNFTImplementation is
         emit TransferSingle(_msgSender(), address(0), account, tokenId, amount);
     }
 
-    // function forwardProceeds(uint256 tokenId, uint256 cost) internal {
-    //     string memory builderId = ScoutProtocolBuilderNFTStorage
-    //         .getTokenToBuilderRegistry(tokenId);
+    function forwardProceeds(uint256 tokenId, uint256 cost) internal {
+        address _paymentToken = scoutTokenERC20();
 
-    //     address _paymentToken = scoutTokenERC20();
-    //     address _proceedsReceiver = proceedsReceiver();
+        // Transfer builder rewards to builder ----------------------------
+        string memory builderId = ScoutProtocolBuilderNFTStorage
+            .getTokenToBuilderRegistry(tokenId);
 
-    //     uint256 _proceedsReceiverBalance = IERC20(_paymentToken).balanceOf(
-    //         _proceedsReceiver
-    //     );
+        address _builderAddress = ScoutProtocolBuilderNFTStorage
+            .getBuilderToAddressRegistry(builderId);
 
-    //     // Builder rewards are 20% of the purchase price
-    //     uint256 _builderRewards = (cost * 2) / 10;
+        require(
+            _builderAddress != address(0),
+            "Builder does not have an address to forward proceeds to"
+        );
 
-    //     // Forward remaining 80% to proceeds receiver
-    //     uint256 _proceedsReceiverAmount = cost - _builderRewards;
+        // Builder rewards are 20% of the purchase price
+        uint256 _builderRewards = (cost * 2) / 10;
 
-    //     address _builderAddress = ScoutProtocolBuilderNFTStorage
-    //         .getBuilderToAddressRegistry(builderId);
+        uint256 _builderAddressBalance = IERC20(_paymentToken).balanceOf(
+            _builderAddress
+        );
 
-    //     require(
-    //         _builderAddress != address(0),
-    //         "Builder does not have an address to forward proceeds to"
-    //     );
+        IERC20(_paymentToken).transferFrom(
+            _msgSender(),
+            _builderAddress,
+            _builderRewards
+        );
 
-    //     // Transfer payment from user to proceeds receiver
-    //     IERC20(_paymentToken).transferFrom(
-    //         _msgSender(),
-    //         _proceedsReceiver,
-    //         _proceedsReceiverAmount
-    //     );
+        uint256 _builderAddressBalanceAfterTransfer = IERC20(_paymentToken)
+            .balanceOf(_builderAddress);
 
-    //     // Transfer builder rewards to builder
-    //     IERC20(_paymentToken).transferFrom(
-    //         _msgSender(),
-    //         _builderAddress,
-    //         _builderRewards
-    //     );
+        require(
+            _builderAddressBalanceAfterTransfer ==
+                _builderAddressBalance + _builderRewards,
+            "Builder transfer failed"
+        );
 
-    //     uint256 _proceedsReceiverBalanceAfterTransfer = IERC20(_paymentToken)
-    //         .balanceOf(_proceedsReceiver);
+        // Forward remaining 80% to proceeds receiver ---------------------
+        address _proceedsReceiver = proceedsReceiver();
 
-    //     require(
-    //         _proceedsReceiverBalanceAfterTransfer ==
-    //             _proceedsReceiverBalance + _price,
-    //         "Transfer failed"
-    //     );
+        uint256 _proceedsReceiverBalance = IERC20(_paymentToken).balanceOf(
+            _proceedsReceiver
+        );
 
-    //     uint256 _builderAddressBalanceAfterTransfer = IERC20(_paymentToken)
-    //         .balanceOf(_builderAddress);
+        // Forward remaining 80% to proceeds receiver
+        uint256 _proceedsReceiverAmount = cost - _builderRewards;
 
-    //     require(
-    //         _builderAddressBalanceAfterTransfer ==
-    //             _builderAddressBalance + _builderRewards,
-    //         "Builder transfer failed"
-    //     );
-    // }
+        // Transfer payment from user to proceeds receiver
+        IERC20(_paymentToken).transferFrom(
+            _msgSender(),
+            _proceedsReceiver,
+            _proceedsReceiverAmount
+        );
+
+        uint256 _proceedsReceiverBalanceAfterTransfer = IERC20(_paymentToken)
+            .balanceOf(_proceedsReceiver);
+
+        require(
+            _proceedsReceiverBalanceAfterTransfer ==
+                _proceedsReceiverBalance + cost,
+            "Transfer failed"
+        );
+    }
 
     function burn(address account, uint256 tokenId, uint256 amount) external {
         require(

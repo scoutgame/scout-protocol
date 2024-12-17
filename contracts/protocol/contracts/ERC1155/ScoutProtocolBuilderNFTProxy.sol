@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "../../libs/MemoryUtils.sol";
-import "../../libs/ScoutProtocolBuilderNFTStorage.sol";
+import "./libs/ScoutProtocolBuilderNFTStorage.sol";
 import "../../libs/ScoutProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -11,10 +11,7 @@ interface IImplementation {
     function acceptUpgrade() external returns (address);
 }
 
-contract ScoutProtocolBuilderNFTUpgradeable is
-    Context,
-    ScoutProtocolAccessControl
-{
+contract ScoutProtocolBuilderNFTProxy is Context, ScoutProtocolAccessControl {
     using MemoryUtils for bytes32;
     using ScoutProtocolBuilderNFTStorage for bytes32;
 
