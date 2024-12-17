@@ -5,7 +5,7 @@ import "../../libs/MemoryUtils.sol";
 import "./libs/ScoutProtocolBuilderNFTStorage.sol";
 import "../../libs/ScoutProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../ERC20/ScoutTokenERC20.sol";
 
 interface IImplementation {
     function acceptUpgrade() external returns (address);
@@ -14,8 +14,6 @@ interface IImplementation {
 contract ScoutProtocolBuilderNFTProxy is Context, ScoutProtocolAccessControl {
     using MemoryUtils for bytes32;
     using ScoutProtocolBuilderNFTStorage for bytes32;
-
-    uint256 public constant ERC20_DECIMALS = 6;
 
     constructor(
         address _implementationAddress,
@@ -44,7 +42,9 @@ contract ScoutProtocolBuilderNFTProxy is Context, ScoutProtocolAccessControl {
             _proceedsReceiver
         );
 
-        uint256 _priceIncrement = 2 * (10 ** ERC20_DECIMALS);
+        ScoutTokenERC20 _paymentToken = ScoutTokenERC20(_paymentTokenAddress);
+
+        uint256 _priceIncrement = 20 * (10 ** _paymentToken.decimals());
 
         MemoryUtils._setUint256(
             MemoryUtils.PRICE_INCREMENT_SLOT,

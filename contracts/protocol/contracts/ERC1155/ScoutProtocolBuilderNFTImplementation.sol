@@ -433,7 +433,7 @@ contract ScoutProtocolBuilderNFTImplementation is
 
         require(
             _proceedsReceiverBalanceAfterTransfer ==
-                _proceedsReceiverBalance + cost,
+                _proceedsReceiverBalance + _proceedsReceiverAmount,
             "Transfer failed"
         );
     }
