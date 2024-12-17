@@ -11,6 +11,8 @@ export type ContractDeploymentEnvironment = 'dev' | 'stg' | 'prod';
 
 type ContractDeployment<T extends string> = Partial<Record<ContractDeploymentEnvironment, Record<T, Address>>>;
 
+type SingleContractDeployment = Partial<Record<ContractDeploymentEnvironment, Address | null>>;
+
 type Connector = {
   chain: Chain;
   rpcUrl: string;
@@ -29,6 +31,7 @@ type Connector = {
     SablierV2LockupTranched: Address | null;
   };
   preseason02Nft?: ContractDeployment<'preseason02Nft'>;
+  scoutProtocolBuilderNFT?: SingleContractDeployment;
   scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'sablierLockup'>;
   scoutERC20?: ContractDeployment<'scoutERC20'>;
   superchainBridge?: Address | null;
@@ -118,6 +121,9 @@ export const connectors = {
       stg: {
         scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0'
       }
+    },
+    scoutProtocolBuilderNFT: {
+      dev: '0xf04166ce2d59286750482d2cb6af76db0c7d7f71'
     },
     scoutProtocol: {
       dev: {
