@@ -23,6 +23,12 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
 
     await hre.run('compile');
 
+    const usdc = connector.usdcContract;
+
+    if (!isAddress(usdc as string)) {
+      throw new Error('USDC contract is not set');
+    }
+
     const client = createPublicClient({
       chain: connector.chain,
       transport: http(connector.rpcUrl)
@@ -40,7 +46,11 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
     // Deploy the implementation contract first
     console.log('Deploying the implementation contract...');
 
-    const implementation = await hre.viem.deployContract('BuilderNFTPreSeason02Implementation');
+    const implementation = await hre.viem.deployContract('BuilderNFTPreSeason02Implementation', [], {
+      client: {
+        wallet: walletClient
+      }
+    });
 
     const implementationAddress = implementation.address;
     const implementationABI = implementation.abi;
@@ -136,16 +146,7 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
     }
 
     if (deployNew) {
-      const { paymentTokenAddress } = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'paymentTokenAddress',
-          message: 'Enter the address for scout protocol ERC20 token',
-          validate: (input) => (isAddress(input) ? true : 'Invalid address')
-        }
-      ]);
-
-      const deployArgs = [implementationAddress as Address, paymentTokenAddress as Address, proceedsReceiver] as [
+      const deployArgs = [implementationAddress as Address, usdc as Address, proceedsReceiver] as [
         Address,
         Address,
         Address

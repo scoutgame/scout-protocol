@@ -105,7 +105,7 @@ export const connectors = {
     easBaseUrl: 'https://base-sepolia.easscan.org',
     preseason02Nft: {
       dev: {
-        preseason02Nft: '0x534a397b23b696cef4bddac783de0a7e65adab4b'
+        preseason02Nft: '0xc028fbb5e521faf6641e3b5b091238887ba4f639'
       },
       stg: {
         preseason02Nft: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c'
