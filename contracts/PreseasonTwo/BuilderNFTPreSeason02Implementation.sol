@@ -397,7 +397,7 @@ contract BuilderNFTPreSeason02Implementation is
         return MemoryUtils._getAddress(MemoryUtils.MINTER_SLOT);
     }
 
-    function scoutTokenERC20() external view returns (address) {
+    function ERC20Token() external view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }
 

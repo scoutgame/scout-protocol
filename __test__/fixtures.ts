@@ -36,8 +36,10 @@ async function deployProtocolFixtures() {
 }
 
 async function deployBuilderNFTPreSeason02Fixtures() {
-  const token = await deployScoutTokenERC20();
-  const builderNftSeason02 = await deployBuilderNftPreSeason02Contract({ ScoutERC20Address: token.ProtocolERC20.address });
+  const token = await deployTestUSDC();
+  const builderNftSeason02 = await deployBuilderNftPreSeason02Contract({
+    USDCAddress: token.USDC.address
+  });
 
   return { token, builderNftSeason02 };
 }

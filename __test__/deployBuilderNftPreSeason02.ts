@@ -3,7 +3,7 @@ import type { Address } from 'viem';
 
 import { generateWallets } from './generateWallets';
 
-export async function deployBuilderNftPreSeason02Contract({ ScoutERC20Address }: { ScoutERC20Address: Address }) {
+export async function deployBuilderNftPreSeason02Contract({ USDCAddress }: { USDCAddress: Address }) {
   const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
   const implementation = await viem.deployContract('BuilderNFTPreSeason02Implementation', [], {
@@ -14,7 +14,7 @@ export async function deployBuilderNftPreSeason02Contract({ ScoutERC20Address }:
 
   const proxy = await viem.deployContract(
     'BuilderNFTPreSeason02Upgradeable',
-    [implementation.address, ScoutERC20Address, proceedsReceiver],
+    [implementation.address, USDCAddress, proceedsReceiver],
     {
       client: { wallet: admin }
     }
