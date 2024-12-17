@@ -17,7 +17,7 @@ const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
-task('deployBuilderNFTSeason02', 'Deploys or updates the BuilderNFT Season 02 contracts').setAction(
+task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02 contracts').setAction(
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
@@ -40,7 +40,7 @@ task('deployBuilderNFTSeason02', 'Deploys or updates the BuilderNFT Season 02 co
     // Deploy the implementation contract first
     console.log('Deploying the implementation contract...');
 
-    const implementation = await hre.viem.deployContract('BuilderNFTSeason02Implementation');
+    const implementation = await hre.viem.deployContract('BuilderNFTPreSeason02Implementation');
 
     const implementationAddress = implementation.address;
     const implementationABI = implementation.abi;
@@ -56,7 +56,7 @@ task('deployBuilderNFTSeason02', 'Deploys or updates the BuilderNFT Season 02 co
     }
 
     fs.writeFileSync(
-      path.resolve('abis', 'BuilderNFTSeason02Implementation.json'),
+      path.resolve('abis', 'BuilderNFTPreSeason02Implementation.json'),
       JSON.stringify(implementationABI, null, 2)
     );
 
@@ -151,7 +151,7 @@ task('deployBuilderNFTSeason02', 'Deploys or updates the BuilderNFT Season 02 co
         Address
       ];
 
-      const newProxyContract = await hre.viem.deployContract('BuilderNFTSeason02Upgradeable', deployArgs, {
+      const newProxyContract = await hre.viem.deployContract('BuilderNFTPreSeason02Upgradeable', deployArgs, {
         client: {
           wallet: walletClient
         }

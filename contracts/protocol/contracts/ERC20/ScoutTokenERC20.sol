@@ -7,10 +7,15 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/StorageSlot.sol";
-import "../../libs/ProtocolAccessControl.sol";
+import "../../libs/ScoutProtocolAccessControl.sol";
 import "./IERC7802.sol";
 
-contract ScoutTokenERC20 is Context, ERC20, ProtocolAccessControl, IERC7802 {
+contract ScoutTokenERC20 is
+    Context,
+    ERC20,
+    ScoutProtocolAccessControl,
+    IERC7802
+{
     uint256 public constant SUPPLY = 1e9 * 10 ** 18;
     address internal constant DEFAULT_SUPERCHAIN_BRIDGE_ADDRESS =
         0x4200000000000000000000000000000000000028;

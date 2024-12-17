@@ -1,7 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
 
 import { deployBuilderNftContract } from './deployBuilderNft';
-import { deployBuilderNftSeason02Contract } from './deployBuilderNftSeason02';
+import { deployBuilderNftPreSeason02Contract } from './deployBuilderNftPreSeason02';
 import { deployBuilderNftStarterPackContract } from './deployBuilderNftStarterPack';
 import { deployEASContracts } from './deployEAS';
 import { deployProtocolContract } from './deployProtocol';
@@ -35,9 +35,9 @@ async function deployProtocolFixtures() {
   return { token, protocol, eas };
 }
 
-async function deployBuilderNFTSeason02Fixtures() {
+async function deployBuilderNFTPreSeason02Fixtures() {
   const token = await deployScoutTokenERC20();
-  const builderNftSeason02 = await deployBuilderNftSeason02Contract({ ScoutERC20Address: token.ProtocolERC20.address });
+  const builderNftSeason02 = await deployBuilderNftPreSeason02Contract({ ScoutERC20Address: token.ProtocolERC20.address });
 
   return { token, builderNftSeason02 };
 }
@@ -46,8 +46,8 @@ export async function loadScoutTokenERC20Fixtures() {
   return loadFixture(deployScoutTokenERC20);
 }
 
-export async function loadBuilderNFTSeason02Fixtures() {
-  return loadFixture(deployBuilderNFTSeason02Fixtures);
+export async function loadBuilderNFTPreSeason02Fixtures() {
+  return loadFixture(deployBuilderNFTPreSeason02Fixtures);
 }
 
 export async function loadProtocolFixtures() {

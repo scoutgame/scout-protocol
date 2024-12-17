@@ -2,7 +2,7 @@
 pragma solidity ^0.8.26;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import "../libs/ProtocolAccessControl.sol";
+import "../libs/ScoutProtocolAccessControl.sol";
 import "../libs/MemoryUtils.sol";
 
 contract TestMemoryUtils {

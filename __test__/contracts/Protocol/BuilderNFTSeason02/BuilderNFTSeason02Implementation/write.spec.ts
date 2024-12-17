@@ -2,9 +2,9 @@
 import { v4 as uuid } from 'uuid';
 import { parseEventLogs } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftSeason02';
+import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftPreSeason02';
 import type { ProtocolERC20TestFixture } from '../../../../deployScoutTokenERC20';
-import { loadBuilderNFTSeason02Fixtures } from '../../../../fixtures';
+import { loadBuilderNFTPreSeason02Fixtures } from '../../../../fixtures';
 import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
 
 async function registerBuilderToken({
@@ -60,7 +60,7 @@ async function mintNft({
   });
 }
 
-describe('BuilderNFTSeason02Implementation', function () {
+describe('BuilderNFTPreSeason02Implementation', function () {
   let token: ProtocolERC20TestFixture;
   let builderNftSeason02: BuilderNftSeason02Fixture;
   let erc20AdminAccount: GeneratedWallet;
@@ -70,7 +70,7 @@ describe('BuilderNFTSeason02Implementation', function () {
   let proceedsReceiverAccount: GeneratedWallet;
 
   beforeEach(async () => {
-    const fixtures = await loadBuilderNFTSeason02Fixtures();
+    const fixtures = await loadBuilderNFTPreSeason02Fixtures();
 
     token = fixtures.token;
     builderNftSeason02 = fixtures.builderNftSeason02;

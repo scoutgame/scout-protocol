@@ -1,6 +1,6 @@
 import { getAddress } from 'viem';
 
-import { deployBuilderNftSeason02Contract } from '../deployBuilderNftSeason02';
+import { deployBuilderNftPreSeason02Contract } from '../deployBuilderNftPreSeason02';
 import { deployScoutTokenERC20 } from '../deployScoutTokenERC20';
 
 describe('Proxy and Initialization', function () {
@@ -8,7 +8,7 @@ describe('Proxy and Initialization', function () {
     const { ProtocolERC20 } = await deployScoutTokenERC20();
 
     const { builderProxyContract, builderImplementationContract, builderNftAdminAccount } =
-      await deployBuilderNftSeason02Contract({
+      await deployBuilderNftPreSeason02Contract({
         ScoutERC20Address: ProtocolERC20.address
       });
 

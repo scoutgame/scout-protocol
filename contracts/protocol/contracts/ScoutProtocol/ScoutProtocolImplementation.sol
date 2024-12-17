@@ -3,12 +3,12 @@ pragma solidity ^0.8.26;
 
 import "../ERC20/ScoutTokenERC20.sol";
 import "../../libs/MemoryUtils.sol";
-import "../../libs/ProtocolAccessControl.sol";
+import "../../libs/ScoutProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "../Vesting/LockupWeeklyStreamCreator.sol";
 
-contract ScoutProtocolImplementation is Context, ProtocolAccessControl {
+contract ScoutProtocolImplementation is Context, ScoutProtocolAccessControl {
     using MemoryUtils for bytes32;
 
     struct WeeklyMerkleRoot {

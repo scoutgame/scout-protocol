@@ -1,18 +1,18 @@
 import { v4 as uuid } from 'uuid';
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftSeason02';
+import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftPreSeason02';
 import type { ProtocolERC20TestFixture } from '../../../../deployScoutTokenERC20';
-import { loadBuilderNFTSeason02Fixtures } from '../../../../fixtures';
+import { loadBuilderNFTPreSeason02Fixtures } from '../../../../fixtures';
 import { generateWallets } from '../../../../generateWallets';
 
-describe('BuilderNFTSeason02Implementation', function () {
+describe('BuilderNFTPreSeason02Implementation', function () {
   let builderNftSeason02: BuilderNftSeason02Fixture;
   let erc20: ProtocolERC20TestFixture;
   let builderNftContract: BuilderNftSeason02Fixture['builderNftContract'];
 
   beforeEach(async function () {
-    const fixture = await loadBuilderNFTSeason02Fixtures();
+    const fixture = await loadBuilderNFTPreSeason02Fixtures();
     builderNftSeason02 = fixture.builderNftSeason02;
     erc20 = fixture.token;
     builderNftContract = builderNftSeason02.builderNftContract;

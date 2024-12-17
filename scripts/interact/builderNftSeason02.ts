@@ -9,7 +9,7 @@ import { interactWithContract } from '../../lib/interactWithContract';
 
 dotenv.config();
 
-task('interactBuilderNFTSeason02', 'Interact with BuilderNFT Season 02 contract via CLI').setAction(
+task('interactBuilderNFTPreSeason02', 'Interact with BuilderNFT Season 02 contract via CLI').setAction(
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
@@ -73,8 +73,8 @@ task('interactBuilderNFTSeason02', 'Interact with BuilderNFT Season 02 contract 
 
     const contract = await hre.viem.getContractAt(
       (functionType === 'Admin Functions'
-        ? 'BuilderNFTSeason02Upgradeable'
-        : 'BuilderNFTSeason02Implementation') as any,
+        ? 'BuilderNFTPreSeason02Upgradeable'
+        : 'BuilderNFTPreSeason02Implementation') as any,
       contractAddress as `0x${string}`
     );
 

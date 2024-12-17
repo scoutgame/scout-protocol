@@ -15,7 +15,7 @@ import { connectors } from './lib/connectors';
 
 // Deploys ------------------------------
 import './scripts/deploy/nfts/deployBuilderNft';
-import './scripts/deploy/nfts/deployBuilderNftSeason02';
+import './scripts/deploy/nfts/deployBuilderNftPreSeason02';
 
 // Scout Game Protocol
 import './scripts/deploy/deployScoutGameErc20';

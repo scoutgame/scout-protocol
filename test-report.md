@@ -1,6 +1,6 @@
 # Test Report
 
-## Contract: BuilderNFTSeason02Implementation
+## Contract: BuilderNFTPreSeason02Implementation
 
 ### Write Methods
 
@@ -82,7 +82,7 @@
 - **Events**:
   - Emits TransferBatch event on transfer
 
-## Contract: BuilderNFTSeason02Upgradeable
+## Contract: BuilderNFTPreSeason02Upgradeable
 
 ### Write Methods
 

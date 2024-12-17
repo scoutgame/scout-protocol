@@ -1,25 +1,25 @@
 import { viem } from 'hardhat';
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftSeason02';
+import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftPreSeason02';
 import { deployEASContracts } from '../../../../deployEAS';
-import { loadBuilderNFTSeason02Fixtures } from '../../../../fixtures';
+import { loadBuilderNFTPreSeason02Fixtures } from '../../../../fixtures';
 import { walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
 
 function deployImplementation() {
-  return viem.deployContract('BuilderNFTSeason02Implementation', []);
+  return viem.deployContract('BuilderNFTPreSeason02Implementation', []);
 }
 
 type DeployedImplementation = Awaited<ReturnType<typeof deployImplementation>>;
 
-describe('BuilderNFTSeason02Upgradeable', function () {
+describe('BuilderNFTPreSeason02Upgradeable', function () {
   let builderNftSeason02: BuilderNftSeason02Fixture;
   let erc1155AdminAccount: GeneratedWallet;
   let userAccount: GeneratedWallet;
   let newImplementation: DeployedImplementation;
 
   beforeEach(async () => {
-    const fixtures = await loadBuilderNFTSeason02Fixtures();
+    const fixtures = await loadBuilderNFTPreSeason02Fixtures();
 
     builderNftSeason02 = fixtures.builderNftSeason02;
     erc1155AdminAccount = fixtures.builderNftSeason02.builderNftAdminAccount;

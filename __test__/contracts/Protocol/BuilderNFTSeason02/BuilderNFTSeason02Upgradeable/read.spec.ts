@@ -1,13 +1,13 @@
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftSeason02';
-import { loadBuilderNFTSeason02Fixtures } from '../../../../fixtures';
+import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftPreSeason02';
+import { loadBuilderNFTPreSeason02Fixtures } from '../../../../fixtures';
 
-describe('BuilderNFTSeason02Upgradeable', function () {
+describe('BuilderNFTPreSeason02Upgradeable', function () {
   let builderNftSeason02: BuilderNftSeason02Fixture;
 
   beforeEach(async () => {
-    const fixtures = await loadBuilderNFTSeason02Fixtures();
+    const fixtures = await loadBuilderNFTPreSeason02Fixtures();
 
     builderNftSeason02 = fixtures.builderNftSeason02;
   });
