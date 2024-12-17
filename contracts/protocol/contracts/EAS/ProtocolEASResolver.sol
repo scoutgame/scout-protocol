@@ -9,11 +9,15 @@ import "@ethereum-attestation-service/eas-contracts/contracts/EAS.sol";
 import "@ethereum-attestation-service/eas-contracts/contracts/SchemaRegistry.sol";
 
 import "../../libs/MemoryUtils.sol";
-import "../../libs/ProtocolAccessControl.sol";
+import "../../libs/ScoutProtocolAccessControl.sol";
 
 /// @title ScoutGameProtocol
 /// @notice A schema resolver that manages unclaimed balances based on EAS attestations.
-contract ProtocolEASResolver is SchemaResolver, Context, ProtocolAccessControl {
+contract ProtocolEASResolver is
+    SchemaResolver,
+    Context,
+    ScoutProtocolAccessControl
+{
     using MemoryUtils for bytes32;
 
     constructor(IEAS eas, address _attesterWallet) SchemaResolver(eas) {

@@ -17,11 +17,17 @@ const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
-task('deployBuilderNFTSeason02', 'Deploys or updates the BuilderNFT Season 02 contracts').setAction(
+task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02 contracts').setAction(
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
     await hre.run('compile');
+
+    const usdc = connector.usdcContract;
+
+    if (!isAddress(usdc as string)) {
+      throw new Error('USDC contract is not set');
+    }
 
     const client = createPublicClient({
       chain: connector.chain,
@@ -40,7 +46,11 @@ task('deployBuilderNFTSeason02', 'Deploys or updates the BuilderNFT Season 02 co
     // Deploy the implementation contract first
     console.log('Deploying the implementation contract...');
 
-    const implementation = await hre.viem.deployContract('BuilderNFTSeason02Implementation');
+    const implementation = await hre.viem.deployContract('BuilderNFTPreSeason02Implementation', [], {
+      client: {
+        wallet: walletClient
+      }
+    });
 
     const implementationAddress = implementation.address;
     const implementationABI = implementation.abi;
@@ -56,27 +66,27 @@ task('deployBuilderNFTSeason02', 'Deploys or updates the BuilderNFT Season 02 co
     }
 
     fs.writeFileSync(
-      path.resolve('abis', 'BuilderNFTSeason02Implementation.json'),
+      path.resolve('abis', 'BuilderNFTPreSeason02Implementation.json'),
       JSON.stringify(implementationABI, null, 2)
     );
 
     let deployNew = true;
 
     // Prompt the user to update the implementation if the proxy already exists
-    if (connector.scoutProtocol) {
+    if (connector.preseason02Nft) {
       const proxyOptions = [];
 
-      const devProxy = connector.scoutProtocol.dev?.season02NFT;
+      const devProxy = connector.preseason02Nft.dev?.preseason02Nft;
       if (devProxy) {
         proxyOptions.push({ address: devProxy, env: 'dev' });
       }
 
-      const stgProxy = connector.scoutProtocol.stg?.season02NFT;
+      const stgProxy = connector.preseason02Nft.stg?.preseason02Nft;
       if (stgProxy) {
         proxyOptions.push({ address: stgProxy, env: 'stg' });
       }
 
-      const prodProxy = connector.scoutProtocol.prod?.season02NFT;
+      const prodProxy = connector.preseason02Nft.prod?.preseason02Nft;
       if (prodProxy) {
         proxyOptions.push({ address: prodProxy, env: 'prod' });
       }
@@ -136,22 +146,13 @@ task('deployBuilderNFTSeason02', 'Deploys or updates the BuilderNFT Season 02 co
     }
 
     if (deployNew) {
-      const { paymentTokenAddress } = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'paymentTokenAddress',
-          message: 'Enter the address for scout protocol ERC20 token',
-          validate: (input) => (isAddress(input) ? true : 'Invalid address')
-        }
-      ]);
-
-      const deployArgs = [implementationAddress as Address, paymentTokenAddress as Address, proceedsReceiver] as [
+      const deployArgs = [implementationAddress as Address, usdc as Address, proceedsReceiver] as [
         Address,
         Address,
         Address
       ];
 
-      const newProxyContract = await hre.viem.deployContract('BuilderNFTSeason02Upgradeable', deployArgs, {
+      const newProxyContract = await hre.viem.deployContract('BuilderNFTPreSeason02Upgradeable', deployArgs, {
         client: {
           wallet: walletClient
         }

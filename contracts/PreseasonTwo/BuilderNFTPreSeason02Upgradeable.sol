@@ -1,19 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../../libs/MemoryUtils.sol";
-import "../../libs/BuilderNFTStorage.sol";
-import "../../libs/ProtocolAccessControl.sol";
-import "../ERC20/ScoutTokenERC20.sol";
+import "../protocol/libs/MemoryUtils.sol";
+import "./libs/BuilderNFTPreSeasonStorage.sol";
+import "../protocol/libs/ScoutProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IImplementation {
     function acceptUpgrade() external returns (address);
 }
 
-contract BuilderNFTSeason02Upgradeable is Context, ProtocolAccessControl {
+contract BuilderNFTPreSeason02Upgradeable is
+    Context,
+    ScoutProtocolAccessControl
+{
     using MemoryUtils for bytes32;
-    using BuilderNFTStorage for bytes32;
+    using BuilderNFTPreSeasonStorage for bytes32;
+
+    uint256 public constant ERC20_DECIMALS = 6;
 
     constructor(
         address _implementationAddress,
@@ -42,11 +47,7 @@ contract BuilderNFTSeason02Upgradeable is Context, ProtocolAccessControl {
             _proceedsReceiver
         );
 
-        ScoutTokenERC20 token = ScoutTokenERC20(_paymentTokenAddress);
-
-        uint256 tokenDecimals = token.decimals();
-
-        uint256 _priceIncrement = 2 * (10 ** tokenDecimals);
+        uint256 _priceIncrement = 2 * (10 ** ERC20_DECIMALS);
 
         MemoryUtils._setUint256(
             MemoryUtils.PRICE_INCREMENT_SLOT,
@@ -56,7 +57,7 @@ contract BuilderNFTSeason02Upgradeable is Context, ProtocolAccessControl {
         MemoryUtils._setString(MemoryUtils.TOKEN_NAME, "ScoutGame Builders");
         MemoryUtils._setString(MemoryUtils.TOKEN_SYMBOL, "BUILDERS");
 
-        BuilderNFTStorage.incrementNextTokenId();
+        BuilderNFTPreSeasonStorage.incrementNextTokenId();
     }
 
     function setImplementation(address newImplementation) external onlyAdmin {

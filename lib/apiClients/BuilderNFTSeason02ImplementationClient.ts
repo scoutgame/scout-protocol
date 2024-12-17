@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class BuilderNFTSeason02ImplementationClient {
+export class BuilderNFTPreSeason02ImplementationClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;

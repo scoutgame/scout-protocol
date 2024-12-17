@@ -1,18 +1,18 @@
 import { v4 as uuid } from 'uuid';
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftSeason02';
-import type { ProtocolERC20TestFixture } from '../../../../deployScoutTokenERC20';
-import { loadBuilderNFTSeason02Fixtures } from '../../../../fixtures';
-import { generateWallets } from '../../../../generateWallets';
+import type { BuilderNftSeason02Fixture } from '../../../deployBuilderNftPreSeason02';
+import type { USDCTestFixture } from '../../../deployTestUSDC';
+import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
+import { generateWallets } from '../../../generateWallets';
 
-describe('BuilderNFTSeason02Implementation', function () {
+describe('BuilderNFTPreSeason02Implementation', function () {
   let builderNftSeason02: BuilderNftSeason02Fixture;
-  let erc20: ProtocolERC20TestFixture;
+  let erc20: USDCTestFixture;
   let builderNftContract: BuilderNftSeason02Fixture['builderNftContract'];
 
   beforeEach(async function () {
-    const fixture = await loadBuilderNFTSeason02Fixtures();
+    const fixture = await loadBuilderNFTPreSeason02Fixtures();
     builderNftSeason02 = fixture.builderNftSeason02;
     erc20 = fixture.token;
     builderNftContract = builderNftSeason02.builderNftContract;
@@ -31,11 +31,11 @@ describe('BuilderNFTSeason02Implementation', function () {
         const amount = BigInt(10);
         const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, amount]);
 
-        await erc20.fundWallet({
+        await erc20.mintUSDCTo({
           account: testUserAddress,
-          amount: Number(price / erc20.ProtocolERC20_DECIMAL_MULTIPLIER)
+          amount: Number(price / erc20.USDC_DECIMALS_MULTIPLIER)
         });
-        await erc20.approveProtocolERC20({
+        await erc20.approveUSDC({
           wallet: secondUserAccount,
           args: { spender: builderNftContract.address, amount: Number(price) }
         });
@@ -81,11 +81,11 @@ describe('BuilderNFTSeason02Implementation', function () {
         const price1 = await builderNftContract.read.getTokenPurchasePrice([tokenId1, amount1]);
         const price2 = await builderNftContract.read.getTokenPurchasePrice([tokenId2, amount2]);
 
-        await erc20.fundWallet({
+        await erc20.mintUSDCTo({
           account: user1Address,
-          amount: Number(price1 / erc20.ProtocolERC20_DECIMAL_MULTIPLIER)
+          amount: Number(price1 / erc20.USDC_DECIMALS_MULTIPLIER)
         });
-        await erc20.approveProtocolERC20({
+        await erc20.approveUSDC({
           wallet: firstUserAccount,
           args: { spender: builderNftContract.address, amount: Number(price1) }
         });
@@ -94,11 +94,11 @@ describe('BuilderNFTSeason02Implementation', function () {
           account: firstUserAccount.account
         });
 
-        await erc20.fundWallet({
+        await erc20.mintUSDCTo({
           account: user2Address,
-          amount: Number(price2 / erc20.ProtocolERC20_DECIMAL_MULTIPLIER)
+          amount: Number(price2 / erc20.USDC_DECIMALS_MULTIPLIER)
         });
-        await erc20.approveProtocolERC20({
+        await erc20.approveUSDC({
           wallet: secondUserAccount,
           args: { spender: builderNftContract.address, amount: Number(price2) }
         });
@@ -132,12 +132,12 @@ describe('BuilderNFTSeason02Implementation', function () {
     });
   });
 
-  describe('scoutTokenERC20()', function () {
+  describe('ERC20Token()', function () {
     describe('returns', function () {
       it('Returns the address of USDC contract', async function () {
-        const paymentTokenAddress = await builderNftContract.read.scoutTokenERC20();
+        const paymentTokenAddress = await builderNftContract.read.ERC20Token();
 
-        expect(paymentTokenAddress).toBe(getAddress(erc20.ProtocolERC20.address));
+        expect(paymentTokenAddress).toBe(getAddress(erc20.USDC.address));
       });
     });
   });
@@ -154,24 +154,24 @@ describe('BuilderNFTSeason02Implementation', function () {
 
         const priceForOneToken = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(1)]);
 
-        expect(priceForOneToken).toBe(BigInt(2) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
+        expect(priceForOneToken).toBe(BigInt(2) * erc20.USDC_DECIMALS_MULTIPLIER);
 
         const priceForTwoTokens = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(2)]);
 
-        expect(priceForTwoTokens).toBe(BigInt(6) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
+        expect(priceForTwoTokens).toBe(BigInt(6) * erc20.USDC_DECIMALS_MULTIPLIER);
 
         const priceForThreeTokens = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(3)]);
 
-        expect(priceForThreeTokens).toBe(BigInt(12) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
+        expect(priceForThreeTokens).toBe(BigInt(12) * erc20.USDC_DECIMALS_MULTIPLIER);
 
         const minted = BigInt(3);
 
-        await erc20.fundWallet({
+        await erc20.mintUSDCTo({
           account: userAccount.account.address,
-          amount: Number(priceForThreeTokens / erc20.ProtocolERC20_DECIMAL_MULTIPLIER)
+          amount: Number(priceForThreeTokens / erc20.USDC_DECIMALS_MULTIPLIER)
         });
 
-        await erc20.approveProtocolERC20({
+        await erc20.approveUSDC({
           wallet: userAccount,
           args: { spender: builderNftContract.address, amount: Number(priceForThreeTokens) }
         });
@@ -182,7 +182,7 @@ describe('BuilderNFTSeason02Implementation', function () {
 
         const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(1)]);
 
-        expect(price).toBe(BigInt(8) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
+        expect(price).toBe(BigInt(8) * erc20.USDC_DECIMALS_MULTIPLIER);
 
         await builderNftContract.write.burn([userAccount.account.address, tokenId, BigInt(2)], {
           account: userAccount.account
@@ -191,7 +191,7 @@ describe('BuilderNFTSeason02Implementation', function () {
         const priceAfterBurn = await builderNftContract.read.getTokenPurchasePrice([tokenId, BigInt(1)]);
 
         // Burned 2 tokens, 1 token remains in supply (S) so the price should be 4e6, which is 2S + 2
-        expect(priceAfterBurn).toBe(BigInt(4) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER);
+        expect(priceAfterBurn).toBe(BigInt(4) * erc20.USDC_DECIMALS_MULTIPLIER);
       });
     });
   });
@@ -209,11 +209,11 @@ describe('BuilderNFTSeason02Implementation', function () {
         const amount = BigInt(10);
         const price = await builderNftContract.read.getTokenPurchasePrice([tokenId, amount]);
 
-        await erc20.fundWallet({
+        await erc20.mintUSDCTo({
           account: testUserAddress,
-          amount: Number(price / erc20.ProtocolERC20_DECIMAL_MULTIPLIER)
+          amount: Number(price / erc20.USDC_DECIMALS_MULTIPLIER)
         });
-        await erc20.approveProtocolERC20({
+        await erc20.approveUSDC({
           wallet: secondUserAccount,
           args: { spender: builderNftContract.address, amount: Number(price) }
         });

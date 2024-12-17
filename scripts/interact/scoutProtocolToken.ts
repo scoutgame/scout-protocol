@@ -11,8 +11,8 @@ task('interactProtocolERC20Token', 'Interact with ScoutGame Protocol ERC20 Token
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
-    if (!connector.scoutgameScoutProtocolProxy) {
-      throw new Error('Proxy contract address not found in connector');
+    if (!connector.scoutERC20) {
+      throw new Error('ERC20 contract address not found in connector');
     }
 
     const privateKey = process.env.PRIVATE_KEY?.startsWith('0x')
@@ -23,16 +23,16 @@ task('interactProtocolERC20Token', 'Interact with ScoutGame Protocol ERC20 Token
 
     const choices: string[] = [];
 
-    if (connector.scoutProtocol?.prod?.scoutERC20) {
-      choices.push(`🟢 Prod ${connector.scoutProtocol.prod.scoutERC20.slice(0, 6)}`);
+    if (connector.scoutERC20?.prod?.scoutERC20) {
+      choices.push(`🟢 Prod ${connector.scoutERC20.prod.scoutERC20.slice(0, 6)}`);
     }
 
-    if (connector.scoutProtocol?.stg?.scoutERC20) {
-      choices.push(`🟡 Stg ${connector.scoutProtocol.stg.scoutERC20.slice(0, 6)}`);
+    if (connector.scoutERC20?.stg?.scoutERC20) {
+      choices.push(`🟡 Stg ${connector.scoutERC20.stg.scoutERC20.slice(0, 6)}`);
     }
 
-    if (connector.scoutProtocol?.dev?.scoutERC20) {
-      choices.push(`🟡 Dev ${connector.scoutProtocol.dev.scoutERC20.slice(0, 6)}`);
+    if (connector.scoutERC20?.dev?.scoutERC20) {
+      choices.push(`🟡 Dev ${connector.scoutERC20.dev.scoutERC20.slice(0, 6)}`);
     }
 
     // Prompt the user to choose between admin functions or user functions
@@ -55,10 +55,10 @@ task('interactProtocolERC20Token', 'Interact with ScoutGame Protocol ERC20 Token
 
     const contractAddress =
       mode === 'realContract'
-        ? connector.scoutProtocol?.prod?.scoutERC20
+        ? connector.scoutERC20?.prod?.scoutERC20
         : mode === 'stgContract'
-          ? connector.scoutProtocol?.stg?.scoutERC20
-          : connector.scoutProtocol?.dev?.scoutERC20;
+          ? connector.scoutERC20?.stg?.scoutERC20
+          : connector.scoutERC20?.dev?.scoutERC20;
 
     if (!contractAddress) {
       throw new Error('Proxy contract address not found in connector');

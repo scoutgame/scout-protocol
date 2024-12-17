@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class ScoutProtocolImplementationClient {
+export class ScoutProtocolBuilderNFTUpgradeableClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;
@@ -40,12 +40,12 @@ export class ScoutProtocolImplementationClient {
   public abi: Abi = [
     {
       inputs: [],
-      name: 'acceptUpgrade',
+      name: 'ERC20_DECIMALS',
       outputs: [
         {
-          internalType: 'address',
+          internalType: 'uint256',
           name: '',
-          type: 'address'
+          type: 'uint256'
         }
       ],
       stateMutability: 'view',
@@ -65,114 +65,13 @@ export class ScoutProtocolImplementationClient {
       type: 'function'
     },
     {
-      inputs: [
-        {
-          components: [
-            {
-              internalType: 'string',
-              name: 'week',
-              type: 'string'
-            },
-            {
-              internalType: 'uint256',
-              name: 'amount',
-              type: 'uint256'
-            },
-            {
-              internalType: 'bytes32[]',
-              name: 'proofs',
-              type: 'bytes32[]'
-            }
-          ],
-          internalType: 'struct ScoutProtocolImplementation.Claim',
-          name: 'claimData',
-          type: 'tuple'
-        }
-      ],
-      name: 'claim',
-      outputs: [
-        {
-          internalType: 'bool',
-          name: '',
-          type: 'bool'
-        }
-      ],
-      stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
       inputs: [],
-      name: 'claimsManager',
+      name: 'implementation',
       outputs: [
         {
           internalType: 'address',
           name: '',
           type: 'address'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'string',
-          name: 'week',
-          type: 'string'
-        }
-      ],
-      name: 'getWeeklyMerkleRoot',
-      outputs: [
-        {
-          components: [
-            {
-              internalType: 'string',
-              name: 'isoWeek',
-              type: 'string'
-            },
-            {
-              internalType: 'uint256',
-              name: 'validUntil',
-              type: 'uint256'
-            },
-            {
-              internalType: 'bytes32',
-              name: 'merkleRoot',
-              type: 'bytes32'
-            },
-            {
-              internalType: 'string',
-              name: 'merkleTreeUri',
-              type: 'string'
-            }
-          ],
-          internalType: 'struct ScoutProtocolImplementation.WeeklyMerkleRoot',
-          name: '',
-          type: 'tuple'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'string',
-          name: 'week',
-          type: 'string'
-        },
-        {
-          internalType: 'address',
-          name: 'account',
-          type: 'address'
-        }
-      ],
-      name: 'hasClaimed',
-      outputs: [
-        {
-          internalType: 'bool',
-          name: '',
-          type: 'bool'
         }
       ],
       stateMutability: 'view',
@@ -189,36 +88,6 @@ export class ScoutProtocolImplementationClient {
         }
       ],
       stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          components: [
-            {
-              internalType: 'string',
-              name: 'week',
-              type: 'string'
-            },
-            {
-              internalType: 'uint256',
-              name: 'amount',
-              type: 'uint256'
-            },
-            {
-              internalType: 'bytes32[]',
-              name: 'proofs',
-              type: 'bytes32[]'
-            }
-          ],
-          internalType: 'struct ScoutProtocolImplementation.Claim[]',
-          name: 'claims',
-          type: 'tuple[]'
-        }
-      ],
-      name: 'multiClaim',
-      outputs: [],
-      stateMutability: 'nonpayable',
       type: 'function'
     },
     {
@@ -242,27 +111,14 @@ export class ScoutProtocolImplementationClient {
       type: 'function'
     },
     {
-      inputs: [],
-      name: 'scoutTokenERC20',
-      outputs: [
-        {
-          internalType: 'address',
-          name: '',
-          type: 'address'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
       inputs: [
         {
           internalType: 'address',
-          name: 'account',
+          name: 'newImplementation',
           type: 'address'
         }
       ],
-      name: 'setClaimsManager',
+      name: 'setImplementation',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function'
@@ -277,60 +133,6 @@ export class ScoutProtocolImplementationClient {
       ],
       name: 'setPauser',
       outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'address',
-          name: 'token',
-          type: 'address'
-        }
-      ],
-      name: 'setScoutTokenERC20',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          components: [
-            {
-              internalType: 'string',
-              name: 'isoWeek',
-              type: 'string'
-            },
-            {
-              internalType: 'uint256',
-              name: 'validUntil',
-              type: 'uint256'
-            },
-            {
-              internalType: 'bytes32',
-              name: 'merkleRoot',
-              type: 'bytes32'
-            },
-            {
-              internalType: 'string',
-              name: 'merkleTreeUri',
-              type: 'string'
-            }
-          ],
-          internalType: 'struct ScoutProtocolImplementation.WeeklyMerkleRoot',
-          name: 'weeklyRoot',
-          type: 'tuple'
-        }
-      ],
-      name: 'setWeeklyMerkleRoot',
-      outputs: [
-        {
-          internalType: 'bool',
-          name: '',
-          type: 'bool'
-        }
-      ],
       stateMutability: 'nonpayable',
       type: 'function'
     },
@@ -396,37 +198,6 @@ export class ScoutProtocolImplementationClient {
       anonymous: false,
       inputs: [
         {
-          indexed: true,
-          internalType: 'address',
-          name: 'user',
-          type: 'address'
-        },
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'amount',
-          type: 'uint256'
-        },
-        {
-          indexed: false,
-          internalType: 'string',
-          name: 'week',
-          type: 'string'
-        },
-        {
-          indexed: true,
-          internalType: 'bytes32',
-          name: 'merkleRoot',
-          type: 'bytes32'
-        }
-      ],
-      name: 'TokensClaimed',
-      type: 'event'
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
           indexed: false,
           internalType: 'address',
           name: '_callerAddress',
@@ -472,10 +243,10 @@ export class ScoutProtocolImplementationClient {
     }
   }
 
-  async acceptUpgrade(): Promise<Address> {
+  async ERC20_DECIMALS(): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'acceptUpgrade',
+      functionName: 'ERC20_DECIMALS',
       args: []
     });
 
@@ -487,12 +258,12 @@ export class ScoutProtocolImplementationClient {
     // Decode the result based on the expected return type
     const result = decodeFunctionResult({
       abi: this.abi,
-      functionName: 'acceptUpgrade',
+      functionName: 'ERC20_DECIMALS',
       data: data as `0x${string}`
     });
 
     // Parse the result based on the return type
-    return result as Address;
+    return result as bigint;
   }
 
   async admin(): Promise<Address> {
@@ -518,35 +289,10 @@ export class ScoutProtocolImplementationClient {
     return result as Address;
   }
 
-  async claim(params: { args: { claimData: any }; value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
-    if (!this.walletClient) {
-      throw new Error('Wallet client is required for write operations.');
-    }
-
+  async implementation(): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'claim',
-      args: [params.args.claimData]
-    });
-
-    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
-      to: getAddress(this.contractAddress),
-      data: txData,
-      value: params.value ?? BigInt(0), // Optional value for payable methods
-      gasPrice: params.gasPrice // Optional gasPrice
-    };
-
-    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
-    const tx = await this.walletClient.sendTransaction(txInput as any);
-
-    // Return the transaction receipt
-    return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
-  async claimsManager(): Promise<Address> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'claimsManager',
+      functionName: 'implementation',
       args: []
     });
 
@@ -558,58 +304,12 @@ export class ScoutProtocolImplementationClient {
     // Decode the result based on the expected return type
     const result = decodeFunctionResult({
       abi: this.abi,
-      functionName: 'claimsManager',
+      functionName: 'implementation',
       data: data as `0x${string}`
     });
 
     // Parse the result based on the return type
     return result as Address;
-  }
-
-  async getWeeklyMerkleRoot(params: { args: { week: string } }): Promise<any> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'getWeeklyMerkleRoot',
-      args: [params.args.week]
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'getWeeklyMerkleRoot',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as any;
-  }
-
-  async hasClaimed(params: { args: { week: string; account: Address } }): Promise<boolean> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'hasClaimed',
-      args: [params.args.week, params.args.account]
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'hasClaimed',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as boolean;
   }
 
   async isPaused(): Promise<boolean> {
@@ -633,31 +333,6 @@ export class ScoutProtocolImplementationClient {
 
     // Parse the result based on the return type
     return result as boolean;
-  }
-
-  async multiClaim(params: { args: { claims: any }; value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
-    if (!this.walletClient) {
-      throw new Error('Wallet client is required for write operations.');
-    }
-
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'multiClaim',
-      args: [params.args.claims]
-    });
-
-    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
-      to: getAddress(this.contractAddress),
-      data: txData,
-      value: params.value ?? BigInt(0), // Optional value for payable methods
-      gasPrice: params.gasPrice // Optional gasPrice
-    };
-
-    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
-    const tx = await this.walletClient.sendTransaction(txInput as any);
-
-    // Return the transaction receipt
-    return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
   async pause(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
@@ -708,31 +383,8 @@ export class ScoutProtocolImplementationClient {
     return result as Address;
   }
 
-  async scoutTokenERC20(): Promise<Address> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'scoutTokenERC20',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'scoutTokenERC20',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as Address;
-  }
-
-  async setClaimsManager(params: {
-    args: { account: Address };
+  async setImplementation(params: {
+    args: { newImplementation: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -742,8 +394,8 @@ export class ScoutProtocolImplementationClient {
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'setClaimsManager',
-      args: [params.args.account]
+      functionName: 'setImplementation',
+      args: [params.args.newImplementation]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -773,64 +425,6 @@ export class ScoutProtocolImplementationClient {
       abi: this.abi,
       functionName: 'setPauser',
       args: [params.args._newPauser]
-    });
-
-    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
-      to: getAddress(this.contractAddress),
-      data: txData,
-      value: params.value ?? BigInt(0), // Optional value for payable methods
-      gasPrice: params.gasPrice // Optional gasPrice
-    };
-
-    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
-    const tx = await this.walletClient.sendTransaction(txInput as any);
-
-    // Return the transaction receipt
-    return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
-  async setScoutTokenERC20(params: {
-    args: { token: Address };
-    value?: bigint;
-    gasPrice?: bigint;
-  }): Promise<TransactionReceipt> {
-    if (!this.walletClient) {
-      throw new Error('Wallet client is required for write operations.');
-    }
-
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'setScoutTokenERC20',
-      args: [params.args.token]
-    });
-
-    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
-      to: getAddress(this.contractAddress),
-      data: txData,
-      value: params.value ?? BigInt(0), // Optional value for payable methods
-      gasPrice: params.gasPrice // Optional gasPrice
-    };
-
-    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
-    const tx = await this.walletClient.sendTransaction(txInput as any);
-
-    // Return the transaction receipt
-    return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
-  async setWeeklyMerkleRoot(params: {
-    args: { weeklyRoot: any };
-    value?: bigint;
-    gasPrice?: bigint;
-  }): Promise<TransactionReceipt> {
-    if (!this.walletClient) {
-      throw new Error('Wallet client is required for write operations.');
-    }
-
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'setWeeklyMerkleRoot',
-      args: [params.args.weeklyRoot]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {

@@ -38,7 +38,8 @@ export async function interactWithContract(params: InteractParams): Promise<void
     console.log(`${index + 1}. ${method.name}`);
   });
 
-  console.log(`\r\n🏦 From Wallet: ${signer.address}\r\n`);
+  console.log(`\r\n🏦 From Wallet: ${signer.address}`);
+  console.log(`\r\n🏦 Chain ID: ${connector.chain.id} - ${connector.chain.name}`);
   console.log(`\r\n📑 To Contract: ${contractAddress}\r\n`);
 
   // Select method using inquirer

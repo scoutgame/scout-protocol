@@ -1,7 +1,6 @@
 import type { Chain } from 'viem';
 import { createPublicClient, createWalletClient, http, publicActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { optimism } from 'viem/chains';
 
 export function getWalletClient({ privateKey, chain, rpcUrl }: { privateKey: string; chain: Chain; rpcUrl: string }) {
   return createWalletClient({

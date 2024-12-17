@@ -47,13 +47,13 @@ task('deployEASSchemas', 'Deploys or updates the EAS Resolver and scoutgame atte
 
     const easSchemaRegistryAddress = await easContract.read.getSchemaRegistry();
 
-    const easRegistryContract = await viem.getContractAt('ISchemaRegistry', easSchemaRegistryAddress);
+    const easRegistryContract = await viem.getContractAt('ISchemaRegistry', easSchemaRegistryAddress as Address);
 
     console.log('Deploying the resolver contract...');
 
-    const deployArgs = [connector.easAttestationContract as Address, account.address];
+    const deployArgs = [connector.easAttestationContract as Address, account.address] as [Address, Address];
 
-    const deployedResolver = await viem.deployContract('ProtocolEASResolver', deployArgs as any, {
+    const deployedResolver = await viem.deployContract('ProtocolEASResolver', deployArgs, {
       client: {
         wallet: walletClient
       }

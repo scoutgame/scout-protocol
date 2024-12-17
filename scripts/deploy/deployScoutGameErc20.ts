@@ -32,9 +32,16 @@ task('deployScoutGameERC20', 'Deploys or updates the Scout Game ERC20 contract')
   // Deploy the implementation contract first
   console.log('Deploying the ERC20 contract...');
 
-  const deployedErc20 = await hre.viem.deployContract('ScoutTokenERC20', [walletClient.account.address], {
-    client: walletClient as any
-  });
+  const deployedErc20 = await hre.viem.deployContract(
+    'ScoutTokenERC20',
+    // Deployer is the admin and the distribution wallet
+    [walletClient.account.address],
+    {
+      client: {
+        wallet: walletClient
+      }
+    }
+  );
 
   const erc20Address = deployedErc20.address;
 

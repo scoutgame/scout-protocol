@@ -1,41 +1,63 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/utils/Context.sol";
-import "../../libs/ScoutProtocolAccessControl.sol";
 import "../../libs/MemoryUtils.sol";
+import "../../libs/ScoutProtocolBuilderNFTStorage.sol";
+import "../../libs/ScoutProtocolAccessControl.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IImplementation {
     function acceptUpgrade() external returns (address);
 }
 
-contract ScoutProtocolProxy is Context, ScoutProtocolAccessControl {
+contract ScoutProtocolBuilderNFTUpgradeable is
+    Context,
+    ScoutProtocolAccessControl
+{
     using MemoryUtils for bytes32;
+    using ScoutProtocolBuilderNFTStorage for bytes32;
 
-    constructor(address _implementationAddress, address _claimsTokenAddress) {
+    uint256 public constant ERC20_DECIMALS = 6;
+
+    constructor(
+        address _implementationAddress,
+        address _paymentTokenAddress,
+        address _proceedsReceiver
+    ) {
         require(
             _implementationAddress != address(0),
             "Invalid implementation address"
         );
         require(
-            _claimsTokenAddress != address(0),
+            _paymentTokenAddress != address(0),
             "Invalid payment token address"
         );
-        _setRole(MemoryUtils.ADMIN_SLOT, _msgSender());
-        _setRole(MemoryUtils.CLAIM_MANAGER_SLOT, _msgSender());
-
+        MemoryUtils._setAddress(MemoryUtils.ADMIN_SLOT, msg.sender);
         MemoryUtils._setAddress(
             MemoryUtils.IMPLEMENTATION_SLOT,
             _implementationAddress
         );
         MemoryUtils._setAddress(
             MemoryUtils.CLAIMS_TOKEN_SLOT,
-            _claimsTokenAddress
+            _paymentTokenAddress
         );
-    }
+        MemoryUtils._setAddress(
+            MemoryUtils.PROCEEDS_RECEIVER_SLOT,
+            _proceedsReceiver
+        );
 
-    function implementation() public view returns (address) {
-        return MemoryUtils._getAddress(MemoryUtils.IMPLEMENTATION_SLOT);
+        uint256 _priceIncrement = 2 * (10 ** ERC20_DECIMALS);
+
+        MemoryUtils._setUint256(
+            MemoryUtils.PRICE_INCREMENT_SLOT,
+            _priceIncrement
+        );
+
+        MemoryUtils._setString(MemoryUtils.TOKEN_NAME, "ScoutGame Builders");
+        MemoryUtils._setString(MemoryUtils.TOKEN_SYMBOL, "BUILDERS");
+
+        ScoutProtocolBuilderNFTStorage.incrementNextTokenId();
     }
 
     function setImplementation(address newImplementation) external onlyAdmin {
@@ -75,6 +97,11 @@ contract ScoutProtocolProxy is Context, ScoutProtocolAccessControl {
             MemoryUtils.IMPLEMENTATION_SLOT,
             newImplementation
         );
+    }
+
+    // External wrapper for getting implementation address
+    function implementation() public view returns (address) {
+        return MemoryUtils._getAddress(MemoryUtils.IMPLEMENTATION_SLOT);
     }
 
     fallback() external payable {

@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
 
+import type { ContractDeploymentEnvironment } from '../../lib/connectors';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 import { interactWithContract } from '../../lib/interactWithContract';
 
@@ -32,32 +33,25 @@ task('interactSablierVesting', 'Interact with Sablier Vesting contract via CLI')
     choices.push(`🟡 Dev ${connector.scoutProtocol.dev.sablierLockup.slice(0, 6)}`);
   }
 
-  let mode: 'realContract' | 'stgContract' | 'devContract' = 'realContract';
-
   // Prompt the user to choose between admin functions or user functions
-  const { devOrReal } = await inquirer.prompt([
+  let { mode } = await inquirer.prompt([
     {
       type: 'list',
-      name: 'devOrReal',
+      name: 'mode',
       message: 'Choose environment',
       choices
     }
   ]);
 
-  if (String(devOrReal).startsWith('🟢 Prod')) {
-    mode = 'realContract';
-  } else if (String(devOrReal).startsWith('🟡 Stg')) {
-    mode = 'stgContract';
-  } else if (String(devOrReal).startsWith('🟡 Dev')) {
-    mode = 'devContract';
+  if (String(mode).startsWith('🟢 Prod')) {
+    mode = 'prod';
+  } else if (String(mode).startsWith('🟡 Stg')) {
+    mode = 'stg';
+  } else if (String(mode).startsWith('🟡 Dev')) {
+    mode = 'dev';
   }
 
-  const contractAddress =
-    mode === 'realContract'
-      ? connector.scoutProtocol.prod?.sablierLockup
-      : mode === 'stgContract'
-        ? connector.scoutProtocol.stg?.sablierLockup
-        : connector.scoutProtocol.dev?.sablierLockup;
+  const contractAddress = connector.scoutProtocol[mode as ContractDeploymentEnvironment]?.sablierLockup;
 
   if (!contractAddress) {
     throw new Error('Proxy contract address not found in connector');

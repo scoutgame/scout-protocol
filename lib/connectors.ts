@@ -7,7 +7,7 @@ import { NULL_ADDRESS } from './constants';
 // https://app.ens.domains/scoutgame.eth
 export const proceedsReceiver = '0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D';
 
-type ContractDeploymentEnvironment = 'dev' | 'stg' | 'prod';
+export type ContractDeploymentEnvironment = 'dev' | 'stg' | 'prod';
 
 type ContractDeployment<T extends string> = Partial<Record<ContractDeploymentEnvironment, Record<T, Address>>>;
 
@@ -15,9 +15,9 @@ type Connector = {
   chain: Chain;
   rpcUrl: string;
   // See https://docs.attest.org/docs/quick--start/contracts for full list
-  easContract: Address;
-  luckyStarCoinContract: Address;
-  builderNFTContract: Address;
+  easContract?: Address;
+  foundryCreate2Deployer?: string;
+  builderNFTContract?: Address;
   usdcContract?: Address;
   seasonOneProxy?: Address | null;
   devProxy?: Address | null;
@@ -28,14 +28,12 @@ type Connector = {
   sablier?: {
     SablierV2LockupTranched: Address | null;
   };
-  scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'scoutERC20' | 'season02NFT' | 'sablierLockup'>;
-  scoutgameEASResolver?: Address | null;
-  scoutgameErc20TokenDev?: Address | null;
-  scoutgameScoutProtocolProxyDev?: Address | null;
-  scoutgameEASResolverDev?: Address | null;
-  scoutgameErc20Token?: Address | null;
-  scoutgameScoutProtocolProxy?: Address | null;
+  preseason02Nft?: ContractDeployment<'preseason02Nft'>;
+  scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'sablierLockup'>;
+  scoutERC20?: ContractDeployment<'scoutERC20'>;
+  superchainBridge?: Address | null;
 };
+
 /**
  *
  * USDC Mainnet https://developers.circle.com/stablecoins/docs/usdc-on-main-networks
@@ -45,9 +43,9 @@ type Connector = {
 export const connectors = {
   opsepolia: {
     rpcUrl: 'https://opt-sepolia.g.alchemy.com/v2/0rLYBVk_UG9HAInXCNbYMX-gO5t1UxCM',
+    foundryCreate2Deployer: '0x4e59b44847b379578588920ca78fbf26c0b4956c',
     chain: optimismSepolia,
     easContract: '0x4200000000000000000000000000000000000021',
-    luckyStarCoinContract: '0x2b02514966803597b8d29D885cBef46e31a85EE5',
     builderNFTContract: '0xbd7b21e803147e0dcb698f6f76ce6dd530a545dd',
     usdcContract: '0x101e1C9757C99867a39Ceb41117B44F2292cB253',
     seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
@@ -93,6 +91,7 @@ export const connectors = {
     chain: baseSepolia,
     easContract: NULL_ADDRESS,
     luckyStarCoinContract: NULL_ADDRESS,
+    foundryCreate2Deployer: '0x4e59b44847b379578588920ca78fbf26c0b4956c',
     // This is the new version of the contract with a sudo-type mint
     builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
     usdcContract: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
@@ -104,12 +103,31 @@ export const connectors = {
     scoutgameScoutProtocolProxyDev: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
     easAttestationContract: '0x4200000000000000000000000000000000000021',
     easBaseUrl: 'https://base-sepolia.easscan.org',
-    scoutProtocol: {
+    preseason02Nft: {
+      dev: {
+        preseason02Nft: '0xc028fbb5e521faf6641e3b5b091238887ba4f639'
+      },
       stg: {
-        protocol: '0x2271eac711b718110996c2a5dceb3d50eca942b2',
+        preseason02Nft: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c'
+      }
+    },
+    scoutERC20: {
+      dev: {
+        scoutERC20: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1'
+      },
+      stg: {
+        scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0'
+      }
+    },
+    scoutProtocol: {
+      dev: {
+        protocol: '0xc33df3bfe9420d3f0fdb329211a5532212281f33',
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
-        scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0',
-        season02NFT: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c',
+        sablierLockup: '0x844419109deb3a82f6f4aea43cc7cc1de8f86a82'
+      },
+      stg: {
+        protocol: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
+        easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
         sablierLockup: '0xb24d94b9a502bdcaff14649026ef8a4d91a0c85d'
       }
     },
@@ -127,6 +145,57 @@ export const connectors = {
     usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     easAttestationContract: '0x4200000000000000000000000000000000000021',
     easBaseUrl: 'https://base.easscan.org'
+  } as Connector,
+  supersimL1: {
+    rpcUrl: 'http://127.0.0.1:8545',
+    chain: {
+      ...optimismSepolia,
+      id: 900,
+      rpcUrls: {
+        default: 'http://127.0.0.1:8545' as any
+      }
+    },
+    scoutERC20: {
+      dev: {
+        scoutERC20: '0xb3397c8011a0349d696d4f0e27d8883adc56cd05'
+      }
+    }
+  } as Connector,
+  supersimL2A: {
+    rpcUrl: 'http://127.0.0.1:9545',
+    foundryCreate2Deployer: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
+    chain: {
+      ...optimismSepolia,
+      name: 'Supersim L2A',
+      id: 901,
+      rpcUrls: {
+        default: 'http://127.0.0.1:9545' as any
+      }
+    },
+    scoutERC20: {
+      dev: {
+        scoutERC20: '0xa08d278fb5dcb212bf0274e2728a8ec5fd951829'
+      }
+    },
+    superchainBridge: '0x4200000000000000000000000000000000000028'
+  } as Connector,
+  supersimL2B: {
+    rpcUrl: 'http://127.0.0.1:9546',
+    foundryCreate2Deployer: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
+    chain: {
+      ...optimismSepolia,
+      name: 'Supersim L2B',
+      rpcUrls: {
+        default: 'http://127.0.0.1:9546' as any
+      },
+      id: 902
+    },
+    scoutERC20: {
+      dev: {
+        scoutERC20: '0xa08d278fb5dcb212bf0274e2728a8ec5fd951829'
+      } as any
+    },
+    superchainBridge: '0x4200000000000000000000000000000000000028'
   } as Connector
 } as const;
 
