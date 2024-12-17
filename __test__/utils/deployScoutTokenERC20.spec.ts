@@ -1,78 +1,78 @@
 import { deployScoutTokenERC20 } from '../deployScoutTokenERC20';
-import type { ProtocolERC20TestFixture } from '../deployScoutTokenERC20';
+import type { ScoutTokenERC20TestFixture } from '../deployScoutTokenERC20';
 import { generateWallets } from '../generateWallets';
 
 describe('deployScoutTokenERC20', () => {
-  let ProtocolERC20: ProtocolERC20TestFixture;
+  let ScoutTokenERC20: ScoutTokenERC20TestFixture;
 
   beforeAll(async () => {
-    ProtocolERC20 = await deployScoutTokenERC20();
+    ScoutTokenERC20 = await deployScoutTokenERC20();
   });
 
-  it('should deploy the ProtocolERC20 contract, with minting, approve, transfer, balanceOf and transferFrom enabled, as well as a starting balance of 1 billion tokens for the admin', async () => {
+  it('should deploy the ScoutTokenERC20 contract, with minting, approve, transfer, balanceOf and transferFrom enabled, as well as a starting balance of 1 billion tokens for the admin', async () => {
     const {
-      transferProtocolERC20,
-      balanceOfProtocolERC20,
-      approveProtocolERC20,
-      transferProtocolERC20From,
-      ProtocolERC20AdminAccount
-    } = ProtocolERC20;
+      transferScoutTokenERC20,
+      balanceOfScoutTokenERC20,
+      approveScoutTokenERC20,
+      transferScoutTokenERC20From,
+      ScoutTokenERC20AdminAccount
+    } = ScoutTokenERC20;
 
     const { userAccount, secondUserAccount } = await generateWallets();
 
-    const adminBalance = await balanceOfProtocolERC20({ account: ProtocolERC20AdminAccount.account.address });
+    const adminBalance = await balanceOfScoutTokenERC20({ account: ScoutTokenERC20AdminAccount.account.address });
 
     expect(adminBalance).toBe(1_000_000_000);
 
-    const userBalance = await balanceOfProtocolERC20({ account: userAccount.account.address });
+    const userBalance = await balanceOfScoutTokenERC20({ account: userAccount.account.address });
 
     expect(userBalance).toBe(0);
 
-    const thousandProtocolERC20 = 1000;
-    const fiftyProtocolERC20 = 50;
-    const hundredProtocolERC20 = 100;
+    const thousandScoutTokenERC20 = 1000;
+    const fiftyScoutTokenERC20 = 50;
+    const hundredScoutTokenERC20 = 100;
 
-    // Mint 1000 ProtocolERC20 to the user
-    await transferProtocolERC20({
-      args: { to: userAccount.account.address, amount: thousandProtocolERC20 },
-      wallet: ProtocolERC20AdminAccount
+    // Mint 1000 ScoutTokenERC20 to the user
+    await transferScoutTokenERC20({
+      args: { to: userAccount.account.address, amount: thousandScoutTokenERC20 },
+      wallet: ScoutTokenERC20AdminAccount
     });
 
-    const newUserBalance = await balanceOfProtocolERC20({ account: userAccount.account.address });
+    const newUserBalance = await balanceOfScoutTokenERC20({ account: userAccount.account.address });
 
-    expect(newUserBalance).toBe(thousandProtocolERC20);
+    expect(newUserBalance).toBe(thousandScoutTokenERC20);
 
     // Test transfers
-    await transferProtocolERC20({
-      args: { to: secondUserAccount.account.address, amount: fiftyProtocolERC20 },
+    await transferScoutTokenERC20({
+      args: { to: secondUserAccount.account.address, amount: fiftyScoutTokenERC20 },
       wallet: userAccount
     });
 
-    const userBalanceAfterTransfer = await balanceOfProtocolERC20({ account: userAccount.account.address });
-    const secondUserBalance = await balanceOfProtocolERC20({ account: secondUserAccount.account.address });
+    const userBalanceAfterTransfer = await balanceOfScoutTokenERC20({ account: userAccount.account.address });
+    const secondUserBalance = await balanceOfScoutTokenERC20({ account: secondUserAccount.account.address });
 
-    expect(userBalanceAfterTransfer).toBe(thousandProtocolERC20 - fiftyProtocolERC20);
-    expect(secondUserBalance).toBe(fiftyProtocolERC20);
+    expect(userBalanceAfterTransfer).toBe(thousandScoutTokenERC20 - fiftyScoutTokenERC20);
+    expect(secondUserBalance).toBe(fiftyScoutTokenERC20);
 
     // Check transferFrom transfers
     // We need to call approve() first
-    await approveProtocolERC20({
-      args: { spender: secondUserAccount.account.address, amount: hundredProtocolERC20 },
+    await approveScoutTokenERC20({
+      args: { spender: secondUserAccount.account.address, amount: hundredScoutTokenERC20 },
       wallet: userAccount
     });
 
     // test the transferFrom function
-    await transferProtocolERC20From({
-      args: { from: userAccount.account.address, to: secondUserAccount.account.address, amount: hundredProtocolERC20 },
+    await transferScoutTokenERC20From({
+      args: { from: userAccount.account.address, to: secondUserAccount.account.address, amount: hundredScoutTokenERC20 },
       wallet: secondUserAccount
     });
 
-    const userBalanceAfterTransferFrom = await balanceOfProtocolERC20({ account: userAccount.account.address });
-    const secondUserBalanceAfterTransferFrom = await balanceOfProtocolERC20({
+    const userBalanceAfterTransferFrom = await balanceOfScoutTokenERC20({ account: userAccount.account.address });
+    const secondUserBalanceAfterTransferFrom = await balanceOfScoutTokenERC20({
       account: secondUserAccount.account.address
     });
 
-    expect(userBalanceAfterTransferFrom).toBe(thousandProtocolERC20 - (hundredProtocolERC20 + fiftyProtocolERC20));
-    expect(secondUserBalanceAfterTransferFrom).toBe(fiftyProtocolERC20 + hundredProtocolERC20);
+    expect(userBalanceAfterTransferFrom).toBe(thousandScoutTokenERC20 - (hundredScoutTokenERC20 + fiftyScoutTokenERC20));
+    expect(secondUserBalanceAfterTransferFrom).toBe(fiftyScoutTokenERC20 + hundredScoutTokenERC20);
   });
 });

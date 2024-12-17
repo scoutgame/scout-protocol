@@ -1,7 +1,7 @@
 import { mine, time } from '@nomicfoundation/hardhat-network-helpers';
 import { parseEventLogs } from 'viem';
 
-import type { ProtocolERC20TestFixture } from '../deployScoutTokenERC20';
+import type { ScoutTokenERC20TestFixture } from '../deployScoutTokenERC20';
 import { deployScoutTokenERC20 } from '../deployScoutTokenERC20';
 import { deployWeeklyVesting, type WeeklyVestingTestFixture } from '../deployWeeklyVesting';
 import type { GeneratedWallet } from '../generateWallets';
@@ -9,14 +9,14 @@ import { walletFromKey } from '../generateWallets';
 
 describe('deployScoutTokenERC20', () => {
   let weeklyVesting: WeeklyVestingTestFixture;
-  let ProtocolERC20: ProtocolERC20TestFixture;
+  let ScoutTokenERC20: ScoutTokenERC20TestFixture;
   let streamCreator: GeneratedWallet;
   let recipient: GeneratedWallet;
 
   beforeAll(async () => {
-    ProtocolERC20 = await deployScoutTokenERC20();
+    ScoutTokenERC20 = await deployScoutTokenERC20();
     weeklyVesting = await deployWeeklyVesting({
-      ScoutERC20Address: ProtocolERC20.ProtocolERC20.address
+      ScoutERC20Address: ScoutTokenERC20.ScoutTokenERC20.address
     });
     recipient = await walletFromKey();
     streamCreator = await walletFromKey();
@@ -26,7 +26,7 @@ describe('deployScoutTokenERC20', () => {
     const { SablierLockupTranched, WeeklyERC20Vesting } = weeklyVesting;
 
     // Fund the stream creator with some tokens
-    await ProtocolERC20.fundWallet({
+    await ScoutTokenERC20.fundWallet({
       account: streamCreator.account.address,
       amount: 20_000
     });
@@ -34,7 +34,7 @@ describe('deployScoutTokenERC20', () => {
     const amountToVest = 10_000;
 
     // Approve the contract
-    await ProtocolERC20.approveProtocolERC20({
+    await ScoutTokenERC20.approveScoutTokenERC20({
       args: { spender: WeeklyERC20Vesting.address, amount: amountToVest },
       wallet: streamCreator
     });
@@ -42,7 +42,7 @@ describe('deployScoutTokenERC20', () => {
     const receipt = await WeeklyERC20Vesting.write.createStream(
       [
         recipient.account.address,
-        BigInt(amountToVest) * ProtocolERC20.ProtocolERC20_DECIMAL_MULTIPLIER,
+        BigInt(amountToVest) * ScoutTokenERC20.ScoutTokenERC20_DECIMAL_MULTIPLIER,
         BigInt(Math.ceil(Date.now() / 1000) + 20)
       ],
       {
@@ -58,7 +58,7 @@ describe('deployScoutTokenERC20', () => {
       eventName: ['CreateLockupTranchedStream']
     })[0].args;
 
-    const recipientErc20Balance = await ProtocolERC20.balanceOfProtocolERC20({
+    const recipientErc20Balance = await ScoutTokenERC20.balanceOfScoutTokenERC20({
       account: recipient.account.address
     });
 
@@ -85,9 +85,9 @@ describe('deployScoutTokenERC20', () => {
 
     const amountToWithdrawFirstWeek = 0.05 * amountToVest;
 
-    expect(withdrawLog.amount).toBe(BigInt(amountToWithdrawFirstWeek) * ProtocolERC20.ProtocolERC20_DECIMAL_MULTIPLIER);
+    expect(withdrawLog.amount).toBe(BigInt(amountToWithdrawFirstWeek) * ScoutTokenERC20.ScoutTokenERC20_DECIMAL_MULTIPLIER);
 
-    const recipientErc20BalanceAfter = await ProtocolERC20.balanceOfProtocolERC20({
+    const recipientErc20BalanceAfter = await ScoutTokenERC20.balanceOfScoutTokenERC20({
       account: recipient.account.address
     });
 

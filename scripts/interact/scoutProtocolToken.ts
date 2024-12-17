@@ -7,7 +7,7 @@ import { interactWithContract } from '../../lib/interactWithContract';
 
 dotenv.config();
 
-task('interactProtocolERC20Token', 'Interact with ScoutGame Protocol ERC20 Token contract via CLI').setAction(
+task('interactScoutTokenERC20Token', 'Interact with ScoutGame Protocol ERC20 Token contract via CLI').setAction(
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 

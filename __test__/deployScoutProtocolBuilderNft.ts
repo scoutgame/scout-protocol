@@ -4,9 +4,9 @@ import type { Address } from 'viem';
 import { generateWallets } from './generateWallets';
 
 export async function deployScoutProtocolBuilderNftContract({
-  ScoutProtocolERC20Address
+  ScoutScoutTokenERC20Address
 }: {
-  ScoutProtocolERC20Address: Address;
+  ScoutScoutTokenERC20Address: Address;
 }) {
   const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
@@ -18,7 +18,7 @@ export async function deployScoutProtocolBuilderNftContract({
 
   const proxy = await viem.deployContract(
     'ScoutProtocolBuilderNFTProxy',
-    [implementation.address, ScoutProtocolERC20Address, proceedsReceiver],
+    [implementation.address, ScoutScoutTokenERC20Address, proceedsReceiver],
     {
       client: { wallet: admin }
     }
@@ -40,4 +40,4 @@ export async function deployScoutProtocolBuilderNftContract({
   };
 }
 
-export type BuilderNftSeason02Fixture = Awaited<ReturnType<typeof deployScoutProtocolBuilderNftContract>>;
+export type ScoutProtocolBuilderNFTFixture = Awaited<ReturnType<typeof deployScoutProtocolBuilderNftContract>>;

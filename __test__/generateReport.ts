@@ -92,7 +92,7 @@ function parseTestReport(input: any[]): ParsedResult[] {
     'BuilderNFTPreSeason02Implementation',
     'ScoutProtocolToken',
     'ProtocolEASResolver',
-    'ScoutProtocolERC20',
+    'ScoutScoutTokenERC20',
     'ScoutProtocolProxy',
     'ScoutProtocolImplementation',
     'LockupWeeklyStreamCreator',

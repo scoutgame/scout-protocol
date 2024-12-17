@@ -4,7 +4,7 @@ import { parseEventLogs } from 'viem';
 
 import type { ProtocolTestFixture } from '../../../deployProtocol';
 import { deployProtocolContract } from '../../../deployProtocol';
-import { deployScoutTokenERC20, type ProtocolERC20TestFixture } from '../../../deployScoutTokenERC20';
+import { deployScoutTokenERC20, type ScoutTokenERC20TestFixture } from '../../../deployScoutTokenERC20';
 import type { WeeklyVestingTestFixture } from '../../../deployWeeklyVesting';
 import { deployWeeklyVesting } from '../../../deployWeeklyVesting';
 import type { GeneratedWallet } from '../../../generateWallets';
@@ -18,7 +18,7 @@ async function createStream({
   streamCreator,
   startDate
 }: {
-  erc20: ProtocolERC20TestFixture;
+  erc20: ScoutTokenERC20TestFixture;
   recipient: Address;
   vesting: WeeklyVestingTestFixture;
   streamCreator: GeneratedWallet;
@@ -26,7 +26,7 @@ async function createStream({
   weeks: number;
   startDate?: number | bigint;
 }) {
-  await erc20.approveProtocolERC20({
+  await erc20.approveScoutTokenERC20({
     args: { spender: vesting.WeeklyERC20Vesting.address, amount: amountToVest },
     wallet: streamCreator
   });
@@ -36,7 +36,7 @@ async function createStream({
   const receipt = await vesting.WeeklyERC20Vesting.write.createStream(
     [
       recipient,
-      BigInt(amountToVest) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER,
+      BigInt(amountToVest) * erc20.ScoutTokenERC20_DECIMAL_MULTIPLIER,
       typeof startDate === 'bigint' ? startDate : startDate ? BigInt(startDate) : BigInt(latest + 1000)
     ],
     {
@@ -56,7 +56,7 @@ async function createStream({
 }
 
 describe('LockupWeeklyStreamCreator', () => {
-  let erc20: ProtocolERC20TestFixture;
+  let erc20: ScoutTokenERC20TestFixture;
   let protocol: ProtocolTestFixture;
   let vesting: WeeklyVestingTestFixture;
   let streamCreator: GeneratedWallet;
@@ -64,10 +64,10 @@ describe('LockupWeeklyStreamCreator', () => {
   beforeEach(async () => {
     erc20 = await deployScoutTokenERC20();
     vesting = await deployWeeklyVesting({
-      ScoutERC20Address: erc20.ProtocolERC20.address
+      ScoutERC20Address: erc20.ScoutTokenERC20.address
     });
     protocol = await deployProtocolContract({
-      ProtocolERC20Address: erc20.ProtocolERC20.address
+      ScoutTokenERC20Address: erc20.ScoutTokenERC20.address
     });
     streamCreator = await walletFromKey();
   });
@@ -88,7 +88,7 @@ describe('LockupWeeklyStreamCreator', () => {
         const amountToVest = 100_000;
 
         // Approve the contract
-        await erc20.approveProtocolERC20({
+        await erc20.approveScoutTokenERC20({
           args: { spender: WeeklyERC20Vesting.address, amount: amountToVest },
           wallet: streamCreator
         });
@@ -98,7 +98,7 @@ describe('LockupWeeklyStreamCreator', () => {
         const receipt = await WeeklyERC20Vesting.write.createStream(
           [
             recipient.account.address,
-            BigInt(amountToVest) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER,
+            BigInt(amountToVest) * erc20.ScoutTokenERC20_DECIMAL_MULTIPLIER,
             BigInt(latest + 1000)
           ],
           {
@@ -119,7 +119,7 @@ describe('LockupWeeklyStreamCreator', () => {
         expect(streamLog[0].args.recipient).toEqual(recipient.account.address);
         expect(streamLog[0].args.sender).toEqual(streamCreator.account.address);
         expect(streamLog[0].args.amounts.deposit).toEqual(
-          BigInt(amountToVest) * erc20.ProtocolERC20_DECIMAL_MULTIPLIER
+          BigInt(amountToVest) * erc20.ScoutTokenERC20_DECIMAL_MULTIPLIER
         );
         expect(streamLog[0].args.cancelable).toEqual(true);
       });
@@ -139,7 +139,7 @@ describe('LockupWeeklyStreamCreator', () => {
           weeks: 10
         });
 
-        const balance = await erc20.balanceOfProtocolERC20({
+        const balance = await erc20.balanceOfScoutTokenERC20({
           account: streamCreator.account.address
         });
 
@@ -181,7 +181,7 @@ describe('LockupWeeklyStreamCreator', () => {
         let cumulativeClaimed = 0;
         const expectedPerTranche = allocationPercentages.map((percentage) => (amountToVest * percentage) / 100);
 
-        const recipientBalance = await erc20.balanceOfProtocolERC20({
+        const recipientBalance = await erc20.balanceOfScoutTokenERC20({
           account: ScoutProtocolProxyContract.address
         });
 
@@ -205,7 +205,7 @@ describe('LockupWeeklyStreamCreator', () => {
 
           cumulativeClaimed += expectedPerTranche[i];
 
-          const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
+          const recipientBalanceAfterClaim = await erc20.balanceOfScoutTokenERC20({
             account: ScoutProtocolProxyContract.address
           });
 
@@ -249,7 +249,7 @@ describe('LockupWeeklyStreamCreator', () => {
           startDate
         });
 
-        const recipientBalance = await erc20.balanceOfProtocolERC20({
+        const recipientBalance = await erc20.balanceOfScoutTokenERC20({
           account: recipient.account.address
         });
 
@@ -267,7 +267,7 @@ describe('LockupWeeklyStreamCreator', () => {
           });
         }
 
-        const recipientBalanceAfterClaim = await erc20.balanceOfProtocolERC20({
+        const recipientBalanceAfterClaim = await erc20.balanceOfScoutTokenERC20({
           account: recipient.account.address
         });
 
@@ -278,7 +278,7 @@ describe('LockupWeeklyStreamCreator', () => {
 
         const expectedRefund = amountToVest - totalClaimed;
 
-        const streamCreatorBalanceBeforeCancel = await erc20.balanceOfProtocolERC20({
+        const streamCreatorBalanceBeforeCancel = await erc20.balanceOfScoutTokenERC20({
           account: streamCreator.account.address
         });
 
@@ -287,7 +287,7 @@ describe('LockupWeeklyStreamCreator', () => {
           account: streamCreator.account
         });
 
-        const streamCreatorBalanceAfterCancel = await erc20.balanceOfProtocolERC20({
+        const streamCreatorBalanceAfterCancel = await erc20.balanceOfScoutTokenERC20({
           account: streamCreator.account.address
         });
 

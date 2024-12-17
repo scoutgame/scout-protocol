@@ -1,10 +1,10 @@
 import { viem } from 'hardhat';
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../deployBuilderNftPreSeason02';
-import { deployEASContracts } from '../../../deployEAS';
-import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
-import { walletFromKey, type GeneratedWallet } from '../../../generateWallets';
+import { deployEASContracts } from '../../../../deployEAS';
+import type { ScoutProtocolBuilderNFTFixture } from '../../../../deployScoutProtocolBuilderNft';
+import { loadScoutProtocolBuilderNFTFixtures } from '../../../../fixtures';
+import { walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
 
 function deployImplementation() {
   return viem.deployContract('BuilderNFTPreSeason02Implementation', []);
@@ -12,17 +12,17 @@ function deployImplementation() {
 
 type DeployedImplementation = Awaited<ReturnType<typeof deployImplementation>>;
 
-describe('BuilderNFTPreSeason02Upgradeable', function () {
-  let builderNftSeason02: BuilderNftSeason02Fixture;
+describe('ScoutProtocolBuilderNFTProxy', function () {
+  let scoutProtocolBuilderNFT: ScoutProtocolBuilderNFTFixture;
   let erc1155AdminAccount: GeneratedWallet;
   let userAccount: GeneratedWallet;
   let newImplementation: DeployedImplementation;
 
   beforeEach(async () => {
-    const fixtures = await loadBuilderNFTPreSeason02Fixtures();
+    const fixtures = await loadScoutProtocolBuilderNFTFixtures();
 
-    builderNftSeason02 = fixtures.builderNftSeason02;
-    erc1155AdminAccount = fixtures.builderNftSeason02.builderNftAdminAccount;
+    scoutProtocolBuilderNFT = fixtures.scoutProtocolBuilderNft;
+    erc1155AdminAccount = fixtures.scoutProtocolBuilderNft.builderNftAdminAccount;
     userAccount = await walletFromKey();
     newImplementation = await deployImplementation();
   });
@@ -31,12 +31,12 @@ describe('BuilderNFTPreSeason02Upgradeable', function () {
     describe('effects', function () {
       it('Updates the implementation address correctly', async function () {
         await expect(
-          builderNftSeason02.builderProxyContract.write.setImplementation([newImplementation.address], {
+          scoutProtocolBuilderNFT.builderProxyContract.write.setImplementation([newImplementation.address], {
             account: erc1155AdminAccount.account
           })
         ).resolves.toBeDefined();
 
-        const implementationAddress = await builderNftSeason02.builderProxyContract.read.implementation();
+        const implementationAddress = await scoutProtocolBuilderNFT.builderProxyContract.read.implementation();
         expect(getAddress(implementationAddress)).toEqual(getAddress(newImplementation.address));
       });
     });
@@ -44,7 +44,7 @@ describe('BuilderNFTPreSeason02Upgradeable', function () {
     describe('permissions', function () {
       it('Allows admin to set implementation', async function () {
         await expect(
-          builderNftSeason02.builderProxyContract.write.setImplementation([newImplementation.address], {
+          scoutProtocolBuilderNFT.builderProxyContract.write.setImplementation([newImplementation.address], {
             account: erc1155AdminAccount.account
           })
         ).resolves.toBeDefined();
@@ -52,7 +52,7 @@ describe('BuilderNFTPreSeason02Upgradeable', function () {
 
       it('Prevents non-admin from setting implementation', async function () {
         await expect(
-          builderNftSeason02.builderProxyContract.write.setImplementation([newImplementation.address], {
+          scoutProtocolBuilderNFT.builderProxyContract.write.setImplementation([newImplementation.address], {
             account: userAccount.account
           })
         ).rejects.toThrow('Caller is not the admin');
@@ -62,7 +62,7 @@ describe('BuilderNFTPreSeason02Upgradeable', function () {
     describe('validations', function () {
       it('Reverts if new implementation address is zero address', async function () {
         await expect(
-          builderNftSeason02.builderProxyContract.write.setImplementation(
+          scoutProtocolBuilderNFT.builderProxyContract.write.setImplementation(
             ['0x0000000000000000000000000000000000000000'],
             { account: erc1155AdminAccount.account }
           )
@@ -73,7 +73,7 @@ describe('BuilderNFTPreSeason02Upgradeable', function () {
         const wallet = await walletFromKey();
 
         await expect(
-          builderNftSeason02.builderProxyContract.write.setImplementation([wallet.account.address], {
+          scoutProtocolBuilderNFT.builderProxyContract.write.setImplementation([wallet.account.address], {
             account: erc1155AdminAccount.account
           })
         ).rejects.toThrow('Invalid address, must be a smart contract');
@@ -83,17 +83,17 @@ describe('BuilderNFTPreSeason02Upgradeable', function () {
         const badContract = await deployEASContracts().then((c) => c.ProtocolEASResolverContract);
 
         await expect(
-          builderNftSeason02.builderProxyContract.write.setImplementation([badContract.address], {
+          scoutProtocolBuilderNFT.builderProxyContract.write.setImplementation([badContract.address], {
             account: erc1155AdminAccount.account
           })
         ).rejects.toThrow('Invalid address, must accept the upgrade');
       });
 
       it('Reverts if new implementation address is the same as current', async function () {
-        const currentImplementation = await builderNftSeason02.builderProxyContract.read.implementation();
+        const currentImplementation = await scoutProtocolBuilderNFT.builderProxyContract.read.implementation();
 
         await expect(
-          builderNftSeason02.builderProxyContract.write.setImplementation([currentImplementation], {
+          scoutProtocolBuilderNFT.builderProxyContract.write.setImplementation([currentImplementation], {
             account: erc1155AdminAccount.account
           })
         ).rejects.toThrow('New implementation must be different');

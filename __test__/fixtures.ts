@@ -30,7 +30,7 @@ export async function loadContractWithStarterPackFixtures() {
 
 async function deployProtocolFixtures() {
   const token = await deployScoutTokenERC20();
-  const protocol = await deployProtocolContract({ ProtocolERC20Address: token.ProtocolERC20.address });
+  const protocol = await deployProtocolContract({ ScoutTokenERC20Address: token.ScoutTokenERC20.address });
   const eas = await deployEASContracts();
 
   return { token, protocol, eas };
@@ -48,7 +48,7 @@ async function deployBuilderNFTPreSeason02Fixtures() {
 async function deployScoutProtocolBuilderNFTFixtures() {
   const token = await deployScoutTokenERC20();
   const scoutProtocolBuilderNft = await deployScoutProtocolBuilderNftContract({
-    ScoutProtocolERC20Address: token.ProtocolERC20.address
+    ScoutScoutTokenERC20Address: token.ScoutTokenERC20.address
   });
 
   return { token, scoutProtocolBuilderNft };

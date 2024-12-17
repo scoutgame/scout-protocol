@@ -5,11 +5,11 @@ import { deployScoutTokenERC20 } from '../deployScoutTokenERC20';
 
 describe('Scout Protocol Builder NFT Proxy and Initialization', function () {
   it('Should set the correct admin, implementation and ERC20 token', async function () {
-    const { ProtocolERC20 } = await deployScoutTokenERC20();
+    const { ScoutTokenERC20 } = await deployScoutTokenERC20();
 
     const { builderProxyContract, builderImplementationContract, builderNftContract, builderNftAdminAccount } =
       await deployScoutProtocolBuilderNftContract({
-        ScoutProtocolERC20Address: ProtocolERC20.address
+        ScoutScoutTokenERC20Address: ScoutTokenERC20.address
       });
 
     const proxyAdmin = await builderProxyContract.read.admin();
@@ -18,6 +18,6 @@ describe('Scout Protocol Builder NFT Proxy and Initialization', function () {
 
     expect(proxyAdmin).toBe(getAddress(builderNftAdminAccount.account.address));
     expect(proxyImplementation).toBe(getAddress(builderImplementationContract.address));
-    expect(erc20).toBe(getAddress(ProtocolERC20.address));
+    expect(erc20).toBe(getAddress(ScoutTokenERC20.address));
   });
 });

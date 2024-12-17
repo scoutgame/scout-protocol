@@ -7,15 +7,15 @@ import { generateWallets } from './generateWallets';
 export async function deployScoutTokenERC20() {
   const { adminAccount, secondUserAccount } = await generateWallets();
 
-  const ProtocolERC20Deployed = await viem.deployContract('ScoutTokenERC20', [adminAccount.account.address], {
+  const ScoutTokenERC20Deployed = await viem.deployContract('ScoutTokenERC20', [adminAccount.account.address], {
     client: { wallet: adminAccount }
   });
 
-  const ProtocolERC20 = await viem.getContractAt('ScoutTokenERC20', ProtocolERC20Deployed.address, {
+  const ScoutTokenERC20 = await viem.getContractAt('ScoutTokenERC20', ScoutTokenERC20Deployed.address, {
     client: { wallet: adminAccount }
   });
 
-  const decimals = BigInt(await ProtocolERC20.read.decimals());
+  const decimals = BigInt(await ScoutTokenERC20.read.decimals());
 
   const decimalMultiplier = 10n ** decimals;
 
@@ -26,11 +26,11 @@ export async function deployScoutTokenERC20() {
     args: { to: Address; amount: number };
     wallet: GeneratedWallet;
   }) {
-    await ProtocolERC20.write.transfer([to, BigInt(amount) * decimalMultiplier], { account: wallet.account });
+    await ScoutTokenERC20.write.transfer([to, BigInt(amount) * decimalMultiplier], { account: wallet.account });
   }
 
   async function balanceOf({ account }: { account: Address }) {
-    const balance = await ProtocolERC20.read.balanceOf([account], { account: secondUserAccount.account });
+    const balance = await ScoutTokenERC20.read.balanceOf([account], { account: secondUserAccount.account });
 
     return Number(balance / decimalMultiplier);
   }
@@ -42,7 +42,7 @@ export async function deployScoutTokenERC20() {
     args: { spender: Address; amount: number };
     wallet: GeneratedWallet;
   }) {
-    await ProtocolERC20.write.approve([spender, BigInt(amount) * decimalMultiplier], {
+    await ScoutTokenERC20.write.approve([spender, BigInt(amount) * decimalMultiplier], {
       account: wallet.account
     });
   }
@@ -54,7 +54,7 @@ export async function deployScoutTokenERC20() {
     args: { from: Address; to: Address; amount: number };
     wallet: GeneratedWallet;
   }) {
-    await ProtocolERC20.write.transferFrom([from, to, BigInt(amount) * decimalMultiplier], {
+    await ScoutTokenERC20.write.transferFrom([from, to, BigInt(amount) * decimalMultiplier], {
       account: wallet.account
     });
   }
@@ -68,16 +68,16 @@ export async function deployScoutTokenERC20() {
 
   // Return the proxy with the implementation ABI attached
   return {
-    ProtocolERC20,
-    ProtocolERC20AdminAccount: adminAccount,
-    ProtocolERC20_DECIMALS: decimals,
-    ProtocolERC20_DECIMAL_MULTIPLIER: decimalMultiplier,
-    transferProtocolERC20: transfer,
-    balanceOfProtocolERC20: balanceOf,
-    approveProtocolERC20: approve,
-    transferProtocolERC20From: transferFrom,
+    ScoutTokenERC20,
+    ScoutTokenERC20AdminAccount: adminAccount,
+    ScoutTokenERC20_DECIMALS: decimals,
+    ScoutTokenERC20_DECIMAL_MULTIPLIER: decimalMultiplier,
+    transferScoutTokenERC20: transfer,
+    balanceOfScoutTokenERC20: balanceOf,
+    approveScoutTokenERC20: approve,
+    transferScoutTokenERC20From: transferFrom,
     fundWallet
   };
 }
 
-export type ProtocolERC20TestFixture = Awaited<ReturnType<typeof deployScoutTokenERC20>>;
+export type ScoutTokenERC20TestFixture = Awaited<ReturnType<typeof deployScoutTokenERC20>>;

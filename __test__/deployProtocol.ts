@@ -3,14 +3,14 @@ import type { Address } from 'viem';
 
 import { generateWallets } from './generateWallets';
 
-export async function deployProtocolContract({ ProtocolERC20Address }: { ProtocolERC20Address: Address }) {
+export async function deployProtocolContract({ ScoutTokenERC20Address }: { ScoutTokenERC20Address: Address }) {
   const { adminAccount: admin, userAccount: user } = await generateWallets();
 
   const implementation = await viem.deployContract('ScoutProtocolImplementation');
 
   const proxy = await viem.deployContract(
     'ScoutProtocolProxy',
-    [implementation.address, ProtocolERC20Address as Address],
+    [implementation.address, ScoutTokenERC20Address as Address],
     {
       client: { wallet: admin }
     }
