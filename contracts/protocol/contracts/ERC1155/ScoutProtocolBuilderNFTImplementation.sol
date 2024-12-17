@@ -322,11 +322,8 @@ contract ScoutProtocolBuilderNFTImplementation is
         );
 
         require(
-            bytes(
-                ScoutProtocolBuilderNFTStorage.getAddressToBuilderRegistry(
-                    account
-                )
-            ).length == 0,
+            ScoutProtocolBuilderNFTStorage.getAddressToTokenRegistry(account) ==
+                0,
             "Account already linked to a builder"
         );
 
@@ -341,14 +338,8 @@ contract ScoutProtocolBuilderNFTImplementation is
             _nextTokenId,
             builderId
         );
-        ScoutProtocolBuilderNFTStorage.setAddressToBuilderRegistry(
-            account,
-            builderId
-        );
-        ScoutProtocolBuilderNFTStorage.setBuilderToAddressRegistry(
-            builderId,
-            account
-        );
+
+        updateBuilderTokenAddress(_nextTokenId, account);
 
         // Emit BuilderTokenRegistered event
         emit BuilderTokenRegistered(_nextTokenId, builderId);
@@ -387,14 +378,11 @@ contract ScoutProtocolBuilderNFTImplementation is
     }
 
     function forwardProceeds(uint256 tokenId, uint256 cost) internal {
-        address _paymentToken = scoutTokenERC20();
+        address _paymentToken = ERC20Token();
 
         // Transfer builder rewards to builder ----------------------------
-        string memory builderId = ScoutProtocolBuilderNFTStorage
-            .getTokenToBuilderRegistry(tokenId);
-
         address _builderAddress = ScoutProtocolBuilderNFTStorage
-            .getBuilderToAddressRegistry(builderId);
+            .getTokenToAddressRegistry(tokenId);
 
         require(
             _builderAddress != address(0),
@@ -473,7 +461,7 @@ contract ScoutProtocolBuilderNFTImplementation is
         return MemoryUtils._getAddress(MemoryUtils.MINTER_SLOT);
     }
 
-    function scoutTokenERC20() public view returns (address) {
+    function ERC20Token() public view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }
 
@@ -512,6 +500,43 @@ contract ScoutProtocolBuilderNFTImplementation is
             .getBuilderToTokenRegistry(builderId);
         require(tokenId != 0, "Builder not registered");
         return tokenId;
+    }
+
+    function getBuilderAddressForToken(
+        uint256 tokenId
+    ) public view returns (address) {
+        return
+            ScoutProtocolBuilderNFTStorage.getTokenToAddressRegistry(tokenId);
+    }
+
+    function updateBuilderTokenAddress(
+        uint256 tokenId,
+        address newAddress
+    ) public {
+        require(newAddress != address(0), "Invalid address");
+
+        address _currentBuilderAddress = getBuilderAddressForToken(tokenId);
+
+        require(
+            _isAdmin() || _currentBuilderAddress == _msgSender(),
+            "Caller is not admin or builder"
+        );
+
+        ScoutProtocolBuilderNFTStorage.setTokenToAddressRegistry(
+            tokenId,
+            newAddress
+        );
+
+        ScoutProtocolBuilderNFTStorage.setAddressToTokenRegistry(
+            newAddress,
+            tokenId
+        );
+
+        // Remove old builder address from address to token registry
+        ScoutProtocolBuilderNFTStorage.setAddressToTokenRegistry(
+            _currentBuilderAddress,
+            0
+        );
     }
 
     function totalBuilderTokens() external view returns (uint256) {

@@ -7,8 +7,8 @@ library ScoutProtocolBuilderNFTStorage {
         mapping(uint256 => uint256) totalSupply;
         mapping(uint256 => string) tokenToBuilderRegistry;
         mapping(string => uint256) builderToTokenRegistry;
-        mapping(string => address) builderToAddressRegistry;
-        mapping(address => string) addressToBuilderRegistry;
+        mapping(uint256 => address) tokenToAddressRegistry;
+        mapping(address => uint256) addressToTokenRegistry;
         // Mapping from account to operator approvals
         mapping(address => mapping(address => bool)) _operatorApprovals;
         uint256 nextTokenId;
@@ -69,32 +69,32 @@ library ScoutProtocolBuilderNFTStorage {
         return _tokenId;
     }
 
-    function setBuilderToAddressRegistry(
-        string memory builder,
+    function setTokenToAddressRegistry(
+        uint256 tokenId,
         address account
     ) internal {
-        layout().builderToAddressRegistry[builder] = account;
+        layout().tokenToAddressRegistry[tokenId] = account;
     }
 
-    function getBuilderToAddressRegistry(
-        string memory builder
+    function getTokenToAddressRegistry(
+        uint256 tokenId
     ) internal view returns (address) {
-        address _account = layout().builderToAddressRegistry[builder];
+        address _account = layout().tokenToAddressRegistry[tokenId];
         return _account;
     }
 
-    function setAddressToBuilderRegistry(
+    function setAddressToTokenRegistry(
         address account,
-        string memory builder
+        uint256 tokenId
     ) internal {
-        layout().addressToBuilderRegistry[account] = builder;
+        layout().addressToTokenRegistry[account] = tokenId;
     }
 
-    function getAddressToBuilderRegistry(
+    function getAddressToTokenRegistry(
         address account
-    ) internal view returns (string memory) {
-        string memory _builderId = layout().addressToBuilderRegistry[account];
-        return _builderId;
+    ) internal view returns (uint256) {
+        uint256 _tokenId = layout().addressToTokenRegistry[account];
+        return _tokenId;
     }
 
     function incrementNextTokenId() internal {
