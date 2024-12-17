@@ -339,7 +339,7 @@ contract ScoutProtocolBuilderNFTImplementation is
             builderId
         );
 
-        updateBuilderTokenAddress(_nextTokenId, account);
+        _updateBuilderTokenAddress(_nextTokenId, account);
 
         // Emit BuilderTokenRegistered event
         emit BuilderTokenRegistered(_nextTokenId, builderId);
@@ -513,14 +513,28 @@ contract ScoutProtocolBuilderNFTImplementation is
         uint256 tokenId,
         address newAddress
     ) public {
-        require(newAddress != address(0), "Invalid address");
-
         address _currentBuilderAddress = getBuilderAddressForToken(tokenId);
 
         require(
             _isAdmin() || _currentBuilderAddress == _msgSender(),
             "Caller is not admin or builder"
         );
+
+        _updateBuilderTokenAddress(tokenId, newAddress);
+    }
+
+    function _updateBuilderTokenAddress(
+        uint256 tokenId,
+        address newAddress
+    ) internal {
+        require(newAddress != address(0), "Invalid address");
+
+        string memory builderId = ScoutProtocolBuilderNFTStorage
+            .getTokenToBuilderRegistry(tokenId);
+        require(bytes(builderId).length > 0, "Token not yet allocated");
+
+        address _currentBuilderAddress = ScoutProtocolBuilderNFTStorage
+            .getTokenToAddressRegistry(tokenId);
 
         ScoutProtocolBuilderNFTStorage.setTokenToAddressRegistry(
             tokenId,
