@@ -1,10 +1,10 @@
 import { viem } from 'hardhat';
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftPreSeason02';
-import { deployEASContracts } from '../../../../deployEAS';
-import { loadBuilderNFTPreSeason02Fixtures } from '../../../../fixtures';
-import { walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
+import type { BuilderNftSeason02Fixture } from '../../../deployBuilderNftPreSeason02';
+import { deployEASContracts } from '../../../deployEAS';
+import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
+import { walletFromKey, type GeneratedWallet } from '../../../generateWallets';
 
 function deployImplementation() {
   return viem.deployContract('BuilderNFTPreSeason02Implementation', []);

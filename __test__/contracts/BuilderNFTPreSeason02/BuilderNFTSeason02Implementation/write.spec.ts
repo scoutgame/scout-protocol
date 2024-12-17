@@ -1,11 +1,10 @@
-/* @ts-nocheck */
 import { v4 as uuid } from 'uuid';
 import { parseEventLogs } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../../deployBuilderNftPreSeason02';
-import type { ProtocolERC20TestFixture } from '../../../../deployScoutTokenERC20';
-import { loadBuilderNFTPreSeason02Fixtures } from '../../../../fixtures';
-import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
+import type { BuilderNftSeason02Fixture } from '../../../deployBuilderNftPreSeason02';
+import type { USDCTestFixture } from '../../../deployTestUSDC';
+import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
+import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../generateWallets';
 
 async function registerBuilderToken({
   wallet,
@@ -33,7 +32,7 @@ async function mintNft({
   tokenId
 }: {
   wallet: GeneratedWallet;
-  erc20: ProtocolERC20TestFixture;
+  erc20: USDCTestFixture;
   nft: BuilderNftSeason02Fixture;
   amount: number | bigint;
   tokenId: number | bigint;
@@ -45,12 +44,13 @@ async function mintNft({
   ]);
 
   // Fund wallet
-  await erc20.ProtocolERC20.write.transfer([wallet.account.address, price], {
-    account: erc20.ProtocolERC20AdminAccount.account
+  await erc20.mintUSDCTo({
+    account: wallet.account.address,
+    amount: Number(price / erc20.USDC_DECIMALS_MULTIPLIER)
   });
 
   // Approve the contract to spend USDC
-  await erc20.ProtocolERC20.write.approve([nft.builderNftContract.address, price], {
+  await erc20.USDC.write.approve([nft.builderNftContract.address, price], {
     account: wallet.account
   });
 
@@ -61,9 +61,8 @@ async function mintNft({
 }
 
 describe('BuilderNFTPreSeason02Implementation', function () {
-  let token: ProtocolERC20TestFixture;
+  let token: USDCTestFixture;
   let builderNftSeason02: BuilderNftSeason02Fixture;
-  let erc20AdminAccount: GeneratedWallet;
   let erc1155AdminAccount: GeneratedWallet;
 
   let userAccount: GeneratedWallet;
@@ -74,7 +73,6 @@ describe('BuilderNFTPreSeason02Implementation', function () {
 
     token = fixtures.token;
     builderNftSeason02 = fixtures.builderNftSeason02;
-    erc20AdminAccount = fixtures.token.ProtocolERC20AdminAccount;
     erc1155AdminAccount = fixtures.builderNftSeason02.builderNftAdminAccount;
     userAccount = await walletFromKey();
   });
@@ -197,12 +195,13 @@ describe('BuilderNFTPreSeason02Implementation', function () {
           BigInt(1),
           BigInt(1)
         ]);
-        await token.ProtocolERC20.write.transfer([userAccount.account.address, mintPrice], {
-          account: erc20AdminAccount.account
+        await token.mintUSDCTo({
+          account: userAccount.account.address,
+          amount: Number(mintPrice / token.USDC_DECIMALS_MULTIPLIER)
         });
 
         // Approve NFT contract to spend user's tokens
-        await token.ProtocolERC20.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
+        await token.USDC.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
@@ -234,12 +233,13 @@ describe('BuilderNFTPreSeason02Implementation', function () {
           BigInt(1),
           BigInt(1)
         ]);
-        await token.ProtocolERC20.write.transfer([userAccount.account.address, mintPrice], {
-          account: erc20AdminAccount.account
+        await token.mintUSDCTo({
+          account: userAccount.account.address,
+          amount: Number(mintPrice / token.USDC_DECIMALS_MULTIPLIER)
         });
 
         // Approve NFT contract to spend user's tokens
-        await token.ProtocolERC20.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
+        await token.USDC.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
@@ -310,12 +310,13 @@ describe('BuilderNFTPreSeason02Implementation', function () {
           BigInt(1),
           tokensToBuy
         ]);
-        await token.ProtocolERC20.write.transfer([userAccount.account.address, mintPrice], {
-          account: erc20AdminAccount.account
+        await token.mintUSDCTo({
+          account: userAccount.account.address,
+          amount: Number(mintPrice / token.USDC_DECIMALS_MULTIPLIER)
         });
 
         // Approve NFT contract to spend user's tokens
-        await token.ProtocolERC20.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
+        await token.USDC.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
@@ -363,11 +364,12 @@ describe('BuilderNFTPreSeason02Implementation', function () {
           BigInt(1),
           BigInt(1)
         ]);
-        await token.ProtocolERC20.write.transfer([userAccount.account.address, mintPrice], {
-          account: erc20AdminAccount.account
+        await token.mintUSDCTo({
+          account: userAccount.account.address,
+          amount: Number(mintPrice / token.USDC_DECIMALS_MULTIPLIER)
         });
 
-        await token.ProtocolERC20.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
+        await token.USDC.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
@@ -386,11 +388,12 @@ describe('BuilderNFTPreSeason02Implementation', function () {
           unregisteredTokenId,
           BigInt(1)
         ]);
-        await token.ProtocolERC20.write.transfer([userAccount.account.address, mintPrice], {
-          account: erc20AdminAccount.account
+        await token.mintUSDCTo({
+          account: userAccount.account.address,
+          amount: Number(mintPrice / token.USDC_DECIMALS_MULTIPLIER)
         });
 
-        await token.ProtocolERC20.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
+        await token.USDC.write.approve([builderNftSeason02.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
