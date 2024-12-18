@@ -8,12 +8,7 @@
       },
       {
         "internalType": "address",
-        "name": "_paymentTokenAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_proceedsReceiver",
+        "name": "_claimsTokenAddress",
         "type": "address"
       }
     ],
