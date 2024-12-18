@@ -989,7 +989,7 @@ export class ScoutProtocolBuilderNFTImplementationClient {
     return result as bigint;
   }
 
-  async balanceOfBatch(params: { args: { accounts: any; tokenIds: bigint } }): Promise<bigint> {
+  async balanceOfBatch(params: { args: { accounts: Address[]; tokenIds: bigint[] } }): Promise<bigint[]> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'balanceOfBatch',
@@ -1009,7 +1009,7 @@ export class ScoutProtocolBuilderNFTImplementationClient {
     });
 
     // Parse the result based on the return type
-    return result as bigint;
+    return result as bigint[];
   }
 
   async burn(params: {
@@ -1378,7 +1378,7 @@ export class ScoutProtocolBuilderNFTImplementationClient {
   }
 
   async safeBatchTransferFrom(params: {
-    args: { from: Address; to: Address; tokenIds: bigint; amounts: bigint; data: any };
+    args: { from: Address; to: Address; tokenIds: bigint[]; amounts: bigint[]; data: string };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1407,7 +1407,7 @@ export class ScoutProtocolBuilderNFTImplementationClient {
   }
 
   async safeTransferFrom(params: {
-    args: { from: Address; to: Address; tokenId: bigint; amount: bigint; data: any };
+    args: { from: Address; to: Address; tokenId: bigint; amount: bigint; data: string };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1580,7 +1580,7 @@ export class ScoutProtocolBuilderNFTImplementationClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async supportsInterface(params: { args: { interfaceId: any } }): Promise<boolean> {
+  async supportsInterface(params: { args: { interfaceId: string } }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'supportsInterface',

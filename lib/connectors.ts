@@ -119,11 +119,12 @@ export const connectors = {
         scoutERC20: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1'
       },
       stg: {
-        scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0'
+        scoutERC20: '0xa5a71c88478894077650f27dd7b14fdabe3a03f0'
       }
     },
     scoutProtocolBuilderNFT: {
-      dev: '0xf04166ce2d59286750482d2cb6af76db0c7d7f71'
+      dev: '0xf04166ce2d59286750482d2cb6af76db0c7d7f71',
+      stg: '0x79fde83f36dd0946eba86bd69fc0ea146cd397d2'
     },
     scoutProtocol: {
       dev: {

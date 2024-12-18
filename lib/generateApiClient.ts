@@ -6,10 +6,18 @@ import type { Abi } from 'viem';
 
 // Helper to convert Solidity types to TypeScript types
 function solidityTypeToTsType(solType: string): string {
-  if (solType === 'address') return 'Address';
-  if (solType.startsWith('uint') || solType.startsWith('int')) return 'BigInt';
-  if (solType === 'bool') return 'boolean';
-  if (solType === 'string') return 'string';
+  if (solType.startsWith('address')) return solType.endsWith('[]') ? 'Address[]' : 'Address';
+  if (solType.startsWith('bytes')) return solType.endsWith('[]') ? 'string[]' : 'string';
+  if (solType.startsWith('bytes')) return 'string';
+  if (solType.startsWith('uint') || solType.startsWith('int')) {
+    return solType.endsWith('[]') ? 'bigint[]' : 'bigint';
+  }
+  if (solType === 'bool' || solType === 'bool[]') {
+    return solType === 'bool[]' ? 'boolean[]' : 'boolean';
+  }
+  if (solType === 'string' || solType === 'string[]') {
+    return solType === 'string[]' ? 'string[]' : 'string';
+  }
   return 'any'; // Fallback for unsupported types
 }
 
