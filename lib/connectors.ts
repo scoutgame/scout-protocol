@@ -124,9 +124,9 @@ export const connectors = {
     },
     scoutProtocol: {
       dev: {
-        protocol: '0xc33df3bfe9420d3f0fdb329211a5532212281f33',
+        protocol: '0xdb8ed5951d51e31a2f6e751a45680c121e44f010',
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
-        sablierLockup: '0x844419109deb3a82f6f4aea43cc7cc1de8f86a82'
+        sablierLockup: '0x943f493d3b6c7a8d7e0b48f67f84c17b0177dba2'
       },
       stg: {
         protocol: '0x5ba1cf70b94592e21ff1b68b3c0e68c0c2279865',
