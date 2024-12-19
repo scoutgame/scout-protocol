@@ -2,6 +2,7 @@ import type { ProvableClaim } from '@charmverse/core/protocol';
 import { generateMerkleTree, getMerkleProofs } from '@charmverse/core/protocol';
 import { mine, time } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
 import { keccak256, randomBytes } from 'ethers';
+import { parseEventLogs } from 'viem';
 
 import { type ProtocolTestFixture } from '../../../../deployProtocol';
 import type { ScoutTokenERC20TestFixture } from '../../../../deployScoutTokenERC20';
@@ -145,6 +146,57 @@ describe('ScoutProtocolImplementation', function () {
         }
       });
     });
+
+    describe('events', function () {
+      it('emits a TokensClaimed event for each claim', async function () {
+        const weeks = [week, '2024-W42', '2024-W43'];
+
+        for (let i = 0; i < weeks.length; i++) {
+          const _week = weeks[i];
+
+          await protocol.protocolContract.write.setWeeklyMerkleRoot(
+            [
+              {
+                isoWeek: _week,
+                merkleRoot: `0x${merkleTree.rootHash}`,
+                merkleTreeUri: `https://ipfs.com/gateway/<content-hash>`,
+                validUntil: BigInt(Math.round(Date.now() / 1000) + 60 * 60 * 24 * 26)
+              }
+            ],
+            {
+              account: admin.account
+            }
+          );
+        }
+
+        const claimData = weeks.map((_week) => ({ week: _week, amount: BigInt(userClaim.amount), proofs }));
+
+        const tx = await protocol.protocolContract.write.multiClaim([claimData], { account: user.account });
+
+        const receipt = await user.waitForTransactionReceipt({ hash: tx });
+
+        const events = parseEventLogs({
+          eventName: 'TokensClaimed',
+          abi: protocol.protocolContract.abi,
+          logs: receipt.logs
+        });
+
+        expect(events).toHaveLength(weeks.length);
+
+        for (let i = 0; i < events.length; i++) {
+          expect(events[i]).toMatchObject(
+            expect.objectContaining({
+              args: {
+                user: user.account.address,
+                amount: BigInt(userClaim.amount),
+                week: weeks[i],
+                merkleRoot: `0x${merkleTree.rootHash}`
+              }
+            })
+          );
+        }
+      });
+    });
   });
 
   describe('claim', function () {
@@ -174,6 +226,27 @@ describe('ScoutProtocolImplementation', function () {
             account: user.account
           })
         ).rejects.toThrow('Contract is paused');
+      });
+    });
+
+    describe('events', function () {
+      it('emits a TokensClaimed event', async function () {
+        const tx = await protocol.protocolContract.write.claim([{ week, amount: BigInt(userClaim.amount), proofs }], {
+          account: user.account
+        });
+
+        const receipt = await user.waitForTransactionReceipt({ hash: tx });
+
+        const event = parseEventLogs({
+          eventName: 'TokensClaimed',
+          abi: protocol.protocolContract.abi,
+          logs: receipt.logs
+        });
+
+        expect(event).toHaveLength(1);
+        expect(event[0].args.user).toEqual(user.account.address);
+        expect(event[0].args.amount).toEqual(BigInt(userClaim.amount));
+        expect(event[0].args.week).toEqual(week);
       });
     });
 
