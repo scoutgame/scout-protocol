@@ -704,7 +704,7 @@ export class BuilderNFTSeasonOneImplementation01Client {
     return result as bigint;
   }
 
-  async balanceOfBatch(params: { args: { accounts: any; ids: bigint } }): Promise<bigint> {
+  async balanceOfBatch(params: { args: { accounts: Address[]; ids: bigint[] } }): Promise<bigint[]> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'balanceOfBatch',
@@ -724,7 +724,7 @@ export class BuilderNFTSeasonOneImplementation01Client {
     });
 
     // Parse the result based on the return type
-    return result as bigint;
+    return result as bigint[];
   }
 
   async burn(params: {
@@ -1195,7 +1195,7 @@ export class BuilderNFTSeasonOneImplementation01Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async supportsInterface(params: { args: { interfaceId: any } }): Promise<boolean> {
+  async supportsInterface(params: { args: { interfaceId: string } }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'supportsInterface',

@@ -64,7 +64,7 @@ task('interactProtocolEASResolver', 'Interact with ScoutGame Protocol EAS Resolv
       throw new Error('Proxy contract address not found in connector');
     }
 
-    const ScoutProtocolERC20Client = new _ScoutProtocolEASResolverClient({
+    const ScoutScoutTokenERC20Client = new _ScoutProtocolEASResolverClient({
       chain: connector.chain,
       contractAddress,
       walletClient: getWalletClient({ chain: connector.chain, privateKey, rpcUrl: connector.rpcUrl })
@@ -72,7 +72,7 @@ task('interactProtocolEASResolver', 'Interact with ScoutGame Protocol EAS Resolv
 
     const currentAccount = privateKeyToAccount(privateKey);
 
-    const currentAdmin = await ScoutProtocolERC20Client.admin();
+    const currentAdmin = await ScoutScoutTokenERC20Client.admin();
 
     if (currentAccount.address === currentAdmin) {
       console.log('ℹ️ You are connected with the production wallet. Please be careful with the actions you perform.');

@@ -5,6 +5,7 @@ import { deployBuilderNftPreSeason02Contract } from './deployBuilderNftPreSeason
 import { deployBuilderNftStarterPackContract } from './deployBuilderNftStarterPack';
 import { deployEASContracts } from './deployEAS';
 import { deployProtocolContract } from './deployProtocol';
+import { deployScoutProtocolBuilderNftContract } from './deployScoutProtocolBuilderNft';
 import { deployScoutTokenERC20 } from './deployScoutTokenERC20';
 import { deployTestUSDC } from './deployTestUSDC';
 
@@ -29,7 +30,7 @@ export async function loadContractWithStarterPackFixtures() {
 
 async function deployProtocolFixtures() {
   const token = await deployScoutTokenERC20();
-  const protocol = await deployProtocolContract({ ProtocolERC20Address: token.ProtocolERC20.address });
+  const protocol = await deployProtocolContract({ ScoutTokenERC20Address: token.ScoutTokenERC20.address });
   const eas = await deployEASContracts();
 
   return { token, protocol, eas };
@@ -44,12 +45,25 @@ async function deployBuilderNFTPreSeason02Fixtures() {
   return { token, builderNftSeason02 };
 }
 
+async function deployScoutProtocolBuilderNFTFixtures() {
+  const token = await deployScoutTokenERC20();
+  const scoutProtocolBuilderNft = await deployScoutProtocolBuilderNftContract({
+    ScoutScoutTokenERC20Address: token.ScoutTokenERC20.address
+  });
+
+  return { token, scoutProtocolBuilderNft };
+}
+
 export async function loadScoutTokenERC20Fixtures() {
   return loadFixture(deployScoutTokenERC20);
 }
 
 export async function loadBuilderNFTPreSeason02Fixtures() {
   return loadFixture(deployBuilderNFTPreSeason02Fixtures);
+}
+
+export async function loadScoutProtocolBuilderNFTFixtures() {
+  return loadFixture(deployScoutProtocolBuilderNFTFixtures);
 }
 
 export async function loadProtocolFixtures() {

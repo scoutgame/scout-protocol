@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class ScoutProtocolBuilderNFTUpgradeableClient {
+export class ScoutProtocolBuilderNFTProxyClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;
@@ -38,19 +38,6 @@ export class ScoutProtocolBuilderNFTUpgradeableClient {
   private chain: Chain;
 
   public abi: Abi = [
-    {
-      inputs: [],
-      name: 'ERC20_DECIMALS',
-      outputs: [
-        {
-          internalType: 'uint256',
-          name: '',
-          type: 'uint256'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
     {
       inputs: [],
       name: 'admin',
@@ -241,29 +228,6 @@ export class ScoutProtocolBuilderNFTUpgradeableClient {
       this.walletClient = walletClient;
       this.publicClient = walletClient as PublicClient;
     }
-  }
-
-  async ERC20_DECIMALS(): Promise<bigint> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'ERC20_DECIMALS',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'ERC20_DECIMALS',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as bigint;
   }
 
   async admin(): Promise<Address> {

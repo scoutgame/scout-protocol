@@ -11,6 +11,8 @@ export type ContractDeploymentEnvironment = 'dev' | 'stg' | 'prod';
 
 type ContractDeployment<T extends string> = Partial<Record<ContractDeploymentEnvironment, Record<T, Address>>>;
 
+type SingleContractDeployment = Partial<Record<ContractDeploymentEnvironment, Address | null>>;
+
 type Connector = {
   chain: Chain;
   rpcUrl: string;
@@ -29,8 +31,9 @@ type Connector = {
     SablierV2LockupTranched: Address | null;
   };
   preseason02Nft?: ContractDeployment<'preseason02Nft'>;
+  scoutProtocolBuilderNFT?: SingleContractDeployment;
   scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'sablierLockup'>;
-  scoutERC20?: ContractDeployment<'scoutERC20'>;
+  scoutERC20?: SingleContractDeployment;
   superchainBridge?: Address | null;
 };
 
@@ -112,23 +115,23 @@ export const connectors = {
       }
     },
     scoutERC20: {
-      dev: {
-        scoutERC20: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1'
-      },
-      stg: {
-        scoutERC20: '0x4abb40eceddf8d4e2a59996ada8e5baea0bff5e0'
-      }
+      dev: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1',
+      stg: '0xa5a71c88478894077650f27dd7b14fdabe3a03f0'
+    },
+    scoutProtocolBuilderNFT: {
+      dev: '0xf04166ce2d59286750482d2cb6af76db0c7d7f71',
+      stg: '0x79fde83f36dd0946eba86bd69fc0ea146cd397d2'
     },
     scoutProtocol: {
       dev: {
-        protocol: '0xc33df3bfe9420d3f0fdb329211a5532212281f33',
+        protocol: '0xdb8ed5951d51e31a2f6e751a45680c121e44f010',
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
-        sablierLockup: '0x844419109deb3a82f6f4aea43cc7cc1de8f86a82'
+        sablierLockup: '0x943f493d3b6c7a8d7e0b48f67f84c17b0177dba2'
       },
       stg: {
-        protocol: '0xdf6b022854cf0df9a15f923f0c3df55d099899e1',
+        protocol: '0x5ba1cf70b94592e21ff1b68b3c0e68c0c2279865',
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
-        sablierLockup: '0xb24d94b9a502bdcaff14649026ef8a4d91a0c85d'
+        sablierLockup: '0xcea98f113eab979e3e9bce0053b8c45fe593e617'
       }
     },
     sablier: {
@@ -156,9 +159,7 @@ export const connectors = {
       }
     },
     scoutERC20: {
-      dev: {
-        scoutERC20: '0xb3397c8011a0349d696d4f0e27d8883adc56cd05'
-      }
+      dev: '0xa08d278fb5dcb212bf0274e2728a8ec5fd951829'
     }
   } as Connector,
   supersimL2A: {
@@ -173,9 +174,7 @@ export const connectors = {
       }
     },
     scoutERC20: {
-      dev: {
-        scoutERC20: '0xa08d278fb5dcb212bf0274e2728a8ec5fd951829'
-      }
+      dev: '0xa08d278fb5dcb212bf0274e2728a8ec5fd951829'
     },
     superchainBridge: '0x4200000000000000000000000000000000000028'
   } as Connector,

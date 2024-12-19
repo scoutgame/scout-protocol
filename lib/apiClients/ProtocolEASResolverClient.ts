@@ -694,7 +694,7 @@ export class ProtocolEASResolverClient {
   }
 
   async multiAttest(params: {
-    args: { attestations: any; values: bigint };
+    args: { attestations: any; values: bigint[] };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -723,7 +723,7 @@ export class ProtocolEASResolverClient {
   }
 
   async multiRevoke(params: {
-    args: { attestations: any; values: bigint };
+    args: { attestations: any; values: bigint[] };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {

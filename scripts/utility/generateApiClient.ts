@@ -34,8 +34,12 @@ async function main() {
     {
       type: 'input',
       name: 'functionIndices',
-      message: 'Enter the numbers of the functions you want in the API client, separated by commas:',
+      message: 'Enter the numbers of the functions you want in the API client, separated by commas or type all:',
       validate: (input) => {
+        if (input === 'all') {
+          return true;
+        }
+
         const indices = input.split(',').map(Number);
         return indices.every((index) => index > 0 && index <= abi.length) ? true : 'Invalid function number(s)';
       }
@@ -43,9 +47,10 @@ async function main() {
   ]);
 
   // Map selected functions and display them for confirmation
-  const selectedFunctionIndices = functionIndices
-    .split(',')
-    .map((num: string) => parseInt(num.trim(), 10) - 1) as number[];
+  const selectedFunctionIndices =
+    functionIndices === 'all'
+      ? Array.from({ length: abi.length }, (_, i) => i)
+      : (functionIndices.split(',').map((num: string) => parseInt(num.trim(), 10) - 1) as number[]);
   const selectedFunctions = selectedFunctionIndices.map((index) => ({
     index: index + 1, // +1 to display correct user-facing index
     name: abi[index].name,

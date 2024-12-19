@@ -237,7 +237,7 @@ export class IERC7802Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async supportsInterface(params: { args: { interfaceId: any } }): Promise<boolean> {
+  async supportsInterface(params: { args: { interfaceId: string } }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'supportsInterface',

@@ -1169,7 +1169,7 @@ export class ScoutTokenERC20Client {
     return result as Address;
   }
 
-  async supportsInterface(params: { args: { _interfaceId: any } }): Promise<boolean> {
+  async supportsInterface(params: { args: { _interfaceId: string } }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'supportsInterface',

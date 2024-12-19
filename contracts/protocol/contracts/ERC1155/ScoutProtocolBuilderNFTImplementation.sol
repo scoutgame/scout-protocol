@@ -3,7 +3,7 @@ pragma solidity ^0.8.20;
 
 import "../../libs/MemoryUtils.sol";
 import "../../libs/ScoutProtocolAccessControl.sol";
-import "../../libs/ScoutProtocolBuilderNFTStorage.sol";
+import "./libs/ScoutProtocolBuilderNFTStorage.sol";
 import "../../libs/StringUtils.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
@@ -322,11 +322,8 @@ contract ScoutProtocolBuilderNFTImplementation is
         );
 
         require(
-            bytes(
-                ScoutProtocolBuilderNFTStorage.getAddressToBuilderRegistry(
-                    account
-                )
-            ).length == 0,
+            ScoutProtocolBuilderNFTStorage.getAddressToTokenRegistry(account) ==
+                0,
             "Account already linked to a builder"
         );
 
@@ -341,14 +338,8 @@ contract ScoutProtocolBuilderNFTImplementation is
             _nextTokenId,
             builderId
         );
-        ScoutProtocolBuilderNFTStorage.setAddressToBuilderRegistry(
-            account,
-            builderId
-        );
-        ScoutProtocolBuilderNFTStorage.setBuilderToAddressRegistry(
-            builderId,
-            account
-        );
+
+        _updateBuilderTokenAddress(_nextTokenId, account);
 
         // Emit BuilderTokenRegistered event
         emit BuilderTokenRegistered(_nextTokenId, builderId);
@@ -374,6 +365,8 @@ contract ScoutProtocolBuilderNFTImplementation is
         require(_paymentToken != address(0), "Payment token not set");
         require(proceedsReceiver() != address(0), "Proceeds receiver not set");
 
+        forwardProceeds(tokenId, _price);
+
         ScoutProtocolBuilderNFTStorage.increaseBalance(
             account,
             tokenId,
@@ -384,63 +377,66 @@ contract ScoutProtocolBuilderNFTImplementation is
         emit TransferSingle(_msgSender(), address(0), account, tokenId, amount);
     }
 
-    // function forwardProceeds(uint256 tokenId, uint256 cost) internal {
-    //     string memory builderId = ScoutProtocolBuilderNFTStorage
-    //         .getTokenToBuilderRegistry(tokenId);
+    function forwardProceeds(uint256 tokenId, uint256 cost) internal {
+        address _paymentToken = ERC20Token();
 
-    //     address _paymentToken = scoutTokenERC20();
-    //     address _proceedsReceiver = proceedsReceiver();
+        // Transfer builder rewards to builder ----------------------------
+        address _builderAddress = ScoutProtocolBuilderNFTStorage
+            .getTokenToAddressRegistry(tokenId);
 
-    //     uint256 _proceedsReceiverBalance = IERC20(_paymentToken).balanceOf(
-    //         _proceedsReceiver
-    //     );
+        require(
+            _builderAddress != address(0),
+            "Builder does not have an address to forward proceeds to"
+        );
 
-    //     // Builder rewards are 20% of the purchase price
-    //     uint256 _builderRewards = (cost * 2) / 10;
+        // Builder rewards are 20% of the purchase price
+        uint256 _builderRewards = (cost * 2) / 10;
 
-    //     // Forward remaining 80% to proceeds receiver
-    //     uint256 _proceedsReceiverAmount = cost - _builderRewards;
+        uint256 _builderAddressBalance = IERC20(_paymentToken).balanceOf(
+            _builderAddress
+        );
 
-    //     address _builderAddress = ScoutProtocolBuilderNFTStorage
-    //         .getBuilderToAddressRegistry(builderId);
+        IERC20(_paymentToken).transferFrom(
+            _msgSender(),
+            _builderAddress,
+            _builderRewards
+        );
 
-    //     require(
-    //         _builderAddress != address(0),
-    //         "Builder does not have an address to forward proceeds to"
-    //     );
+        uint256 _builderAddressBalanceAfterTransfer = IERC20(_paymentToken)
+            .balanceOf(_builderAddress);
 
-    //     // Transfer payment from user to proceeds receiver
-    //     IERC20(_paymentToken).transferFrom(
-    //         _msgSender(),
-    //         _proceedsReceiver,
-    //         _proceedsReceiverAmount
-    //     );
+        require(
+            _builderAddressBalanceAfterTransfer ==
+                _builderAddressBalance + _builderRewards,
+            "Builder transfer failed"
+        );
 
-    //     // Transfer builder rewards to builder
-    //     IERC20(_paymentToken).transferFrom(
-    //         _msgSender(),
-    //         _builderAddress,
-    //         _builderRewards
-    //     );
+        // Forward remaining 80% to proceeds receiver ---------------------
+        address _proceedsReceiver = proceedsReceiver();
 
-    //     uint256 _proceedsReceiverBalanceAfterTransfer = IERC20(_paymentToken)
-    //         .balanceOf(_proceedsReceiver);
+        uint256 _proceedsReceiverBalance = IERC20(_paymentToken).balanceOf(
+            _proceedsReceiver
+        );
 
-    //     require(
-    //         _proceedsReceiverBalanceAfterTransfer ==
-    //             _proceedsReceiverBalance + _price,
-    //         "Transfer failed"
-    //     );
+        // Forward remaining 80% to proceeds receiver
+        uint256 _proceedsReceiverAmount = cost - _builderRewards;
 
-    //     uint256 _builderAddressBalanceAfterTransfer = IERC20(_paymentToken)
-    //         .balanceOf(_builderAddress);
+        // Transfer payment from user to proceeds receiver
+        IERC20(_paymentToken).transferFrom(
+            _msgSender(),
+            _proceedsReceiver,
+            _proceedsReceiverAmount
+        );
 
-    //     require(
-    //         _builderAddressBalanceAfterTransfer ==
-    //             _builderAddressBalance + _builderRewards,
-    //         "Builder transfer failed"
-    //     );
-    // }
+        uint256 _proceedsReceiverBalanceAfterTransfer = IERC20(_paymentToken)
+            .balanceOf(_proceedsReceiver);
+
+        require(
+            _proceedsReceiverBalanceAfterTransfer ==
+                _proceedsReceiverBalance + _proceedsReceiverAmount,
+            "Transfer failed"
+        );
+    }
 
     function burn(address account, uint256 tokenId, uint256 amount) external {
         require(
@@ -465,7 +461,7 @@ contract ScoutProtocolBuilderNFTImplementation is
         return MemoryUtils._getAddress(MemoryUtils.MINTER_SLOT);
     }
 
-    function scoutTokenERC20() public view returns (address) {
+    function ERC20Token() public view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }
 
@@ -504,6 +500,57 @@ contract ScoutProtocolBuilderNFTImplementation is
             .getBuilderToTokenRegistry(builderId);
         require(tokenId != 0, "Builder not registered");
         return tokenId;
+    }
+
+    function getBuilderAddressForToken(
+        uint256 tokenId
+    ) public view returns (address) {
+        return
+            ScoutProtocolBuilderNFTStorage.getTokenToAddressRegistry(tokenId);
+    }
+
+    function updateBuilderTokenAddress(
+        uint256 tokenId,
+        address newAddress
+    ) public {
+        address _currentBuilderAddress = getBuilderAddressForToken(tokenId);
+
+        require(
+            _isAdmin() || _currentBuilderAddress == _msgSender(),
+            "Caller is not admin or builder"
+        );
+
+        _updateBuilderTokenAddress(tokenId, newAddress);
+    }
+
+    function _updateBuilderTokenAddress(
+        uint256 tokenId,
+        address newAddress
+    ) internal {
+        require(newAddress != address(0), "Invalid address");
+
+        string memory builderId = ScoutProtocolBuilderNFTStorage
+            .getTokenToBuilderRegistry(tokenId);
+        require(bytes(builderId).length > 0, "Token not yet allocated");
+
+        address _currentBuilderAddress = ScoutProtocolBuilderNFTStorage
+            .getTokenToAddressRegistry(tokenId);
+
+        ScoutProtocolBuilderNFTStorage.setTokenToAddressRegistry(
+            tokenId,
+            newAddress
+        );
+
+        ScoutProtocolBuilderNFTStorage.setAddressToTokenRegistry(
+            newAddress,
+            tokenId
+        );
+
+        // Remove old builder address from address to token registry
+        ScoutProtocolBuilderNFTStorage.setAddressToTokenRegistry(
+            _currentBuilderAddress,
+            0
+        );
     }
 
     function totalBuilderTokens() external view returns (uint256) {

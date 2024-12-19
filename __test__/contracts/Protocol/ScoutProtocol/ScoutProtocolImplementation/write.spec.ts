@@ -4,13 +4,13 @@ import { mine, time } from '@nomicfoundation/hardhat-toolbox-viem/network-helper
 import { keccak256, randomBytes } from 'ethers';
 
 import { type ProtocolTestFixture } from '../../../../deployProtocol';
-import type { ProtocolERC20TestFixture } from '../../../../deployScoutTokenERC20';
+import type { ScoutTokenERC20TestFixture } from '../../../../deployScoutTokenERC20';
 import { loadProtocolFixtures } from '../../../../fixtures';
 import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
 
 describe('ScoutProtocolImplementation', function () {
   let protocol: ProtocolTestFixture;
-  let token: ProtocolERC20TestFixture;
+  let token: ScoutTokenERC20TestFixture;
   let admin: GeneratedWallet;
   let user: GeneratedWallet;
 
@@ -56,9 +56,9 @@ describe('ScoutProtocolImplementation', function () {
     protocol = fixtures.protocol;
     admin = protocol.protocolAdminAccount;
 
-    await token.transferProtocolERC20({
+    await token.transferScoutTokenERC20({
       args: { to: protocol.protocolContract.address, amount: 100_000 },
-      wallet: token.ProtocolERC20AdminAccount
+      wallet: token.ScoutTokenERC20AdminAccount
     });
 
     await protocol.protocolContract.write.setWeeklyMerkleRoot([
@@ -98,7 +98,7 @@ describe('ScoutProtocolImplementation', function () {
 
         await protocol.protocolContract.write.multiClaim([claimData], { account: user.account });
 
-        const balance = await token.balanceOfProtocolERC20({ account: user.account.address });
+        const balance = await token.balanceOfScoutTokenERC20({ account: user.account.address });
         expect(balance).toEqual(userClaim.amount * weeks.length);
       });
 
@@ -136,7 +136,7 @@ describe('ScoutProtocolImplementation', function () {
           protocol.protocolContract.write.multiClaim([claimData], { account: user.account })
         ).rejects.toThrow('Claiming period expired');
 
-        const balance = await token.balanceOfProtocolERC20({ account: user.account.address });
+        const balance = await token.balanceOfScoutTokenERC20({ account: user.account.address });
         expect(balance).toEqual(0);
 
         for (const _week of weeks) {
@@ -154,7 +154,7 @@ describe('ScoutProtocolImplementation', function () {
           account: user.account
         });
 
-        const balance = await token.balanceOfProtocolERC20({ account: user.account.address });
+        const balance = await token.balanceOfScoutTokenERC20({ account: user.account.address });
 
         expect(balance).toEqual(userClaim.amount);
 
@@ -242,10 +242,10 @@ describe('ScoutProtocolImplementation', function () {
 
       it('reverts when contract balance is insufficient', async function () {
         await expect(
-          token.transferProtocolERC20({
+          token.transferScoutTokenERC20({
             args: {
               to: admin.account.address,
-              amount: await token.balanceOfProtocolERC20({
+              amount: await token.balanceOfScoutTokenERC20({
                 account: protocol.protocolContract.address
               })
             },
