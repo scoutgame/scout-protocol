@@ -88,11 +88,11 @@ function parseTestReport(input: any[]): ParsedResult[] {
   }
 
   const trackedSuites = [
-    'BuilderNFTPreSeason02Upgradeable',
-    'BuilderNFTPreSeason02Implementation',
-    'ScoutProtocolToken',
+    'ScoutProtocolBuilderNFTProxy',
+    'ScoutProtocolBuilderNFTImplementation',
+    'ScoutTokenERC20Proxy',
+    'ScoutTokenERC20Implementation',
     'ProtocolEASResolver',
-    'ScoutScoutTokenERC20',
     'ScoutProtocolProxy',
     'ScoutProtocolImplementation',
     'LockupWeeklyStreamCreator',
