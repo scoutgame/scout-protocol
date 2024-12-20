@@ -37,6 +37,15 @@ contract ScoutTokenERC20Implementation is
         _mint(_admin, SUPPLY);
     }
 
+    // Override ERC20 functions to have correct name and symbol
+    function name() public pure override returns (string memory) {
+        return "Scout Token";
+    }
+
+    function symbol() public pure override returns (string memory) {
+        return "$SCOUT";
+    }
+
     function increaseAllowance(
         address spender,
         uint256 addedValue
