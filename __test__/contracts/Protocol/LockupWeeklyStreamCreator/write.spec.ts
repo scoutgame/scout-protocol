@@ -55,6 +55,8 @@ async function createStream({
   return streamLog[0];
 }
 
+const allocationPercentages = [5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10];
+
 describe('LockupWeeklyStreamCreator', () => {
   let erc20: ScoutTokenERC20TestFixture;
   let protocol: ProtocolTestFixture;
@@ -150,8 +152,6 @@ describe('LockupWeeklyStreamCreator', () => {
 
   describe('claim()', () => {
     describe('effects', () => {
-      const allocationPercentages = [5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10];
-
       it(`allows the protocol contract to receive a stream, unlocked in 13 weekly increments by any wallet following the allocation percentages: ${allocationPercentages.join(', ')}`, async () => {
         const { ScoutProtocolProxyContract } = protocol;
 
@@ -218,6 +218,64 @@ describe('LockupWeeklyStreamCreator', () => {
 
           expect(recipientBalanceAfterClaim).toBe(cumulativeClaimed);
         }
+      });
+    });
+
+    describe('validations', () => {
+      it('throws an error if there are no tokens to claim', async () => {
+        const { ScoutProtocolProxyContract } = protocol;
+
+        const operator = await walletFromKey();
+
+        // Fund the stream creator with some tokens
+        await erc20.fundWallet({
+          account: streamCreator.account.address,
+          amount: 200_000
+        });
+
+        const amountToVest = 100_000;
+        const totalWeeks = allocationPercentages.length;
+
+        const startDate = vesting.nowIshInSeconds() + BigInt(1000);
+
+        const stream = await createStream({
+          erc20,
+          recipient: ScoutProtocolProxyContract.address,
+          vesting,
+          amountToVest,
+          streamCreator,
+          weeks: totalWeeks,
+          startDate
+        });
+
+        const expectedPerTranche = allocationPercentages.map((percentage) => (amountToVest * percentage) / 100);
+
+        const recipientBalance = await erc20.balanceOfScoutTokenERC20({
+          account: ScoutProtocolProxyContract.address
+        });
+
+        expect(recipientBalance).toBe(0);
+
+        await time.setNextBlockTimestamp(stream.args.tranches[0].timestamp);
+
+        await mine();
+
+        await vesting.WeeklyERC20Vesting.write.claim([stream.args.streamId], {
+          account: operator.account
+        });
+
+        const recipientBalanceAfterClaim = await erc20.balanceOfScoutTokenERC20({
+          account: ScoutProtocolProxyContract.address
+        });
+
+        expect(recipientBalanceAfterClaim).toBe(expectedPerTranche[0]);
+
+        // Perform a second claim
+        await expect(
+          vesting.WeeklyERC20Vesting.write.claim([stream.args.streamId], {
+            account: operator.account
+          })
+        ).rejects.toThrow('SablierV2Lockup_WithdrawAmountZero');
       });
     });
   });
