@@ -30,9 +30,7 @@ async function createStream({
     args: { spender: vesting.WeeklyERC20Vesting.address, amount: amountToVest },
     wallet: streamCreator
   });
-
   const latest = await time.latest();
-
   const receipt = await vesting.WeeklyERC20Vesting.write.createStream(
     [
       recipient,
@@ -66,10 +64,10 @@ describe('LockupWeeklyStreamCreator', () => {
   beforeEach(async () => {
     erc20 = await deployScoutTokenERC20();
     vesting = await deployWeeklyVesting({
-      ScoutERC20Address: erc20.ScoutTokenERC20Implementation.address
+      ScoutERC20Address: erc20.ScoutTokenERC20.address
     });
     protocol = await deployProtocolContract({
-      ScoutTokenERC20Address: erc20.ScoutTokenERC20Implementation.address
+      ScoutTokenERC20Address: erc20.ScoutTokenERC20.address
     });
     streamCreator = await walletFromKey();
   });
@@ -236,7 +234,7 @@ describe('LockupWeeklyStreamCreator', () => {
         const amountToVest = 100_000;
         const totalWeeks = allocationPercentages.length;
 
-        const startDate = vesting.nowIshInSeconds() + BigInt(1000);
+        const startDate = (await time.latest()) + 1000;
 
         const stream = await createStream({
           erc20,

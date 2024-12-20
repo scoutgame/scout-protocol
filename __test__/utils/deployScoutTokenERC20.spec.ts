@@ -3,13 +3,13 @@ import type { ScoutTokenERC20TestFixture } from '../deployScoutTokenERC20';
 import { generateWallets } from '../generateWallets';
 
 describe('deployScoutTokenERC20', () => {
-  let ScoutTokenERC20Implementation: ScoutTokenERC20TestFixture;
+  let ScoutTokenERC20: ScoutTokenERC20TestFixture;
 
   beforeAll(async () => {
-    ScoutTokenERC20Implementation = await deployScoutTokenERC20();
+    ScoutTokenERC20 = await deployScoutTokenERC20();
   });
 
-  it('should deploy the ScoutTokenERC20Implementation contract, with minting, approve, transfer, balanceOf and transferFrom enabled, as well as a starting balance of 1 billion tokens for the admin, with balances preserved between upgrades', async () => {
+  it('should deploy the ScoutTokenERC20 contract, with minting, approve, transfer, balanceOf and transferFrom enabled, as well as a starting balance of 1 billion tokens for the admin, with balances preserved between upgrades', async () => {
     const {
       transferScoutTokenERC20,
       balanceOfScoutTokenERC20,
@@ -17,7 +17,7 @@ describe('deployScoutTokenERC20', () => {
       transferScoutTokenERC20From,
       ScoutTokenERC20AdminAccount,
       ScoutTokenERC20Proxy
-    } = ScoutTokenERC20Implementation;
+    } = ScoutTokenERC20;
 
     const { userAccount, secondUserAccount } = await generateWallets();
 
@@ -33,7 +33,7 @@ describe('deployScoutTokenERC20', () => {
     const fiftyScoutTokenERC20 = 50;
     const hundredScoutTokenERC20 = 100;
 
-    // Mint 1000 ScoutTokenERC20Implementation to the user
+    // Mint 1000 ScoutTokenERC20 to the user
     await transferScoutTokenERC20({
       args: { to: userAccount.account.address, amount: thousandScoutTokenERC20 },
       wallet: ScoutTokenERC20AdminAccount

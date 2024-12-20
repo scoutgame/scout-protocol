@@ -58,8 +58,8 @@ async function mintNft({
     amount: Number(price / erc20.ScoutTokenERC20_DECIMAL_MULTIPLIER)
   });
 
-  // Approve the contract to spend ScoutTokenERC20Implementation
-  await erc20.ScoutTokenERC20Implementation.write.approve([nft.builderNftContract.address, price], {
+  // Approve the contract to spend ScoutTokenERC20
+  await erc20.ScoutTokenERC20.write.approve([nft.builderNftContract.address, price], {
     account: wallet.account
   });
 
@@ -222,8 +222,14 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
           amount: Number(mintPrice / token.ScoutTokenERC20_DECIMAL_MULTIPLIER)
         });
 
+        console.log({
+          proxy: token.ScoutTokenERC20Proxy.address,
+          implementation: token.ScoutTokenERC20.address,
+          nft: scoutProtocolBuilderNFT.builderNftContract.address
+        });
+
         // Approve NFT contract to spend user's tokens
-        await token.ScoutTokenERC20Implementation.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
+        await token.ScoutTokenERC20.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
@@ -260,7 +266,7 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
         });
 
         // Approve NFT contract to spend user's tokens
-        await token.ScoutTokenERC20Implementation.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
+        await token.ScoutTokenERC20.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
@@ -337,9 +343,9 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
           tokenId
         });
 
-        const builderBalance = await token.ScoutTokenERC20Implementation.read.balanceOf([builderAddress]);
+        const builderBalance = await token.ScoutTokenERC20.read.balanceOf([builderAddress]);
 
-        const proceedsReceiverBalance = await token.ScoutTokenERC20Implementation.read.balanceOf([
+        const proceedsReceiverBalance = await token.ScoutTokenERC20.read.balanceOf([
           proceedsReceiverAccount.account.address
         ]);
 
@@ -370,7 +376,7 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
         });
 
         // Approve NFT contract to spend user's tokens
-        await token.ScoutTokenERC20Implementation.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
+        await token.ScoutTokenERC20.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
@@ -423,7 +429,7 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
           amount: Number(mintPrice / token.ScoutTokenERC20_DECIMAL_MULTIPLIER)
         });
 
-        await token.ScoutTokenERC20Implementation.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
+        await token.ScoutTokenERC20.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
@@ -447,7 +453,7 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
           amount: Number(mintPrice / token.ScoutTokenERC20_DECIMAL_MULTIPLIER)
         });
 
-        await token.ScoutTokenERC20Implementation.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
+        await token.ScoutTokenERC20.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
           account: userAccount.account
         });
 
