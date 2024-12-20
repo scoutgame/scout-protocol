@@ -145,7 +145,7 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
       it('Returns the address of USDC contract', async function () {
         const paymentTokenAddress = await builderNftContract.read.ERC20Token();
 
-        expect(paymentTokenAddress).toBe(getAddress(erc20.ScoutTokenERC20.address));
+        expect(paymentTokenAddress).toBe(getAddress(erc20.ScoutTokenERC20Implementation.address));
       });
     });
   });

@@ -43,6 +43,13 @@ library MemoryUtils {
     bytes32 internal constant TOKEN_SYMBOL =
         keccak256("builderNFT.tokenSymbol");
 
+    // 5. ERC20 Superchain Info
+    bytes32 internal constant INITIALIZED_SLOT = keccak256("erc20.initialized");
+    bytes32 internal constant SUPERCHAIN_BRIDGE_SLOT =
+        keccak256("erc20.superchainBridge");
+    bytes32 internal constant L2_MESSENGER_SLOT =
+        keccak256("erc20.l2Messenger");
+
     function _getRoleName(bytes32 role) internal pure returns (string memory) {
         if (role == ADMIN_SLOT) {
             return "Admin";

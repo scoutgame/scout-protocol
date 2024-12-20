@@ -32,10 +32,10 @@ task('deployScoutGameERC20', 'Deploys or updates the Scout Game ERC20 contract')
   // Deploy the implementation contract first
   console.log('Deploying the ERC20 contract...');
 
-  const deployedErc20 = await hre.viem.deployContract(
-    'ScoutTokenERC20',
+  const _deployedErc20Implementation = await hre.viem.deployContract(
+    'ScoutTokenERC20Implementation',
     // Deployer is the admin and the distribution wallet
-    [walletClient.account.address],
+    [],
     {
       client: {
         wallet: walletClient
@@ -43,7 +43,25 @@ task('deployScoutGameERC20', 'Deploys or updates the Scout Game ERC20 contract')
     }
   );
 
-  const erc20Address = deployedErc20.address;
+  const deployedErc20Proxy = await hre.viem.deployContract(
+    'ScoutTokenERC20Proxy',
+    [_deployedErc20Implementation.address, walletClient.account.address],
+    {
+      client: {
+        wallet: walletClient
+      }
+    }
+  );
+
+  await hre.viem
+    .getContractAt('ScoutTokenERC20Implementation', deployedErc20Proxy.address, {
+      client: {
+        wallet: walletClient
+      }
+    })
+    .then((c) => c.write.initialize());
+
+  const erc20Address = deployedErc20Proxy.address;
 
   if (!erc20Address) {
     throw new Error('Failed to deploy erc20 contract');
@@ -63,8 +81,8 @@ task('deployScoutGameERC20', 'Deploys or updates the Scout Game ERC20 contract')
   console.log('Writing ABI to file');
 
   fs.writeFileSync(
-    path.resolve(__dirname, '..', '..', 'abis', 'ScoutTokenERC20.json'),
-    JSON.stringify(deployedErc20.abi, null, 2)
+    path.resolve(__dirname, '..', '..', 'abis', 'ScoutTokenERC20Implementation.json'),
+    JSON.stringify(_deployedErc20Implementation.abi, null, 2)
   );
 
   console.log('Complete');

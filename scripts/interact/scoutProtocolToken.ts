@@ -60,7 +60,7 @@ task('interactScoutTokenERC20Token', 'Interact with ScoutGame Protocol ERC20 Tok
       throw new Error('Proxy contract address not found in connector');
     }
 
-    const contract = await hre.viem.getContractAt('ScoutTokenERC20', contractAddress);
+    const contract = await hre.viem.getContractAt('ScoutTokenERC20Implementation', contractAddress);
 
     // Proceed to interact with the contract using the selected ABI and contract address
     await interactWithContract({ hre, contractAddress, privateKey, abi: contract.abi });

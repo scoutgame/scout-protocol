@@ -10,21 +10,13 @@ import "@openzeppelin/contracts/utils/StorageSlot.sol";
 import "../../libs/ScoutProtocolAccessControl.sol";
 import "./IERC7802.sol";
 
-contract ScoutTokenERC20 is
+contract ScoutTokenERC20Implementation is
     Context,
     ERC20,
     ScoutProtocolAccessControl,
     IERC7802
 {
     uint256 public constant SUPPLY = 1e9 * 10 ** 18;
-    address internal constant DEFAULT_SUPERCHAIN_BRIDGE_ADDRESS =
-        0x4200000000000000000000000000000000000028;
-    address internal constant DEFAULT_L2_MESSENGER_ADDRESS =
-        0x4200000000000000000000000000000000000023;
-    bytes32 internal constant SUPERCHAIN_BRIDGE_SLOT =
-        keccak256("erc20.superchainBridge");
-    bytes32 internal constant L2_MESSENGER_SLOT =
-        keccak256("erc20.l2Messenger");
 
     modifier onlySuperchainBridgeOrMessenger() {
         require(
@@ -34,15 +26,15 @@ contract ScoutTokenERC20 is
         _;
     }
 
-    constructor(address _admin) ERC20("Scout Token", "$SCOUT") {
-        MemoryUtils._setAddress(MemoryUtils.ADMIN_SLOT, _admin);
+    constructor() ERC20("Scout Token", "$SCOUT") {}
+
+    function initialize() external onlyAdmin {
+        require(
+            MemoryUtils._getBool(MemoryUtils.INITIALIZED_SLOT) == false,
+            "Already initialized"
+        );
+        address _admin = MemoryUtils._getAddress(MemoryUtils.ADMIN_SLOT);
         _mint(_admin, SUPPLY);
-        StorageSlot
-            .getAddressSlot(SUPERCHAIN_BRIDGE_SLOT)
-            .value = DEFAULT_SUPERCHAIN_BRIDGE_ADDRESS;
-        StorageSlot
-            .getAddressSlot(L2_MESSENGER_SLOT)
-            .value = DEFAULT_L2_MESSENGER_ADDRESS;
     }
 
     function increaseAllowance(
@@ -85,21 +77,26 @@ contract ScoutTokenERC20 is
     }
 
     function superchainBridge() public view returns (address) {
-        return StorageSlot.getAddressSlot(SUPERCHAIN_BRIDGE_SLOT).value;
+        return
+            StorageSlot
+                .getAddressSlot(MemoryUtils.SUPERCHAIN_BRIDGE_SLOT)
+                .value;
     }
 
     function l2Messenger() public view returns (address) {
-        return StorageSlot.getAddressSlot(L2_MESSENGER_SLOT).value;
+        return StorageSlot.getAddressSlot(MemoryUtils.L2_MESSENGER_SLOT).value;
     }
 
     function setSuperchainBridge(address _superchainBridge) external onlyAdmin {
         StorageSlot
-            .getAddressSlot(SUPERCHAIN_BRIDGE_SLOT)
+            .getAddressSlot(MemoryUtils.SUPERCHAIN_BRIDGE_SLOT)
             .value = _superchainBridge;
     }
 
     function setL2Messenger(address _l2Messenger) external onlyAdmin {
-        StorageSlot.getAddressSlot(L2_MESSENGER_SLOT).value = _l2Messenger;
+        StorageSlot
+            .getAddressSlot(MemoryUtils.L2_MESSENGER_SLOT)
+            .value = _l2Messenger;
     }
 
     function supportsInterface(
@@ -113,5 +110,9 @@ contract ScoutTokenERC20 is
 
     function burn(uint256 amount) external {
         _burn(_msgSender(), amount);
+    }
+
+    function acceptUpgrade() external view returns (address) {
+        return address(this);
     }
 }

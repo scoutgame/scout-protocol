@@ -76,7 +76,7 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
 
     const DETERMINISTIC_DEPLOYER_CONTRACT = connector.foundryCreate2Deployer as Address;
 
-    const filePath = 'artifacts/contracts/protocol/contracts/ERC20/ScoutTokenERC20.sol/ScoutTokenERC20.json';
+    const filePath = 'artifacts/contracts/protocol/contracts/ERC20/ScoutTokenERC20Implementation.sol/ScoutTokenERC20Implementation.json';
     // const filePath = 'artifacts/contracts/Greeter.sol/Greeter.json';
 
     const contract = JSON.parse(fs.readFileSync(path.resolve(filePath), 'utf8'));
@@ -147,7 +147,7 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
 
     log.info('\r\n---------------- Performing interaction ------------------\r\n');
 
-    const deployedContract = await hre.viem.getContractAt('ScoutTokenERC20', expectedAddress);
+    const deployedContract = await hre.viem.getContractAt('ScoutTokenERC20Implementation', expectedAddress);
 
     const decimals = await deployedContract.read.decimals();
 

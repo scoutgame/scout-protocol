@@ -66,10 +66,10 @@ describe('LockupWeeklyStreamCreator', () => {
   beforeEach(async () => {
     erc20 = await deployScoutTokenERC20();
     vesting = await deployWeeklyVesting({
-      ScoutERC20Address: erc20.ScoutTokenERC20.address
+      ScoutERC20Address: erc20.ScoutTokenERC20Implementation.address
     });
     protocol = await deployProtocolContract({
-      ScoutTokenERC20Address: erc20.ScoutTokenERC20.address
+      ScoutTokenERC20Address: erc20.ScoutTokenERC20Implementation.address
     });
     streamCreator = await walletFromKey();
   });

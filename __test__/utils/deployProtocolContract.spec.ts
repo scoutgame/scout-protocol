@@ -5,11 +5,11 @@ import { deployScoutTokenERC20 } from '../deployScoutTokenERC20';
 
 describe('Proxy and Initialization', function () {
   it('Should set the correct admin and implementation', async function () {
-    const { ScoutTokenERC20 } = await deployScoutTokenERC20();
+    const { ScoutTokenERC20Implementation } = await deployScoutTokenERC20();
 
     const { protocolAdminAccount, ScoutProtocolProxyContract, ScoutProtocolImplementationContract } =
       await deployProtocolContract({
-        ScoutTokenERC20Address: ScoutTokenERC20.address
+        ScoutTokenERC20Address: ScoutTokenERC20Implementation.address
       });
 
     const proxyAdminAddress = await ScoutProtocolProxyContract.read.admin();
