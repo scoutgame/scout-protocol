@@ -16,13 +16,14 @@ function randomEthereumAddress() {
 
 async function registerBuilderToken({
   wallet,
-  nft
+  nft,
+  builderAddress = randomEthereumAddress()
 }: {
   wallet: GeneratedWallet;
   nft: ScoutProtocolBuilderNFTFixture;
+  builderAddress?: Address;
 }): Promise<{ builderId: string; builderAddress: Address; tokenId: bigint }> {
   const builderId = uuid();
-  const builderAddress = randomEthereumAddress();
 
   await nft.builderNftContract.write.registerBuilderToken([builderId, builderAddress], {
     account: wallet.account
@@ -1241,6 +1242,128 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
             account: userAccount.account
           })
         ).rejects.toThrow('Caller is not the admin');
+      });
+    });
+  });
+
+  describe('updateBuilderTokenAddress()', function () {
+    describe('effects', function () {
+      it('Updates the builder address for a token', async function () {
+        const builderAddress = randomEthereumAddress();
+
+        const { tokenId } = await registerBuilderToken({
+          wallet: erc1155AdminAccount,
+          nft: scoutProtocolBuilderNFT,
+          builderAddress
+        });
+
+        const newBuilderAddress = randomEthereumAddress();
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.updateBuilderTokenAddress([tokenId, newBuilderAddress], {
+            account: erc1155AdminAccount.account
+          })
+        ).resolves.toBeDefined();
+
+        const updatedAddress = await scoutProtocolBuilderNFT.builderNftContract.read.getBuilderAddressForToken([
+          tokenId
+        ]);
+        expect(updatedAddress.toLowerCase()).toEqual(newBuilderAddress.toLowerCase());
+      });
+    });
+
+    describe('permissions', function () {
+      it('Allows current builder to update their address', async function () {
+        const builderAccount = await walletFromKey();
+
+        const { tokenId } = await registerBuilderToken({
+          wallet: erc1155AdminAccount,
+          nft: scoutProtocolBuilderNFT,
+          builderAddress: builderAccount.account.address
+        });
+
+        const newBuilderAddress = randomEthereumAddress();
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.updateBuilderTokenAddress([tokenId, newBuilderAddress], {
+            account: builderAccount.account
+          })
+        ).resolves.toBeDefined();
+
+        const updatedAddress = await scoutProtocolBuilderNFT.builderNftContract.read.getBuilderAddressForToken([
+          tokenId
+        ]);
+        expect(updatedAddress.toLowerCase()).toEqual(newBuilderAddress.toLowerCase());
+      });
+
+      it('Allows admin to update builder address', async function () {
+        const builderAccount = await walletFromKey();
+
+        const { tokenId } = await registerBuilderToken({
+          wallet: erc1155AdminAccount,
+          nft: scoutProtocolBuilderNFT,
+          builderAddress: builderAccount.account.address
+        });
+
+        const newBuilderAddress = randomEthereumAddress();
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.updateBuilderTokenAddress([tokenId, newBuilderAddress], {
+            account: erc1155AdminAccount.account
+          })
+        ).resolves.toBeDefined();
+
+        const updatedAddress = await scoutProtocolBuilderNFT.builderNftContract.read.getBuilderAddressForToken([
+          tokenId
+        ]);
+        expect(updatedAddress.toLowerCase()).toEqual(newBuilderAddress.toLowerCase());
+      });
+
+      it('Reverts if caller is not admin or current builder', async function () {
+        const { tokenId } = await registerBuilderToken({
+          wallet: erc1155AdminAccount,
+          nft: scoutProtocolBuilderNFT
+        });
+
+        const newBuilderAddress = randomEthereumAddress();
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.updateBuilderTokenAddress([tokenId, newBuilderAddress], {
+            account: userAccount.account
+          })
+        ).rejects.toThrow('Caller is not admin or builder');
+      });
+    });
+
+    describe('validations', function () {
+      it('Reverts if new address is zero address', async function () {
+        const { tokenId } = await registerBuilderToken({
+          wallet: erc1155AdminAccount,
+          nft: scoutProtocolBuilderNFT
+        });
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.updateBuilderTokenAddress(
+            [tokenId, '0x0000000000000000000000000000000000000000'],
+            {
+              account: erc1155AdminAccount.account
+            }
+          )
+        ).rejects.toThrow('Invalid address');
+      });
+
+      it('Reverts if token is not yet allocated', async function () {
+        const unallocatedTokenId = BigInt(999);
+        const newBuilderAddress = randomEthereumAddress();
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.updateBuilderTokenAddress(
+            [unallocatedTokenId, newBuilderAddress],
+            {
+              account: erc1155AdminAccount.account
+            }
+          )
+        ).rejects.toThrow('Token not yet allocated');
       });
     });
   });
