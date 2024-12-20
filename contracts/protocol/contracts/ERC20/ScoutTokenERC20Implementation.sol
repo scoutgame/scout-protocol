@@ -35,6 +35,7 @@ contract ScoutTokenERC20Implementation is
         );
         address _admin = MemoryUtils._getAddress(MemoryUtils.ADMIN_SLOT);
         _mint(_admin, SUPPLY);
+        MemoryUtils._setBool(MemoryUtils.INITIALIZED_SLOT, true);
     }
 
     // Override ERC20 functions to have correct name and symbol
