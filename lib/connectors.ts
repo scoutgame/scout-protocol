@@ -116,11 +116,13 @@ export const connectors = {
     },
     scoutERC20: {
       dev: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1',
-      stg: '0xa5a71c88478894077650f27dd7b14fdabe3a03f0'
+      stg: '0xa5a71c88478894077650f27dd7b14fdabe3a03f0',
+      prod: '0xa0e70d2ab609ec1aff5d8ef3c69c081492ebba67'
     },
     scoutProtocolBuilderNFT: {
       dev: '0xf04166ce2d59286750482d2cb6af76db0c7d7f71',
-      stg: '0x79fde83f36dd0946eba86bd69fc0ea146cd397d2'
+      stg: '0x79fde83f36dd0946eba86bd69fc0ea146cd397d2',
+      prod: '0x3a6f983b305decf178d073448c976337acecca9f'
     },
     scoutProtocol: {
       dev: {
@@ -132,6 +134,11 @@ export const connectors = {
         protocol: '0x5ba1cf70b94592e21ff1b68b3c0e68c0c2279865',
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
         sablierLockup: '0xcea98f113eab979e3e9bce0053b8c45fe593e617'
+      },
+      prod: {
+        protocol: '0x2ebc86991ddd234c0116c7e35acf81d4bf691376',
+        easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
+        sablierLockup: '0xb96a0f703c5d16ae4a4bf7227f6742380a4dbab6'
       }
     },
     sablier: {
