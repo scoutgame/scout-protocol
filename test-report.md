@@ -13,7 +13,7 @@
 #### claim()
 
 - **Effects**:
-  - allows the protocol contract to receive a stream, unlocked in 13 weekly increments by any wallet following the allocation percentages: 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 10
+  - allows the protocol contract to receive a stream in 13 tranches with the first tranche unlockable at the target timestamp and the 12 increments spread out by 1 week each following the allocation percentages: 5%, 5%, 6%, 6%, 7%, 7%, 8%, 8%, 9%, 9%, 10%, 10%, 10%
 - **Validations**:
   - throws an error if there are no tokens to claim
 
@@ -400,7 +400,7 @@
   - reverts when the contract is paused
 - **Validations**:
   - denies claims if user has already claimed
-  - denies claims if user is the user claim has expired
+  - denies claims if user is at a time too far in the future
   - reverts with invalid merkle proof
   - reverts when merkle root is not set
   - reverts when contract balance is insufficient

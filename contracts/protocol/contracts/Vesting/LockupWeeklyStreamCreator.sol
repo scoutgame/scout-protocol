@@ -71,7 +71,7 @@ contract LockupWeeklyStreamCreator is Context {
             uint128 _amountPerWeek = streamAllocation(totalAmount, weekIndex);
             uint40 _duration = 1 weeks;
 
-            if (weekIndex == 0) {
+            if (weekIndex == 1) {
                 _duration = uint40(firstClaim);
             }
             // If we are on the last week, set the amount to the remainder instead to avoid amount mismatch errors
