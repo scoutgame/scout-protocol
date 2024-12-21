@@ -18,13 +18,12 @@ import './scripts/deploy/nfts/deployBuilderNft';
 import './scripts/deploy/nfts/deployBuilderNftPreSeason02';
 
 // Scout Game Protocol
-import './scripts/deploy/deployScoutGameErc20';
+import './scripts/deploy/deployDeterministicScoutgameTokenERC20';
 import './scripts/deploy/deployScoutProtocol';
 import './scripts/deploy/deployEASSchemas';
 import './scripts/deploy/nfts/deployScoutProtocolBuilderNft';
 import './scripts/deploy/nfts/deployBuilderNftStarterPack';
 import './scripts/deploy/deployVesting';
-import './scripts/deploy/deployDeterministicScoutgameErc20';
 import './scripts/deploy/deployFoundryCreate2Deployer';
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';

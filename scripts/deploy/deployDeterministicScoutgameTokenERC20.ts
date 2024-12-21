@@ -76,19 +76,20 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
 
     const DETERMINISTIC_DEPLOYER_CONTRACT = connector.foundryCreate2Deployer as Address;
 
-    const filePath = 'artifacts/contracts/protocol/contracts/ERC20/ScoutTokenERC20.sol/ScoutTokenERC20.json';
+    const implementationFilePath =
+      'artifacts/contracts/protocol/contracts/ERC20/ScoutTokenERC20Implementation.sol/ScoutTokenERC20Implementation.json';
     // const filePath = 'artifacts/contracts/Greeter.sol/Greeter.json';
 
-    const contract = JSON.parse(fs.readFileSync(path.resolve(filePath), 'utf8'));
+    const implementationContract = JSON.parse(fs.readFileSync(path.resolve(implementationFilePath), 'utf8'));
 
-    const bytecode = contract.bytecode;
+    const implementationBytecode = implementationContract.bytecode;
 
     // In case it's just 0x
-    if (bytecode.length <= 2) {
+    if (implementationBytecode.length <= 2) {
       throw new Error('Bytecode is empty');
     }
 
-    log.info('Bytecode len:', bytecode.length);
+    log.info('Implementation Bytecode len:', implementationBytecode.length);
 
     const account = privateKeyToAccount(PRIVATE_KEY);
     const walletClient = createWalletClient({
@@ -100,25 +101,17 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
     log.info('Using account:', account.address, 'on chain:', connector.chain.name);
 
     // Encode the function call with parameters
-    const salt = '0x000055cf59f3e8b3721283d1d5b88848fb799cdaaae328fbdd36ff0682012290';
+    const salt = '0x00000555555558b3721283d1d5b88848fb799cdaaae328fbdd36ff0682012292';
 
     log.info('Salt:', salt);
 
     // Base will hold the supply, and other L2s will be compatible
 
-    const admin = account.address;
-
-    const deployArgs = [admin] as const;
-
-    const encodedArgs = encodeAbiParameters([{ type: 'address' }], deployArgs);
-
-    const bytecodeWithArgs = String(bytecode).concat(encodedArgs.slice(2)) as `0x${string}`;
-
-    const expectedAddress = computeAddress(DETERMINISTIC_DEPLOYER_CONTRACT, salt, bytecodeWithArgs);
+    const expectedAddress = computeAddress(DETERMINISTIC_DEPLOYER_CONTRACT, salt, implementationBytecode);
 
     log.info('Expected address:', expectedAddress);
 
-    const encodedData = encodePacked(['bytes32', 'bytes'], [salt, bytecodeWithArgs]);
+    const encodedData = encodePacked(['bytes32', 'bytes'], [salt, implementationBytecode]);
 
     log.info('\r\n---------------- Creating transaction ------------------\r\n');
 
@@ -137,17 +130,71 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
       log.info('\r\n---------------- Verifying contract ------------------\r\n');
 
       try {
-        execSync(
-          `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${getAddress(expectedAddress)} ${account.address}`
-        );
+        execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${getAddress(expectedAddress)}`);
       } catch (err) {
         log.error('Error verifying contract', err);
       }
     }
 
-    log.info('\r\n---------------- Performing interaction ------------------\r\n');
+    const deployedImplementation = await hre.viem.getContractAt('ScoutTokenERC20Implementation', expectedAddress);
 
-    const deployedContract = await hre.viem.getContractAt('ScoutTokenERC20', expectedAddress);
+    log.info('\r\n---------------- Deploying proxy ------------------\r\n');
+
+    const proxyFilePath =
+      'artifacts/contracts/protocol/contracts/ERC20/ScoutTokenERC20Proxy.sol/ScoutTokenERC20Proxy.json';
+
+    const proxyContract = JSON.parse(fs.readFileSync(path.resolve(proxyFilePath), 'utf8'));
+
+    const proxyImplementationBytecode = proxyContract.bytecode;
+
+    const proxyDeployArgs = [deployedImplementation.address, account.address] as const;
+
+    const proxyEncodedArgs = encodeAbiParameters([{ type: 'address' }, { type: 'address' }], proxyDeployArgs);
+
+    const proxyBytecodeWithArgs = String(proxyImplementationBytecode).concat(
+      proxyEncodedArgs.slice(2)
+    ) as `0x${string}`;
+
+    const encodedProxyData = encodePacked(['bytes32', 'bytes'], [salt, proxyBytecodeWithArgs]);
+
+    const expectedProxyAddress = computeAddress(DETERMINISTIC_DEPLOYER_CONTRACT, salt, proxyBytecodeWithArgs);
+
+    log.info('Expected proxy address:', expectedProxyAddress);
+
+    // Send the transaction with the encoded data
+    await walletClient
+      .sendTransaction({
+        to: DETERMINISTIC_DEPLOYER_CONTRACT,
+        data: encodedProxyData as `0x${string}`,
+        from: account.address,
+        value: BigInt(0)
+      })
+      .then((_tx) => walletClient.waitForTransactionReceipt({ hash: _tx }));
+
+    try {
+      execSync(
+        `npx hardhat verify --contract contracts/protocol/contracts/ERC20/ScoutTokenERC20Proxy.sol:ScoutTokenERC20Proxy --network ${getConnectorKey(connector.chain.id)} ${getAddress(expectedProxyAddress)} ${proxyDeployArgs.join(' ')}`
+      );
+    } catch (err) {
+      log.error('Error verifying contract', err);
+    }
+
+    // Get proxy contract with implementation ABI
+    const proxyWithImplementationABI = await hre.viem.getContractAt(
+      'ScoutTokenERC20Implementation',
+      expectedProxyAddress,
+      {
+        client: {
+          wallet: walletClient
+        }
+      }
+    );
+
+    // Initialize the proxy
+    await proxyWithImplementationABI.write.initialize();
+
+    // Use proxy address for subsequent interactions
+    const deployedContract = proxyWithImplementationABI;
 
     const decimals = await deployedContract.read.decimals();
 

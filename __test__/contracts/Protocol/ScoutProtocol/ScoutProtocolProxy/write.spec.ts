@@ -77,7 +77,7 @@ describe('ScoutProtocolProxy', function () {
         ).rejects.toThrow('Invalid address, must be a smart contract');
       });
 
-      it('Reverts if new implementation address is an EOA wallet', async function () {
+      it('Reverts if new implementation address cannot accept the upgrade', async function () {
         const badContract = await deployEASContracts().then((c) => c.ProtocolEASResolverContract);
 
         await expect(

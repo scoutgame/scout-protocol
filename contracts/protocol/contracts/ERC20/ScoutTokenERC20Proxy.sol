@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import "../../libs/MemoryUtils.sol";
-import "./libs/ScoutProtocolBuilderNFTStorage.sol";
 import "../../libs/ScoutProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "../ERC20/ScoutTokenERC20Implementation.sol";
@@ -11,52 +10,28 @@ interface IImplementation {
     function acceptUpgrade() external returns (address);
 }
 
-contract ScoutProtocolBuilderNFTProxy is Context, ScoutProtocolAccessControl {
+contract ScoutTokenERC20Proxy is Context, ScoutProtocolAccessControl {
     using MemoryUtils for bytes32;
-    using ScoutProtocolBuilderNFTStorage for bytes32;
 
-    constructor(
-        address _implementationAddress,
-        address _paymentTokenAddress,
-        address _proceedsReceiver
-    ) {
-        require(
-            _implementationAddress != address(0),
-            "Invalid implementation address"
-        );
-        require(
-            _paymentTokenAddress != address(0),
-            "Invalid payment token address"
-        );
-        MemoryUtils._setAddress(MemoryUtils.ADMIN_SLOT, msg.sender);
+    address internal constant DEFAULT_SUPERCHAIN_BRIDGE_ADDRESS =
+        0x4200000000000000000000000000000000000028;
+    address internal constant DEFAULT_L2_MESSENGER_ADDRESS =
+        0x4200000000000000000000000000000000000023;
+
+    constructor(address _implementation, address _admin) {
+        MemoryUtils._setAddress(MemoryUtils.ADMIN_SLOT, _admin);
         MemoryUtils._setAddress(
             MemoryUtils.IMPLEMENTATION_SLOT,
-            _implementationAddress
+            _implementation
         );
         MemoryUtils._setAddress(
-            MemoryUtils.CLAIMS_TOKEN_SLOT,
-            _paymentTokenAddress
+            MemoryUtils.SUPERCHAIN_BRIDGE_SLOT,
+            DEFAULT_SUPERCHAIN_BRIDGE_ADDRESS
         );
         MemoryUtils._setAddress(
-            MemoryUtils.PROCEEDS_RECEIVER_SLOT,
-            _proceedsReceiver
+            MemoryUtils.L2_MESSENGER_SLOT,
+            DEFAULT_L2_MESSENGER_ADDRESS
         );
-
-        ScoutTokenERC20Implementation _paymentToken = ScoutTokenERC20Implementation(
-                _paymentTokenAddress
-            );
-
-        uint256 _priceIncrement = 20 * (10 ** _paymentToken.decimals());
-
-        MemoryUtils._setUint256(
-            MemoryUtils.PRICE_INCREMENT_SLOT,
-            _priceIncrement
-        );
-
-        MemoryUtils._setString(MemoryUtils.TOKEN_NAME, "ScoutGame Builders");
-        MemoryUtils._setString(MemoryUtils.TOKEN_SYMBOL, "BUILDERS");
-
-        ScoutProtocolBuilderNFTStorage.incrementNextTokenId();
     }
 
     function setImplementation(address newImplementation) external onlyAdmin {

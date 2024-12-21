@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.26;
 
-import "../ERC20/ScoutTokenERC20.sol";
+import "../ERC20/ScoutTokenERC20Implementation.sol";
 import "../../libs/MemoryUtils.sol";
 import "../../libs/ScoutProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
@@ -94,7 +94,7 @@ contract ScoutProtocolImplementation is Context, ScoutProtocolAccessControl {
             "Insufficient balance in contract."
         );
 
-        ScoutTokenERC20 token = _getToken();
+        ScoutTokenERC20Implementation token = _getToken();
 
         // Transfer tokens to the user
         token.transfer(
@@ -174,11 +174,11 @@ contract ScoutProtocolImplementation is Context, ScoutProtocolAccessControl {
     }
 
     // Function to get the ERC20 token instance
-    function _getToken() internal view returns (ScoutTokenERC20) {
+    function _getToken() internal view returns (ScoutTokenERC20Implementation) {
         address tokenAddress = MemoryUtils._getAddress(
             MemoryUtils.CLAIMS_TOKEN_SLOT
         );
-        return ScoutTokenERC20(tokenAddress);
+        return ScoutTokenERC20Implementation(tokenAddress);
     }
 
     function claimsManager() public view returns (address) {
