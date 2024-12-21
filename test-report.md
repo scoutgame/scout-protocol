@@ -400,7 +400,7 @@
   - reverts when the contract is paused
 - **Validations**:
   - denies claims if user has already claimed
-  - denies claims if user is at a time too far in the future
+  - denies claims if user is the user claim has expired
   - reverts with invalid merkle proof
   - reverts when merkle root is not set
   - reverts when contract balance is insufficient
@@ -440,6 +440,6 @@
 - **Validations**:
   - Reverts if new implementation address is zero address
   - Reverts if new implementation address is an EOA wallet
-  - Reverts if new implementation address is an EOA wallet
+  - Reverts if new implementation address cannot accept the upgrade
   - Reverts if new implementation address is the same as current
 
