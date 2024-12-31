@@ -6,7 +6,6 @@ import "../../libs/MemoryUtils.sol";
 import "../../libs/ScoutProtocolAccessControl.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "../Vesting/LockupWeeklyStreamCreator.sol";
 
 contract ScoutProtocolImplementation is Context, ScoutProtocolAccessControl {
     using MemoryUtils for bytes32;

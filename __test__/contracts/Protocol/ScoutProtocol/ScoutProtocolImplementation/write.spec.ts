@@ -38,11 +38,13 @@ describe('ScoutProtocolImplementation', function () {
       userClaim,
       {
         address: secondUserAccount.account.address,
-        amount: 200
+        // @ts-ignore
+        amount: BigInt(200) * BigInt(10 ** 18)
       },
       {
         address: thirdUserAccount.account.address,
-        amount: 300
+        // @ts-ignore
+        amount: BigInt(300) * BigInt(10 ** 18)
       }
     ];
 

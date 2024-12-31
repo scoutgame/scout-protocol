@@ -6,7 +6,6 @@ import "@ethereum-attestation-service/eas-contracts/contracts/resolver/SchemaRes
 import "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
 // Importing the EAS contracts here so that they are included in the compilation tree and available in artifacts
 import "@ethereum-attestation-service/eas-contracts/contracts/EAS.sol";
-import "@ethereum-attestation-service/eas-contracts/contracts/SchemaRegistry.sol";
 
 import "../../libs/MemoryUtils.sol";
 import "../../libs/ScoutProtocolAccessControl.sol";
