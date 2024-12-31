@@ -223,12 +223,6 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
           amount: Number(mintPrice / token.ScoutTokenERC20_DECIMAL_MULTIPLIER)
         });
 
-        console.log({
-          proxy: token.ScoutTokenERC20Proxy.address,
-          implementation: token.ScoutTokenERC20.address,
-          nft: scoutProtocolBuilderNFT.builderNftContract.address
-        });
-
         // Approve NFT contract to spend user's tokens
         await token.ScoutTokenERC20.write.approve([scoutProtocolBuilderNFT.builderNftContract.address, mintPrice], {
           account: userAccount.account

@@ -396,11 +396,13 @@ contract ScoutProtocolBuilderNFTImplementation is
             _builderAddress
         );
 
-        IERC20(_paymentToken).transferFrom(
+        bool _transferSuccess = IERC20(_paymentToken).transferFrom(
             _msgSender(),
             _builderAddress,
             _builderRewards
         );
+
+        require(_transferSuccess, "Builder transfer failed");
 
         uint256 _builderAddressBalanceAfterTransfer = IERC20(_paymentToken)
             .balanceOf(_builderAddress);
