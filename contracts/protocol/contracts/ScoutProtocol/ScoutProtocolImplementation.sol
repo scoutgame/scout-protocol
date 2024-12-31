@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.26;
+pragma solidity 0.8.26;
 
 import "../ERC20/ScoutTokenERC20Implementation.sol";
 import "../../libs/MemoryUtils.sol";
@@ -97,10 +97,7 @@ contract ScoutProtocolImplementation is Context, ScoutProtocolAccessControl {
         ScoutTokenERC20Implementation token = _getToken();
 
         // Transfer tokens to the user
-        token.transfer(
-            _msgSender(),
-            claimData.amount * (10 ** token.decimals())
-        );
+        token.transfer(_msgSender(), claimData.amount);
 
         emit TokensClaimed(
             _msgSender(),
