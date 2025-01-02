@@ -396,6 +396,29 @@ contract BuilderNFTPreSeason02Implementation is
     function minter() external view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.MINTER_SLOT);
     }
+    function mintTo(
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) external onlyAdminOrMinter {
+        _validateMint(account, tokenId);
+        _mintTo(account, tokenId, amount);
+    }
+
+    function _mintTo(
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) internal {
+        // Mint tokens
+        BuilderNFTPreSeasonStorage.increaseBalance(account, tokenId, amount);
+
+        // Update total supply
+        BuilderNFTPreSeasonStorage.increaseTotalSupply(tokenId, amount);
+
+        // Emit TransferSingle event
+        emit TransferSingle(msg.sender, address(0), account, tokenId, amount);
+    }
 
     function ERC20Token() external view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
@@ -423,6 +446,12 @@ contract BuilderNFTPreSeason02Implementation is
     function getBuilderIdForToken(
         uint256 tokenId
     ) external view returns (string memory) {
+        return _getBuilderIdForToken(tokenId);
+    }
+
+    function _getBuilderIdForToken(
+        uint256 tokenId
+    ) internal view returns (string memory) {
         string memory builderId = BuilderNFTPreSeasonStorage
             .getTokenToBuilderRegistry(tokenId);
         require(bytes(builderId).length > 0, "Token not yet allocated");
@@ -489,5 +518,10 @@ contract BuilderNFTPreSeason02Implementation is
 
     function acceptUpgrade() public view returns (address) {
         return address(this);
+    }
+
+    function _validateMint(address account, uint256 tokenId) internal view {
+        require(account != address(0), "Invalid account address");
+        _getBuilderIdForToken(tokenId);
     }
 }
