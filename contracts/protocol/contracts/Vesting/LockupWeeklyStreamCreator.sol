@@ -17,7 +17,6 @@ import {SablierV2LockupTranched} from "@sablier/v2-core/src/SablierV2LockupTranc
 /// @dev This code is referenced in the docs: https://docs.sablier.com/contracts/v2/guides/create-stream/lockup-linear
 contract LockupWeeklyStreamCreator is Context {
     using Strings for uint256;
-    // sepolia addresses
     IERC20 public SCOUT;
 
     ISablierV2LockupTranched public LOCKUP_TRANCHED;
@@ -71,7 +70,7 @@ contract LockupWeeklyStreamCreator is Context {
             uint128 _amountPerWeek = streamAllocation(totalAmount, weekIndex);
             uint40 _duration = 1 weeks;
 
-            if (weekIndex == 0) {
+            if (weekIndex == 1) {
                 _duration = uint40(firstClaim);
             }
             // If we are on the last week, set the amount to the remainder instead to avoid amount mismatch errors

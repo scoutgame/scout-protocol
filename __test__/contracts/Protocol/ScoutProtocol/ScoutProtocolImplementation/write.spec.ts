@@ -2,7 +2,7 @@ import type { ProvableClaim } from '@charmverse/core/protocol';
 import { generateMerkleTree, getMerkleProofs } from '@charmverse/core/protocol';
 import { mine, time } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
 import { keccak256, randomBytes } from 'ethers';
-import { parseEventLogs } from 'viem';
+import { parseEventLogs, parseUnits } from 'viem';
 
 import { type ProtocolTestFixture } from '../../../../deployProtocol';
 import type { ScoutTokenERC20TestFixture } from '../../../../deployScoutTokenERC20';
@@ -22,6 +22,8 @@ describe('ScoutProtocolImplementation', function () {
 
   let claims: ProvableClaim[];
 
+  const decimals = 18;
+
   const week = '2024-W41';
 
   beforeAll(async () => {
@@ -31,18 +33,18 @@ describe('ScoutProtocolImplementation', function () {
 
     userClaim = {
       address: userAccount.account.address,
-      amount: 100
+      amount: parseUnits('100', decimals).toString()
     };
 
     claims = [
       userClaim,
       {
         address: secondUserAccount.account.address,
-        amount: 200
+        amount: parseUnits('200', decimals).toString()
       },
       {
         address: thirdUserAccount.account.address,
-        amount: 300
+        amount: parseUnits('300', decimals).toString()
       }
     ];
 
@@ -99,8 +101,8 @@ describe('ScoutProtocolImplementation', function () {
 
         await protocol.protocolContract.write.multiClaim([claimData], { account: user.account });
 
-        const balance = await token.balanceOfScoutTokenERC20({ account: user.account.address });
-        expect(balance).toEqual(userClaim.amount * weeks.length);
+        const balance = await token.ScoutTokenERC20.read.balanceOf([user.account.address]);
+        expect(balance).toEqual(BigInt(userClaim.amount) * BigInt(weeks.length));
       });
 
       it('does not have any effect if a single claim is invalid', async function () {
@@ -206,9 +208,9 @@ describe('ScoutProtocolImplementation', function () {
           account: user.account
         });
 
-        const balance = await token.balanceOfScoutTokenERC20({ account: user.account.address });
+        const balance = await token.ScoutTokenERC20.read.balanceOf([user.account.address]);
 
-        expect(balance).toEqual(userClaim.amount);
+        expect(balance).toEqual(BigInt(userClaim.amount));
 
         const claimed = await protocol.protocolContract.read.hasClaimed([week, user.account.address]);
         expect(claimed).toBe(true);
