@@ -372,10 +372,7 @@ contract BuilderNFTPreSeason02Implementation is
             "Transfer failed"
         );
 
-        BuilderNFTPreSeasonStorage.increaseBalance(account, tokenId, amount);
-
-        // Emit TransferSingle event
-        emit TransferSingle(_msgSender(), address(0), account, tokenId, amount);
+        _mintTo(account, tokenId, amount);
     }
 
     function burn(address account, uint256 tokenId, uint256 amount) external {
@@ -413,9 +410,6 @@ contract BuilderNFTPreSeason02Implementation is
         // Mint tokens
         BuilderNFTPreSeasonStorage.increaseBalance(account, tokenId, amount);
 
-        // Update total supply
-        BuilderNFTPreSeasonStorage.increaseTotalSupply(tokenId, amount);
-
         // Emit TransferSingle event
         emit TransferSingle(msg.sender, address(0), account, tokenId, amount);
     }
@@ -445,13 +439,7 @@ contract BuilderNFTPreSeason02Implementation is
 
     function getBuilderIdForToken(
         uint256 tokenId
-    ) external view returns (string memory) {
-        return _getBuilderIdForToken(tokenId);
-    }
-
-    function _getBuilderIdForToken(
-        uint256 tokenId
-    ) internal view returns (string memory) {
+    ) public view returns (string memory) {
         string memory builderId = BuilderNFTPreSeasonStorage
             .getTokenToBuilderRegistry(tokenId);
         require(bytes(builderId).length > 0, "Token not yet allocated");
@@ -522,6 +510,6 @@ contract BuilderNFTPreSeason02Implementation is
 
     function _validateMint(address account, uint256 tokenId) internal view {
         require(account != address(0), "Invalid account address");
-        _getBuilderIdForToken(tokenId);
+        getBuilderIdForToken(tokenId);
     }
 }
