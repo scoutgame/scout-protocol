@@ -25,16 +25,16 @@ task('interactBuilderNFTPreSeason02', 'Interact with BuilderNFT Season 02 contra
       console.log('🟡 You are connected with the test wallet');
     }
 
-    if (connector.preseason02Nft?.prod?.preseason02Nft) {
-      choices.push(`🟢 Prod ${connector.preseason02Nft?.prod?.preseason02Nft!.slice(0, 6)}`);
+    if (connector.preseason02Nft?.prod) {
+      choices.push(`🟢 Prod ${connector.preseason02Nft.prod.slice(0, 6)}`);
     }
 
-    if (connector.preseason02Nft?.stg?.preseason02Nft) {
-      choices.push(`🟡 Stg ${connector.preseason02Nft?.stg?.preseason02Nft!.slice(0, 6)}`);
+    if (connector.preseason02Nft?.stg) {
+      choices.push(`🟡 Stg ${connector.preseason02Nft?.stg!.slice(0, 6)}`);
     }
 
-    if (connector.preseason02Nft?.dev?.preseason02Nft) {
-      choices.push(`🟡 Dev ${connector.preseason02Nft?.dev?.preseason02Nft!.slice(0, 6)}`);
+    if (connector.preseason02Nft?.dev) {
+      choices.push(`🟡 Dev ${connector.preseason02Nft?.dev.slice(0, 6)}`);
     }
 
     // Prompt the user to choose between admin functions or user functions
@@ -65,7 +65,7 @@ task('interactBuilderNFTPreSeason02', 'Interact with BuilderNFT Season 02 contra
       }
     ]);
 
-    const contractAddress = connector.preseason02Nft?.[mode as ContractDeploymentEnvironment]?.preseason02Nft;
+    const contractAddress = connector.preseason02Nft?.[mode as ContractDeploymentEnvironment];
 
     if (!contractAddress) {
       throw new Error('Proxy contract address not found in connector');
