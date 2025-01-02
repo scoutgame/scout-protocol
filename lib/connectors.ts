@@ -30,7 +30,7 @@ type Connector = {
   sablier?: {
     SablierV2LockupTranched: Address | null;
   };
-  preseason02Nft?: ContractDeployment<'preseason02Nft'>;
+  preseason02Nft?: SingleContractDeployment;
   scoutProtocolBuilderNFT?: SingleContractDeployment;
   scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'sablierLockup'>;
   scoutERC20?: SingleContractDeployment;
@@ -79,6 +79,9 @@ export const connectors = {
       prod: {
         starterPack: '0xd0b718589a51b07d05f03b8150e830d3627da972'
       }
+    },
+    preseason02Nft: {
+      prod: '0xbec9119e3e31bcd88acfe949afe9ca3ab7d00d44'
     }
   } as Connector,
   sepolia: {
@@ -107,12 +110,8 @@ export const connectors = {
     easAttestationContract: '0x4200000000000000000000000000000000000021',
     easBaseUrl: 'https://base-sepolia.easscan.org',
     preseason02Nft: {
-      dev: {
-        preseason02Nft: '0xc028fbb5e521faf6641e3b5b091238887ba4f639'
-      },
-      stg: {
-        preseason02Nft: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c'
-      }
+      dev: '0xc028fbb5e521faf6641e3b5b091238887ba4f639',
+      stg: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c'
     },
     scoutERC20: {
       dev: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1',
