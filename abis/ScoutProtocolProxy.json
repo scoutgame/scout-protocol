@@ -8,7 +8,12 @@
       },
       {
         "internalType": "address",
-        "name": "_claimsTokenAddress",
+        "name": "_paymentTokenAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_proceedsReceiver",
         "type": "address"
       }
     ],
@@ -69,6 +74,19 @@
   {
     "stateMutability": "payable",
     "type": "fallback"
+  },
+  {
+    "inputs": [],
+    "name": "ERC20_DECIMALS",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [],

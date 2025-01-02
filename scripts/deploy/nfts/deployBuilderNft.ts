@@ -40,8 +40,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
     console.log('Deploying the implementation contract...');
 
     const implementationArtifactPath = path.resolve(
-      __dirname,
-      '../../artifacts/contracts/BuilderNFTSeasonOneImplementation01.sol/BuilderNFTSeasonOneImplementation01.json'
+      'artifacts/contracts/SeasonOne/BuilderNFT_ERC1155/BuilderNFTSeasonOneImplementation01.sol/BuilderNFTSeasonOneImplementation01.json'
     );
     const implementationArtifact = JSON.parse(fs.readFileSync(implementationArtifactPath, 'utf8'));
     const implementationBytecode = implementationArtifact.bytecode;
@@ -77,11 +76,6 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
       console.warn('Error verifying contract', err);
     }
 
-    fs.writeFileSync(
-      path.resolve(__dirname, '..', '..', 'abis', 'BuilderNFTSeasonOneImplementation01.json'),
-      JSON.stringify(implementationArtifact.abi, null, 2)
-    );
-
     // Check if the proxy contract exists
     let proxyAddress = connector.seasonOneProxy;
     if (proxyAddress) {
@@ -91,8 +85,7 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
       console.log('Proxy contract not found. Deploying a new proxy contract...');
 
       const proxyArtifactPath = path.resolve(
-        __dirname,
-        '../../artifacts/contracts/BuilderNFTSeasonOneUpgradeable.sol/BuilderNFTSeasonOneUpgradeable.json'
+        'artifacts/contracts/SeasonOne/BuilderNFT_ERC1155/BuilderNFTSeasonOneUpgradeable.sol/BuilderNFTSeasonOneUpgradeable.json'
       );
       const proxyArtifact = JSON.parse(fs.readFileSync(proxyArtifactPath, 'utf8'));
       const proxyBytecode = proxyArtifact.bytecode;
@@ -137,11 +130,6 @@ task('deployBuilderNFTSeasonOne', 'Deploys or updates the BuilderNFTSeasonOne co
       } catch (err) {
         console.warn('Error verifying contract', err);
       }
-
-      fs.writeFileSync(
-        path.resolve(__dirname, '..', '..', 'abis', 'BuilderNFTSeasonOneUpgradeableABI.json'),
-        JSON.stringify(proxyArtifact.abi, null, 2)
-      );
     }
 
     // Prompt the user to update the implementation if the proxy already exists

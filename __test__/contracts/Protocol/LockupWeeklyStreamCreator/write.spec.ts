@@ -150,7 +150,7 @@ describe('LockupWeeklyStreamCreator', () => {
 
   describe('claim()', () => {
     describe('effects', () => {
-      it(`allows the protocol contract to receive a stream, unlocked in 13 weekly increments by any wallet following the allocation percentages: ${allocationPercentages.join(', ')}`, async () => {
+      it(`allows the protocol contract to receive a stream in 13 tranches with the first tranche unlockable at the target timestamp and the 12 increments spread out by 1 week each following the allocation percentages: ${allocationPercentages.map((percentage) => `${percentage}%`).join(', ')}`, async () => {
         const { ScoutProtocolProxyContract } = protocol;
 
         const operator = await walletFromKey();
@@ -175,6 +175,15 @@ describe('LockupWeeklyStreamCreator', () => {
           weeks: totalWeeks,
           startDate
         });
+
+        // Validate the time spacing between the first tranche and the target timestamp
+        expect(stream.args.tranches[0].timestamp).toEqual(Number(startDate));
+
+        const weekInSeconds = 60 * 60 * 24 * 7;
+
+        for (let i = 1; i < totalWeeks; i++) {
+          expect(stream.args.tranches[i].timestamp).toEqual(Number(startDate) + weekInSeconds * i);
+        }
 
         let cumulativeClaimed = 0;
         const expectedPerTranche = allocationPercentages.map((percentage) => (amountToVest * percentage) / 100);

@@ -115,7 +115,7 @@ export const connectors = {
     easBaseUrl: 'https://base-sepolia.easscan.org',
     preseason02Nft: {
       dev: '0xc028fbb5e521faf6641e3b5b091238887ba4f639',
-      stg: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c'
+      stg: '0x8f2d2de6e1a7227021ad0ee3095fa3159560f96c'
     },
     scoutERC20: {
       dev: '0xd7A8ba597DDbec8A4C1291B22163F836671DD9d1',
@@ -141,7 +141,7 @@ export const connectors = {
       prod: {
         protocol: '0x2ebc86991ddd234c0116c7e35acf81d4bf691376',
         easResolver: '0x0cf1faf544bf98b062995848cc03cc8714bbca52',
-        sablierLockup: '0xb96a0f703c5d16ae4a4bf7227f6742380a4dbab6'
+        sablierLockup: '0xF527180346De65A5982E35E354F28a8E86211763'
       }
     },
     sablier: {
