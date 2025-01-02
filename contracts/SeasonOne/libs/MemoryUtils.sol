@@ -5,12 +5,18 @@ import "@openzeppelin/contracts/utils/StorageSlot.sol";
 
 library MemoryUtils {
     // Existing storage slots
-    bytes32 internal constant IMPLEMENTATION_SLOT = keccak256("builderNFT.implementation");
-    bytes32 internal constant PROCEEDS_RECEIVER_SLOT = keccak256("builderNFT.proceedsReceiver");
-    bytes32 internal constant PRICE_INCREMENT_SLOT = keccak256("builderNFT.priceIncrement");
-    bytes32 internal constant PAYMENT_ERC20_TOKEN_SLOT = keccak256("builderNFT.paymentERC20Token");
-    bytes32 internal constant NEXT_TOKEN_ID_SLOT = keccak256("builderNFT.nextTokenId");
-    bytes32 internal constant LOCK_STATUS_SLOT = keccak256("builderNFT.lockStatus");
+    bytes32 internal constant IMPLEMENTATION_SLOT =
+        keccak256("builderNFT.implementation");
+    bytes32 internal constant PROCEEDS_RECEIVER_SLOT =
+        keccak256("builderNFT.proceedsReceiver");
+    bytes32 internal constant PRICE_INCREMENT_SLOT =
+        keccak256("builderNFT.priceIncrement");
+    bytes32 internal constant PAYMENT_ERC20_TOKEN_SLOT =
+        keccak256("builderNFT.paymentERC20Token");
+    bytes32 internal constant NEXT_TOKEN_ID_SLOT =
+        keccak256("builderNFT.nextTokenId");
+    bytes32 internal constant LOCK_STATUS_SLOT =
+        keccak256("builderNFT.lockStatus");
     bytes32 internal constant ADMIN_SLOT = keccak256("builderNFT.admin");
     bytes32 internal constant MINTER_SLOT = keccak256("builderNFT.minterSlot");
 
@@ -19,7 +25,8 @@ library MemoryUtils {
 
     // New storage slots for added variables
     bytes32 internal constant BASE_URI_SLOT = keccak256("builderNFT.baseUri");
-    bytes32 internal constant TOTAL_BUILDER_TOKENS_SLOT = keccak256("builderNFT.totalBuilderTokens");
+    bytes32 internal constant TOTAL_BUILDER_TOKENS_SLOT =
+        keccak256("builderNFT.totalBuilderTokens");
 
     // Getter and setter for address type
     function getAddress(bytes32 slot) internal view returns (address) {
@@ -57,18 +64,19 @@ library MemoryUtils {
         StorageSlot.getBytes32Slot(slot).value = value;
     }
 
-        // Getter and setter for string type using bytes32 slot
+    // Getter and setter for string type using bytes32 slot
     function getString(bytes32 slot) internal view returns (string memory) {
-        return _bytes32ToString(StorageSlot.getBytes32Slot(slot).value);
+        return StorageSlot.getStringSlot(slot).value;
     }
 
     function setString(bytes32 slot, string memory value) internal {
-        require(bytes(value).length <= 32, "String too long for slot");
-        StorageSlot.getBytes32Slot(slot).value = _stringToBytes32(value);
+        StorageSlot.getStringSlot(slot).value = value;
     }
 
     // Helper function to convert string to bytes32
-    function _stringToBytes32(string memory source) internal pure returns (bytes32 result) {
+    function _stringToBytes32(
+        string memory source
+    ) internal pure returns (bytes32 result) {
         bytes memory tempEmptyStringTest = bytes(source);
         if (tempEmptyStringTest.length == 0) {
             return 0x0;
@@ -80,7 +88,9 @@ library MemoryUtils {
     }
 
     // Helper function to convert bytes32 to string
-    function _bytes32ToString(bytes32 source) internal pure returns (string memory) {
+    function _bytes32ToString(
+        bytes32 source
+    ) internal pure returns (string memory) {
         bytes memory tempBytes = new bytes(32);
         for (uint256 i = 0; i < 32; i++) {
             tempBytes[i] = source[i];
@@ -94,6 +104,6 @@ library MemoryUtils {
     }
 
     function isMinter(address caller) internal view returns (bool) {
-      return caller == getAddress(MINTER_SLOT);
+        return caller == getAddress(MINTER_SLOT);
     }
 }
