@@ -31,6 +31,7 @@ type Connector = {
     SablierV2LockupTranched: Address | null;
   };
   preseason02Nft?: SingleContractDeployment;
+  preseason02StarterPack?: SingleContractDeployment;
   scoutProtocolBuilderNFT?: SingleContractDeployment;
   scoutProtocol?: ContractDeployment<'protocol' | 'easResolver' | 'sablierLockup'>;
   scoutERC20?: SingleContractDeployment;
@@ -82,6 +83,9 @@ export const connectors = {
     },
     preseason02Nft: {
       stg: '0xbec9119e3e31bcd88acfe949afe9ca3ab7d00d44'
+    },
+    preseason02StarterPack: {
+      stg: '0xbecac59ad40691f0a5192d790fccc798854115a1'
     }
   } as Connector,
   sepolia: {
