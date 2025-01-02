@@ -1193,7 +1193,7 @@ describe('BuilderNFTPreSeason02Implementation', function () {
 
   describe('mintTo()', function () {
     describe('effects', function () {
-      it('Mints tokens to the specified account', async function () {
+      it('Mints tokens to the specified account and increments balances correctly', async function () {
         const { secondUserAccount } = await generateWallets();
         const testUserAddress = secondUserAccount.account.address;
 
@@ -1209,6 +1209,9 @@ describe('BuilderNFTPreSeason02Implementation', function () {
 
         const balance = await builderNftSeason02.builderNftContract.read.balanceOf([testUserAddress, BigInt(1)]);
         expect(balance).toBe(BigInt(10));
+
+        const totalSupply = await builderNftSeason02.builderNftContract.read.totalSupply([BigInt(1)]);
+        expect(totalSupply).toBe(BigInt(10));
       });
     });
 
@@ -1250,7 +1253,7 @@ describe('BuilderNFTPreSeason02Implementation', function () {
     });
 
     describe('permissions', function () {
-      it('Admin can mint tokens to an account', async function () {
+      it('prevents non-admins from minting tokens to an account', async function () {
         const { secondUserAccount } = await generateWallets();
         const testUserAddress = secondUserAccount.account.address;
 
@@ -1267,7 +1270,7 @@ describe('BuilderNFTPreSeason02Implementation', function () {
         ).rejects.toThrow('Caller is not the admin or minter');
       });
 
-      it('Minter can mint tokens to an account', async function () {
+      it('allows minter to mint tokens to an account', async function () {
         const { secondUserAccount, thirdUserAccount: minterAccount } = await generateWallets();
         const testUserAddress = secondUserAccount.account.address;
 
