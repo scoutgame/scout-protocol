@@ -111,7 +111,7 @@ export const connectors = {
         preseason02Nft: '0xc028fbb5e521faf6641e3b5b091238887ba4f639'
       },
       stg: {
-        preseason02Nft: '0x4753e3074af8a34cb2aa1954b23c7f0befd5bc2c'
+        preseason02Nft: '0x8f2d2de6e1a7227021ad0ee3095fa3159560f96c'
       }
     },
     scoutERC20: {
