@@ -20,10 +20,18 @@ export async function loadContractFixtures() {
   return loadFixture(deployContractFixtures);
 }
 
-export async function loadContractWithStarterPackFixtures() {
+export async function loadContractWithStarterPackFixtures({
+  tokenName,
+  tokenSymbol
+}: {
+  tokenName?: string;
+  tokenSymbol?: string;
+} = {}) {
   const { usdc } = await loadContractFixtures();
   const builderNftStarterPack = await deployBuilderNftStarterPackContract({
-    USDCContractAddress: usdc.USDC.address
+    USDCContractAddress: usdc.USDC.address,
+    tokenName,
+    tokenSymbol
   });
   return { usdc, builderNftStarterPack };
 }

@@ -17,7 +17,7 @@ const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
-task('deployBuilderNFTSeasonOneStarterPack', 'Deploys or updates the BuilderNFT Starter Pack contracts').setAction(
+task('deployScoutGameStarterPackNFT', 'Deploys or updates the BuilderNFT Starter Pack contracts').setAction(
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
@@ -37,32 +37,68 @@ task('deployBuilderNFTSeasonOneStarterPack', 'Deploys or updates the BuilderNFT 
 
     console.log('Using account:', account.address, 'on chain:', connector.chain.name);
 
-    // Deploy the implementation contract first
-    console.log('Deploying the implementation contract...');
-
-    const implementation = await hre.viem.deployContract('BuilderNFTSeasonOneStarterPackImplementation01', [], {
-      client: {
-        wallet: walletClient
+    // Ask if user wants to use existing implementation
+    const { useExistingImplementation } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'useExistingImplementation',
+        message: 'Do you want to use an existing implementation contract?',
+        default: false
       }
-    });
+    ]);
 
-    const implementationAddress = implementation.address;
-    const implementationABI = implementation.abi;
+    let implementationAddress: Address | undefined;
+    let implementationABI: any;
 
-    console.log('Implementation contract deployed at address:', implementationAddress);
+    if (useExistingImplementation) {
+      const { existingImplementationAddress } = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'existingImplementationAddress',
+          message: 'Enter the existing implementation contract address:',
+          validate: (input: string) => {
+            if (!isAddress(input)) {
+              return 'Please enter a valid Ethereum address';
+            }
+            return true;
+          }
+        }
+      ]);
+      implementationAddress = existingImplementationAddress as Address;
+      const implementation = await hre.viem.getContractAt(
+        'ScoutGameStarterPackNFTImplementation',
+        implementationAddress
+      );
+      implementationABI = implementation.abi;
+      console.log('Using existing implementation at:', implementationAddress);
+    } else {
+      // Deploy the implementation contract first
+      console.log('Deploying the implementation contract...');
 
-    // Verify contract in the explorer
-    console.log('Verifying implementation with etherscan');
-    try {
-      execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${implementationAddress}`);
-    } catch (err) {
-      console.warn('Error verifying contract', err);
+      const implementation = await hre.viem.deployContract('ScoutGameStarterPackNFTImplementation', [], {
+        client: {
+          wallet: walletClient
+        }
+      });
+
+      implementationAddress = implementation.address;
+      implementationABI = implementation.abi;
+
+      console.log('Implementation contract deployed at address:', implementationAddress);
+
+      // Verify contract in the explorer
+      console.log('Verifying implementation with etherscan');
+      try {
+        execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${implementationAddress}`);
+      } catch (err) {
+        console.warn('Error verifying contract', err);
+      }
+
+      fs.writeFileSync(
+        path.resolve('abis', 'ScoutGameStarterPackNFTImplementation.json'),
+        JSON.stringify(implementationABI, null, 2)
+      );
     }
-
-    fs.writeFileSync(
-      path.resolve('abis', 'BuilderNFTSeasonOneStarterPackImplementation.json'),
-      JSON.stringify(implementationABI, null, 2)
-    );
 
     let deployNew = true;
 
@@ -134,22 +170,64 @@ task('deployBuilderNFTSeasonOneStarterPack', 'Deploys or updates the BuilderNFT 
     }
 
     if (deployNew) {
-      const { paymentTokenAddress } = await inquirer.prompt([
+      let paymentToken = connector.usdcContract;
+
+      if (!isAddress(paymentToken as any)) {
+        ({ paymentToken } = await inquirer.prompt([
+          {
+            type: 'input',
+            name: 'paymentToken',
+            message: 'Enter the address for scout protocol ERC20 token',
+            validate: (input) => (isAddress(input) ? true : 'Invalid address')
+          }
+        ]));
+      }
+
+      const { tokenName } = await inquirer.prompt([
         {
           type: 'input',
-          name: 'paymentTokenAddress',
-          message: 'Enter the address for scout protocol ERC20 token',
-          validate: (input) => (isAddress(input) ? true : 'Invalid address')
+          name: 'tokenName',
+          message: 'Enter the token name',
+          validate: (input) => {
+            const expectedMatch = /^ScoutGame Starter Pack \(PreSeason \d{1,2}\)/;
+
+            if (!input.match(expectedMatch)) {
+              return 'Token name must match the expected format: "ScoutGame Starter Pack (PreSeason X)"';
+            }
+
+            return true;
+          }
         }
       ]);
 
-      const deployArgs = [implementationAddress as Address, paymentTokenAddress as Address, proceedsReceiver] as [
+      const { tokenSymbol } = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'tokenSymbol',
+          message: 'Enter the token symbol',
+          validate: (input) => {
+            const expectedMatch = /^SCOUTGAME-STARTER-P\d{1,2}$/;
+
+            if (!input.match(expectedMatch)) {
+              return 'Token symbol must match the expected format: "SCOUTGAME-STARTER-PX"';
+            }
+
+            return true;
+          }
+        }
+      ]);
+
+      const deployConfigArgs = [implementationAddress as Address, paymentToken as Address, proceedsReceiver] as [
         Address,
         Address,
         Address
       ];
 
-      const newProxyContract = await hre.viem.deployContract('BuilderNFTSeasonOneStarterPackUpgradeable', deployArgs, {
+      const tokenInfoArgs = [tokenName.trim(), tokenSymbol.trim()] as [string, string];
+
+      const deployArgs = [...deployConfigArgs, ...tokenInfoArgs] as [Address, Address, Address, string, string];
+
+      const newProxyContract = await hre.viem.deployContract('ScoutGameStarterPackNFTUpgradeable', deployArgs, {
         client: {
           wallet: walletClient
         }
@@ -162,7 +240,7 @@ task('deployBuilderNFTSeasonOneStarterPack', 'Deploys or updates the BuilderNFT 
       console.log('Verifying proxy contract with etherscan..');
       try {
         execSync(
-          `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')}`
+          `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployConfigArgs.join(' ')} ${[`'${tokenName.trim()}'`, `${tokenSymbol.trim()}`].join(' ')}`
         );
       } catch (err) {
         console.warn('Error verifying contract', err);
