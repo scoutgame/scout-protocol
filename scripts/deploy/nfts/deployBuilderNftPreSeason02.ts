@@ -146,11 +146,16 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
     }
 
     if (deployNew) {
-      const deployArgs = [implementationAddress as Address, usdc as Address, proceedsReceiver] as [
+      const tokenName = 'ScoutGame (PreSeason 02)';
+      const tokenSymbol = 'SCOUTGAME-P02';
+
+      const baseDeployArgs = [implementationAddress as Address, usdc as Address, proceedsReceiver] as [
         Address,
         Address,
         Address
       ];
+
+      const deployArgs = [...baseDeployArgs, tokenName, tokenSymbol] as [Address, Address, Address, string, string];
 
       const newProxyContract = await hre.viem.deployContract('ScoutGamePreSeason02NFTUpgradeable', deployArgs, {
         client: {
@@ -165,7 +170,7 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
       console.log('Verifying proxy contract with etherscan..');
       try {
         execSync(
-          `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')}`
+          `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${baseDeployArgs.join(' ')} '${tokenName}' '${tokenSymbol}'`
         );
       } catch (err) {
         console.warn('Error verifying contract', err);
