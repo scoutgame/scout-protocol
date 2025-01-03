@@ -189,10 +189,10 @@ task('deployScoutGameStarterPackNFT', 'Deploys or updates the BuilderNFT Starter
           name: 'tokenName',
           message: 'Enter the token name',
           validate: (input) => {
-            const expectedMatch = /^ScoutGame Starter Pack \(PreSeason \d{1,2}\)/;
+            const expectedMatch = /^Scout Game Starter Pack \(PreSeason \d{1,2}\)/;
 
             if (!input.match(expectedMatch)) {
-              return 'Token name must match the expected format: "ScoutGame Starter Pack (PreSeason X)"';
+              return 'Token name must match the expected format: "Scout Game Starter Pack (PreSeason X)"';
             }
 
             return true;

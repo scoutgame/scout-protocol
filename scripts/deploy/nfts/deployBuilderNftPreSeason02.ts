@@ -146,7 +146,7 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
     }
 
     if (deployNew) {
-      const tokenName = 'ScoutGame (PreSeason 02)';
+      const tokenName = 'Scout Game (PreSeason 02)';
       const tokenSymbol = 'SCOUTGAME-P02';
 
       const baseDeployArgs = [implementationAddress as Address, usdc as Address, proceedsReceiver] as [
