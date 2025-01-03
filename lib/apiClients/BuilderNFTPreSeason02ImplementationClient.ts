@@ -40,6 +40,19 @@ export class ScoutGamePreSeason02NFTImplementationClient {
   public abi: Abi = [
     {
       inputs: [],
+      name: 'ERC20Token',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
       name: 'acceptUpgrade',
       outputs: [
         {
@@ -271,6 +284,29 @@ export class ScoutGamePreSeason02NFTImplementationClient {
       type: 'function'
     },
     {
+      inputs: [
+        {
+          internalType: 'address',
+          name: 'account',
+          type: 'address'
+        },
+        {
+          internalType: 'uint256',
+          name: 'tokenId',
+          type: 'uint256'
+        },
+        {
+          internalType: 'uint256',
+          name: 'amount',
+          type: 'uint256'
+        }
+      ],
+      name: 'mintTo',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
       inputs: [],
       name: 'minter',
       outputs: [
@@ -406,19 +442,6 @@ export class ScoutGamePreSeason02NFTImplementationClient {
       name: 'safeTransferFrom',
       outputs: [],
       stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
-      inputs: [],
-      name: 'scoutTokenERC20',
-      outputs: [
-        {
-          internalType: 'address',
-          name: '',
-          type: 'address'
-        }
-      ],
-      stateMutability: 'view',
       type: 'function'
     },
     {
@@ -855,6 +878,29 @@ export class ScoutGamePreSeason02NFTImplementationClient {
     }
   }
 
+  async ERC20Token(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'ERC20Token',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'ERC20Token',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
+  }
+
   async acceptUpgrade(): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
@@ -924,7 +970,7 @@ export class ScoutGamePreSeason02NFTImplementationClient {
     return result as bigint;
   }
 
-  async balanceOfBatch(params: { args: { accounts: any; tokenIds: bigint } }): Promise<bigint> {
+  async balanceOfBatch(params: { args: { accounts: Address[]; tokenIds: bigint[] } }): Promise<bigint[]> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'balanceOfBatch',
@@ -944,7 +990,7 @@ export class ScoutGamePreSeason02NFTImplementationClient {
     });
 
     // Parse the result based on the return type
-    return result as bigint;
+    return result as bigint[];
   }
 
   async burn(params: {
@@ -1143,6 +1189,35 @@ export class ScoutGamePreSeason02NFTImplementationClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
+  async mintTo(params: {
+    args: { account: Address; tokenId: bigint; amount: bigint };
+    value?: bigint;
+    gasPrice?: bigint;
+  }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'mintTo',
+      args: [params.args.account, params.args.tokenId, params.args.amount]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
   async minter(): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
@@ -1290,7 +1365,7 @@ export class ScoutGamePreSeason02NFTImplementationClient {
   }
 
   async safeBatchTransferFrom(params: {
-    args: { from: Address; to: Address; tokenIds: bigint; amounts: bigint; data: any };
+    args: { from: Address; to: Address; tokenIds: bigint[]; amounts: bigint[]; data: string };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1319,7 +1394,7 @@ export class ScoutGamePreSeason02NFTImplementationClient {
   }
 
   async safeTransferFrom(params: {
-    args: { from: Address; to: Address; tokenId: bigint; amount: bigint; data: any };
+    args: { from: Address; to: Address; tokenId: bigint; amount: bigint; data: string };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1345,29 +1420,6 @@ export class ScoutGamePreSeason02NFTImplementationClient {
 
     // Return the transaction receipt
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
-  async scoutTokenERC20(): Promise<Address> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'scoutTokenERC20',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'scoutTokenERC20',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as Address;
   }
 
   async setApprovalForAll(params: {
@@ -1515,7 +1567,7 @@ export class ScoutGamePreSeason02NFTImplementationClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async supportsInterface(params: { args: { interfaceId: any } }): Promise<boolean> {
+  async supportsInterface(params: { args: { interfaceId: string } }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'supportsInterface',

@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { parseEventLogs, getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../deployBuilderNftPreSeason02';
+import type { BuilderNftSeason02Fixture } from '../../../deployScoutGamePreSeason02NftContract';
 import type { USDCTestFixture } from '../../../deployTestUSDC';
 import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
 import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../generateWallets';
@@ -60,7 +60,7 @@ async function mintNft({
   });
 }
 
-describe('BuilderNFTPreSeason02Implementation', function () {
+describe('ScoutGamePreSeason02NFTImplementation', function () {
   let token: USDCTestFixture;
   let builderNftSeason02: BuilderNftSeason02Fixture;
   let erc1155AdminAccount: GeneratedWallet;

@@ -1,17 +1,34 @@
 import { v4 as uuid } from 'uuid';
 import { getAddress } from 'viem';
 
-import { randomBigIntFromInterval } from '../../../lib/utils';
-import { loadContractWithStarterPackFixtures } from '../../fixtures';
-import { generateWallets } from '../../generateWallets';
+import { randomBigIntFromInterval } from '../../../../lib/utils';
+import type { BuilderNftStarterPackFixture } from '../../../deployBuilderNftStarterPack';
+import type { USDCTestFixture } from '../../../deployTestUSDC';
+import { loadContractWithStarterPackFixtures } from '../../../fixtures';
+import type { GeneratedWallet } from '../../../generateWallets';
+import { generateWallets } from '../../../generateWallets';
 
-describe('BuilderNFTSeasonOneStarterPack', function () {
+describe('ScoutGameStarterPackNFTImplementation', function () {
+  let builderNftContract: BuilderNftStarterPackFixture['builderNftContract'];
+  let builderNftAdminAccount: GeneratedWallet;
+  let usdc: USDCTestFixture;
+
+  const testContractName = 'ScoutGame Starter Pack Test Season';
+  const testContractSymbol = '$TESTBUILDERS';
+
+  beforeEach(async () => {
+    ({
+      builderNftStarterPack: { builderNftContract, builderNftAdminAccount },
+      usdc
+    } = await loadContractWithStarterPackFixtures({
+      tokenName: testContractName,
+      tokenSymbol: testContractSymbol
+    }));
+  });
+
   describe('balanceOf()', function () {
     it('Returns the correct balance of tokens for an account and tokenId', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract },
-        usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER }
-      } = await loadContractWithStarterPackFixtures();
+      const { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER } = usdc;
 
       const { secondUserAccount } = await generateWallets();
       const testUserAddress = secondUserAccount.account.address;
@@ -42,10 +59,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
     });
 
     it('Returns zero for accounts with no tokens', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const { secondUserAccount } = await generateWallets();
       const testUserAddress = secondUserAccount.account.address;
       const tokenId = BigInt(1);
@@ -57,10 +70,8 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('balanceOfBatch()', function () {
     it('Returns correct balances for multiple accounts and tokenIds', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract },
-        usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER }
-      } = await loadContractWithStarterPackFixtures();
+      const { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER } = usdc;
+
       const { userAccount: firstUserAccount, secondUserAccount } = await generateWallets();
 
       const user1Address = firstUserAccount.account.address;
@@ -117,9 +128,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
     });
 
     it('Returns zeros for accounts with no tokens', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
       const { userAccount: firstUserAccount, secondUserAccount } = await generateWallets();
 
       const user1Address = firstUserAccount.account.address;
@@ -136,10 +144,7 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('getERC20Contract()', function () {
     it('Returns the address of USDC contract', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract },
-        usdc: { USDC }
-      } = await loadContractWithStarterPackFixtures();
+      const { USDC } = usdc;
 
       const paymentTokenAddress = await builderNftContract.read.getERC20Contract();
 
@@ -149,10 +154,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('getTokenPurchasePrice()', function () {
     it('Returns the correct price for purchasing a given amount of tokens, taking into account current supply and of 2 USDC per token', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract, builderNftAdminAccount }
-      } = await loadContractWithStarterPackFixtures();
-
       const { userAccount } = await generateWallets();
 
       const builderId = uuid();
@@ -196,10 +197,7 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('totalSupply()', function () {
     it('Returns the total supply of a given tokenId', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract },
-        usdc: { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER }
-      } = await loadContractWithStarterPackFixtures();
+      const { mintUSDCTo, approveUSDC, USDC_DECIMALS_MULTIPLIER } = usdc;
 
       const { secondUserAccount } = await generateWallets();
       const testUserAddress = secondUserAccount.account.address;
@@ -230,10 +228,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
     });
 
     it('Returns zero for tokens with no supply', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const tokenId = BigInt(1);
       const totalSupply = await builderNftContract.read.totalSupply([tokenId]);
       expect(totalSupply).toBe(BigInt(0));
@@ -242,10 +236,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('getBuilderIdForToken()', function () {
     it('Returns the correct builderId for a given tokenId', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const builderId = uuid();
       const tokenId = randomBigIntFromInterval();
       await builderNftContract.write.registerBuilderToken([builderId, tokenId]);
@@ -255,10 +245,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
     });
 
     it('Reverts if the tokenId is not registered', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const invalidTokenId = BigInt(999);
       await expect(builderNftContract.read.getBuilderIdForToken([invalidTokenId])).rejects.toThrow(
         'Token not yet allocated'
@@ -268,10 +254,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('getTokenIdForBuilder()', function () {
     it('Returns the correct tokenId for a given builderId', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const builderId = uuid();
       const tokenId = randomBigIntFromInterval();
       await builderNftContract.write.registerBuilderToken([builderId, tokenId]);
@@ -281,10 +263,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
     });
 
     it('Reverts if the builderId is not registered', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const invalidBuilderId = uuid();
       await expect(builderNftContract.read.getTokenIdForBuilder([invalidBuilderId])).rejects.toThrow(
         'Builder not registered'
@@ -294,10 +272,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('totalBuilderTokens()', function () {
     it('Returns the total number of registered builder tokens', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       let totalBuilderTokens = await builderNftContract.read.totalBuilderTokens();
       expect(totalBuilderTokens).toBe(BigInt(0));
 
@@ -315,10 +289,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('getPriceIncrement()', function () {
     it('Returns the price increment used for calculating token prices', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const priceIncrement = await builderNftContract.read.getPriceIncrement();
       expect(priceIncrement).toBeGreaterThan(BigInt(0));
     });
@@ -326,10 +296,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('uri()', function () {
     it('Returns the correct URI for a given tokenId', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const prefix = 'https://nft.scoutgame.xyz/seasons/2024-W40/beta';
       const suffix = 'artwork.png';
       const tokenId = BigInt(1);
@@ -347,10 +313,6 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('tokenURI()', function () {
     it('Returns the correct token URI for a given tokenId', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const prefix = 'https://nft.scoutgame.xyz/seasons/2024-W40/beta';
       const suffix = 'artwork.png';
       const tokenId = BigInt(1);
@@ -368,41 +330,41 @@ describe('BuilderNFTSeasonOneStarterPack', function () {
 
   describe('isValidUUID()', function () {
     it('Returns true for valid UUIDs', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const validUuid = '123e4567-e89b-12d3-a456-426614174000';
       const isValid = await builderNftContract.read.isValidUUID([validUuid]);
       expect(isValid).toBe(true);
     });
 
     it('Returns false for invalid UUIDs', async function () {
-      const {
-        builderNftStarterPack: { builderNftContract }
-      } = await loadContractWithStarterPackFixtures();
-
       const invalidUuid = 'invalid-uuid-string';
       const isValid = await builderNftContract.read.isValidUUID([invalidUuid]);
       expect(isValid).toBe(false);
     });
   });
 
-  describe('read', function () {
-    describe('getMinter()', function () {
-      it('Should return the correct minter address', async function () {
-        const {
-          builderNftStarterPack: { builderNftContract }
-        } = await loadContractWithStarterPackFixtures();
+  describe('getMinter()', function () {
+    it('Should return the correct minter address', async function () {
+      const { userAccount } = await generateWallets();
+      const newMinter = userAccount.account.address;
 
-        const { userAccount } = await generateWallets();
-        const newMinter = userAccount.account.address;
+      await builderNftContract.write.setMinter([newMinter]);
 
-        await builderNftContract.write.setMinter([newMinter]);
+      const minter = await builderNftContract.read.getMinter();
+      expect(getAddress(minter)).toBe(getAddress(newMinter));
+    });
+  });
 
-        const minter = await builderNftContract.read.getMinter();
-        expect(getAddress(minter)).toBe(getAddress(newMinter));
-      });
+  describe('name', () => {
+    it('should return the token name', async () => {
+      const name = await builderNftContract.read.name();
+      expect(name).toBe(testContractName);
+    });
+  });
+
+  describe('symbol', () => {
+    it('should return the token symbol', async () => {
+      const symbol = await builderNftContract.read.symbol();
+      expect(symbol).toBe(testContractSymbol);
     });
   });
 });

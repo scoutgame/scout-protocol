@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class ScoutGamePreSeason02NFTUpgradeableClient {
+export class ScoutTokenERC20ProxyClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;

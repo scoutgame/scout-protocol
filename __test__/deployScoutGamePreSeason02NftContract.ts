@@ -3,18 +3,26 @@ import type { Address } from 'viem';
 
 import { generateWallets } from './generateWallets';
 
-export async function deployBuilderNftPreSeason02Contract({ USDCAddress }: { USDCAddress: Address }) {
+export async function deployScoutGamePreSeason02NftContract({
+  USDCAddress,
+  tokenName = 'ScoutGame (PreSeason 02)',
+  tokenSymbol = 'SCOUTGAME-P02'
+}: {
+  USDCAddress: Address;
+  tokenName?: string;
+  tokenSymbol?: string;
+}) {
   const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
-  const implementation = await viem.deployContract('BuilderNFTPreSeason02Implementation', [], {
+  const implementation = await viem.deployContract('ScoutGamePreSeason02NFTImplementation', [], {
     client: { wallet: admin }
   });
 
   const proceedsReceiver = proceedsReceiverAccount.account.address;
 
   const proxy = await viem.deployContract(
-    'BuilderNFTPreSeason02Upgradeable',
-    [implementation.address, USDCAddress, proceedsReceiver],
+    'ScoutGamePreSeason02NFTUpgradeable',
+    [implementation.address, USDCAddress, proceedsReceiver, tokenName, tokenSymbol],
     {
       client: { wallet: admin }
     }
@@ -22,7 +30,7 @@ export async function deployBuilderNftPreSeason02Contract({ USDCAddress }: { USD
 
   // Make the implementation ABI available to the proxy
   const proxyWithImplementationABI = await viem.getContractAt(
-    'BuilderNFTPreSeason02Implementation', // Implementation ABI
+    'ScoutGamePreSeason02NFTImplementation', // Implementation ABI
     proxy.address, // Proxy address
     { client: { wallet: admin } } // Use the admin account for interaction
   );
@@ -36,4 +44,4 @@ export async function deployBuilderNftPreSeason02Contract({ USDCAddress }: { USD
   };
 }
 
-export type BuilderNftSeason02Fixture = Awaited<ReturnType<typeof deployBuilderNftPreSeason02Contract>>;
+export type BuilderNftSeason02Fixture = Awaited<ReturnType<typeof deployScoutGamePreSeason02NftContract>>;

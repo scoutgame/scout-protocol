@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract BuilderNFTPreSeason02Implementation is
+contract ScoutGamePreSeason02NFTImplementation is
     Context,
     ERC165,
     ScoutProtocolAccessControl,

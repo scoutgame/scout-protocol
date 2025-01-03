@@ -4,9 +4,13 @@ import type { Address } from 'viem';
 import { generateWallets } from './generateWallets';
 
 export async function deployScoutProtocolBuilderNftContract({
-  ScoutScoutTokenERC20Address
+  ScoutScoutTokenERC20Address,
+  tokenName = 'ScoutGame (Season 01)',
+  tokenSymbol = 'SCOUTGAME-S01'
 }: {
   ScoutScoutTokenERC20Address: Address;
+  tokenName?: string;
+  tokenSymbol?: string;
 }) {
   const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
@@ -18,7 +22,7 @@ export async function deployScoutProtocolBuilderNftContract({
 
   const proxy = await viem.deployContract(
     'ScoutProtocolBuilderNFTProxy',
-    [implementation.address, ScoutScoutTokenERC20Address, proceedsReceiver],
+    [implementation.address, ScoutScoutTokenERC20Address, proceedsReceiver, tokenName, tokenSymbol],
     {
       client: { wallet: admin }
     }

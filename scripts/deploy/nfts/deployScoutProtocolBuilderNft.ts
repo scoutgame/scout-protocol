@@ -154,11 +154,44 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
         }
       ]);
 
-      const deployArgs = [implementationAddress as Address, scoutToken as Address, proceedsReceiver] as [
+      const { tokenName, tokenSymbol } = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'tokenName',
+          message: 'Enter the token name:',
+          validate: (input: string) => {
+            const expectedMatch = /^ScoutGame \(Season \d{2}\)/;
+
+            if (!input.match(expectedMatch)) {
+              return 'Token name must match the expected format: "ScoutGame (Season XX)"';
+            }
+
+            return true;
+          }
+        },
+        {
+          type: 'input',
+          name: 'tokenSymbol',
+          message: 'Enter the token symbol:',
+          validate: (input: string) => {
+            const expectedMatch = /^SCOUTGAME-S\d{2}$/;
+
+            if (!input.match(expectedMatch)) {
+              return 'Token symbol must match the expected format: "SCOUTGAME-SXX"';
+            }
+
+            return true;
+          }
+        }
+      ]);
+
+      const tokenDeployArgs = [implementationAddress as Address, scoutToken as Address, proceedsReceiver] as [
         Address,
         Address,
         Address
       ];
+
+      const deployArgs = [...tokenDeployArgs, tokenName, tokenSymbol] as [Address, Address, Address, string, string];
 
       const newProxyContract = await hre.viem.deployContract('ScoutProtocolBuilderNFTProxy', deployArgs, {
         client: {

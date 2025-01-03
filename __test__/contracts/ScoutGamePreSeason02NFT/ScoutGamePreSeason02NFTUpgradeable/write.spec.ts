@@ -1,18 +1,18 @@
 import { viem } from 'hardhat';
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../deployBuilderNftPreSeason02';
+import type { BuilderNftSeason02Fixture } from '../../../deployScoutGamePreSeason02NftContract';
 import { deployEASContracts } from '../../../deployEAS';
 import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
 import { walletFromKey, type GeneratedWallet } from '../../../generateWallets';
 
 function deployImplementation() {
-  return viem.deployContract('BuilderNFTPreSeason02Implementation', []);
+  return viem.deployContract('ScoutGamePreSeason02NFTImplementation', []);
 }
 
 type DeployedImplementation = Awaited<ReturnType<typeof deployImplementation>>;
 
-describe('BuilderNFTPreSeason02Upgradeable', function () {
+describe('ScoutGamePreSeason02NFTUpgradeable', function () {
   let builderNftSeason02: BuilderNftSeason02Fixture;
   let erc1155AdminAccount: GeneratedWallet;
   let userAccount: GeneratedWallet;
