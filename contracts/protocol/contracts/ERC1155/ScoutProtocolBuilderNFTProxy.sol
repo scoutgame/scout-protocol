@@ -18,7 +18,9 @@ contract ScoutProtocolBuilderNFTProxy is Context, ScoutProtocolAccessControl {
     constructor(
         address _implementationAddress,
         address _paymentTokenAddress,
-        address _proceedsReceiver
+        address _proceedsReceiver,
+        string memory _tokenName,
+        string memory _tokenSymbol
     ) {
         require(
             _implementationAddress != address(0),
@@ -53,8 +55,8 @@ contract ScoutProtocolBuilderNFTProxy is Context, ScoutProtocolAccessControl {
             _priceIncrement
         );
 
-        MemoryUtils._setString(MemoryUtils.TOKEN_NAME, "ScoutGame Builders");
-        MemoryUtils._setString(MemoryUtils.TOKEN_SYMBOL, "BUILDERS");
+        MemoryUtils._setString(MemoryUtils.TOKEN_NAME, _tokenName);
+        MemoryUtils._setString(MemoryUtils.TOKEN_SYMBOL, _tokenSymbol);
 
         ScoutProtocolBuilderNFTStorage.incrementNextTokenId();
     }
