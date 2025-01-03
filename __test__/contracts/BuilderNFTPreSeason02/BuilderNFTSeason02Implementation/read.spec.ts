@@ -6,7 +6,7 @@ import type { USDCTestFixture } from '../../../deployTestUSDC';
 import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
 import { generateWallets } from '../../../generateWallets';
 
-describe('BuilderNFTPreSeason02Implementation', function () {
+describe('ScoutGamePreSeason02NFTImplementation', function () {
   let builderNftSeason02: BuilderNftSeason02Fixture;
   let erc20: USDCTestFixture;
   let builderNftContract: BuilderNftSeason02Fixture['builderNftContract'];

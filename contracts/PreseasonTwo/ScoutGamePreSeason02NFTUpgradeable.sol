@@ -11,7 +11,7 @@ interface IImplementation {
     function acceptUpgrade() external returns (address);
 }
 
-contract BuilderNFTPreSeason02Upgradeable is
+contract ScoutGamePreSeason02NFTUpgradeable is
     Context,
     ScoutProtocolAccessControl
 {

@@ -6,14 +6,14 @@ import { generateWallets } from './generateWallets';
 export async function deployBuilderNftPreSeason02Contract({ USDCAddress }: { USDCAddress: Address }) {
   const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
-  const implementation = await viem.deployContract('BuilderNFTPreSeason02Implementation', [], {
+  const implementation = await viem.deployContract('ScoutGamePreSeason02NFTImplementation', [], {
     client: { wallet: admin }
   });
 
   const proceedsReceiver = proceedsReceiverAccount.account.address;
 
   const proxy = await viem.deployContract(
-    'BuilderNFTPreSeason02Upgradeable',
+    'ScoutGamePreSeason02NFTUpgradeable',
     [implementation.address, USDCAddress, proceedsReceiver],
     {
       client: { wallet: admin }
@@ -22,7 +22,7 @@ export async function deployBuilderNftPreSeason02Contract({ USDCAddress }: { USD
 
   // Make the implementation ABI available to the proxy
   const proxyWithImplementationABI = await viem.getContractAt(
-    'BuilderNFTPreSeason02Implementation', // Implementation ABI
+    'ScoutGamePreSeason02NFTImplementation', // Implementation ABI
     proxy.address, // Proxy address
     { client: { wallet: admin } } // Use the admin account for interaction
   );

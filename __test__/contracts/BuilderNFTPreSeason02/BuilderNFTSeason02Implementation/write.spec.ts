@@ -60,7 +60,7 @@ async function mintNft({
   });
 }
 
-describe('BuilderNFTPreSeason02Implementation', function () {
+describe('ScoutGamePreSeason02NFTImplementation', function () {
   let token: USDCTestFixture;
   let builderNftSeason02: BuilderNftSeason02Fixture;
   let erc1155AdminAccount: GeneratedWallet;

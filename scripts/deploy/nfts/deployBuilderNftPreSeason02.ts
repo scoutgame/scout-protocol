@@ -46,7 +46,7 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
     // Deploy the implementation contract first
     console.log('Deploying the implementation contract...');
 
-    const implementation = await hre.viem.deployContract('BuilderNFTPreSeason02Implementation', [], {
+    const implementation = await hre.viem.deployContract('ScoutGamePreSeason02NFTImplementation', [], {
       client: {
         wallet: walletClient
       }
@@ -66,7 +66,7 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
     }
 
     fs.writeFileSync(
-      path.resolve('abis', 'BuilderNFTPreSeason02Implementation.json'),
+      path.resolve('abis', 'ScoutGamePreSeason02NFTImplementation.json'),
       JSON.stringify(implementationABI, null, 2)
     );
 
@@ -152,7 +152,7 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
         Address
       ];
 
-      const newProxyContract = await hre.viem.deployContract('BuilderNFTPreSeason02Upgradeable', deployArgs, {
+      const newProxyContract = await hre.viem.deployContract('ScoutGamePreSeason02NFTUpgradeable', deployArgs, {
         client: {
           wallet: walletClient
         }
