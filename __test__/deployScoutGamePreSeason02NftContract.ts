@@ -3,7 +3,15 @@ import type { Address } from 'viem';
 
 import { generateWallets } from './generateWallets';
 
-export async function deployBuilderNftPreSeason02Contract({ USDCAddress }: { USDCAddress: Address }) {
+export async function deployScoutGamePreSeason02NftContract({
+  USDCAddress,
+  tokenName = 'ScoutGame (PreSeason 02)',
+  tokenSymbol = 'SCOUTGAME-P02'
+}: {
+  USDCAddress: Address;
+  tokenName?: string;
+  tokenSymbol?: string;
+}) {
   const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
   const implementation = await viem.deployContract('ScoutGamePreSeason02NFTImplementation', [], {
@@ -14,7 +22,7 @@ export async function deployBuilderNftPreSeason02Contract({ USDCAddress }: { USD
 
   const proxy = await viem.deployContract(
     'ScoutGamePreSeason02NFTUpgradeable',
-    [implementation.address, USDCAddress, proceedsReceiver],
+    [implementation.address, USDCAddress, proceedsReceiver, tokenName, tokenSymbol],
     {
       client: { wallet: admin }
     }
@@ -36,4 +44,4 @@ export async function deployBuilderNftPreSeason02Contract({ USDCAddress }: { USD
   };
 }
 
-export type BuilderNftSeason02Fixture = Awaited<ReturnType<typeof deployBuilderNftPreSeason02Contract>>;
+export type BuilderNftSeason02Fixture = Awaited<ReturnType<typeof deployScoutGamePreSeason02NftContract>>;

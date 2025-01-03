@@ -1,6 +1,6 @@
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../deployBuilderNftPreSeason02';
+import type { BuilderNftSeason02Fixture } from '../../../deployScoutGamePreSeason02NftContract';
 import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
 
 describe('ScoutGamePreSeason02NFTUpgradeable', function () {
