@@ -30,7 +30,7 @@ contract ScoutProtocolBuilderNFTProxy is Context, ScoutProtocolAccessControl {
             _paymentTokenAddress != address(0),
             "Invalid payment token address"
         );
-        MemoryUtils._setAddress(MemoryUtils.ADMIN_SLOT, msg.sender);
+        MemoryUtils._setAddress(MemoryUtils.ADMIN_SLOT, _msgSender());
         MemoryUtils._setAddress(
             MemoryUtils.IMPLEMENTATION_SLOT,
             _implementationAddress
