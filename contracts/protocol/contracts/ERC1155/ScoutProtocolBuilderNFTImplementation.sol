@@ -136,7 +136,7 @@ contract ScoutProtocolBuilderNFTImplementation is
         uint256[] memory tokenIds,
         uint256[] memory amounts,
         bytes memory data
-    ) external override {
+    ) external override onlyWhenNotPaused {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not owner nor approved"
@@ -313,7 +313,11 @@ contract ScoutProtocolBuilderNFTImplementation is
         ScoutProtocolBuilderNFTStorage.incrementNextTokenId();
     }
 
-    function mint(address account, uint256 tokenId, uint256 amount) external {
+    function mint(
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) external onlyWhenNotPaused {
         require(account != address(0), "Invalid account address");
 
         string memory builderId = ScoutProtocolBuilderNFTStorage
@@ -405,7 +409,11 @@ contract ScoutProtocolBuilderNFTImplementation is
         );
     }
 
-    function burn(address account, uint256 tokenId, uint256 amount) external {
+    function burn(
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) external onlyWhenNotPaused {
         require(
             account == _msgSender() || isApprovedForAll(account, _msgSender()),
             "ERC1155: caller is not owner nor approved"
@@ -432,7 +440,7 @@ contract ScoutProtocolBuilderNFTImplementation is
         return MemoryUtils._getAddress(MemoryUtils.SECONDARY_MINTER_SLOT);
     }
 
-    function rolloverMinterWallet(address _minterWallet) external {
+    function rolloverMinterWallet(address _minterWallet) external onlyAdmin {
         address _currentMinter = minter();
         _setRole(MemoryUtils.MINTER_SLOT, _minterWallet);
 

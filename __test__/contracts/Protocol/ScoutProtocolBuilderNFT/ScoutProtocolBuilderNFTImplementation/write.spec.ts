@@ -515,6 +515,52 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
           })
         ).resolves.toBeDefined();
       });
+
+      it('Cannot mint when contract is paused', async function () {
+        const { tokenId } = await registerBuilderToken({
+          wallet: erc1155AdminAccount,
+          nft: scoutProtocolBuilderNFT
+        });
+
+        await scoutProtocolBuilderNFT.builderNftContract.write.pause({
+          account: erc1155AdminAccount.account
+        });
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.mint([userAccount.account.address, tokenId, BigInt(1)], {
+            account: userAccount.account
+          })
+        ).rejects.toThrow('Contract is paused');
+
+        await scoutProtocolBuilderNFT.builderNftContract.write.unPause({
+          account: erc1155AdminAccount.account
+        });
+
+        await token.fundWallet({
+          account: userAccount.account.address,
+          amount: 100
+        });
+
+        await token.approveScoutTokenERC20({
+          args: {
+            amount: 100,
+            spender: scoutProtocolBuilderNFT.builderNftContract.address
+          },
+          wallet: userAccount
+        });
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.mint([userAccount.account.address, tokenId, BigInt(1)], {
+            account: userAccount.account
+          })
+        ).resolves.toBeDefined();
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.read.balanceOf([userAccount.account.address, tokenId], {
+            account: userAccount.account
+          })
+        ).resolves.toEqual(BigInt(1));
+      });
     });
 
     describe('validations', function () {
