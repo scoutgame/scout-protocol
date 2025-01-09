@@ -596,6 +596,29 @@ describe('ScoutGamePreSeason02NFTImplementation', function () {
         ).resolves.toBeDefined();
       });
 
+      it('Allows admin to burn tokens', async function () {
+        const { tokenId } = await registerBuilderToken({
+          wallet: erc1155AdminAccount,
+          nft: builderNftSeason02
+        });
+
+        // Mint tokens first
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId
+        });
+
+        // Burn tokens as operator
+        await expect(
+          builderNftSeason02.builderNftContract.write.burn([userAccount.account.address, BigInt(1), BigInt(1)], {
+            account: erc1155AdminAccount.account
+          })
+        ).resolves.toBeDefined();
+      });
+
       it('Prevents burning tokens if not owner nor approved', async function () {
         const { tokenId } = await registerBuilderToken({
           wallet: erc1155AdminAccount,
