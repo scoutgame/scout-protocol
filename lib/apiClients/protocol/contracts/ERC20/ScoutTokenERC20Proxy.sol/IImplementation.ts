@@ -12,7 +12,7 @@ import type {
   WalletActions,
   WalletClient
 } from 'viem';
-import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
+import { encodeFunctionData, getAddress } from 'viem';
 
 // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
 //  https://github.com/wevm/viem/discussions/1463#discussioncomment-7504732
@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class ScoutProtocolEASResolverClient {
+export class IImplementationClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;
@@ -40,7 +40,7 @@ export class ScoutProtocolEASResolverClient {
   public abi: Abi = [
     {
       inputs: [],
-      name: 'admin',
+      name: 'acceptUpgrade',
       outputs: [
         {
           internalType: 'address',
@@ -48,7 +48,7 @@ export class ScoutProtocolEASResolverClient {
           type: 'address'
         }
       ],
-      stateMutability: 'view',
+      stateMutability: 'nonpayable',
       type: 'function'
     }
   ];
@@ -87,26 +87,28 @@ export class ScoutProtocolEASResolverClient {
     }
   }
 
-  async admin(): Promise<string> {
+  async acceptUpgrade(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'admin',
+      functionName: 'acceptUpgrade',
       args: []
     });
 
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
 
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'admin',
-      data: data as `0x${string}`
-    });
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
 
-    // Parse the result based on the return type
-    return result as string;
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 }

@@ -12,7 +12,7 @@ import type {
   WalletActions,
   WalletClient
 } from 'viem';
-import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
+import { encodeFunctionData, getAddress } from 'viem';
 
 // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
 //  https://github.com/wevm/viem/discussions/1463#discussioncomment-7504732
@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class ScoutTokenERC20TokenClient {
+export class IImplementationClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;
@@ -39,26 +39,8 @@ export class ScoutTokenERC20TokenClient {
 
   public abi: Abi = [
     {
-      inputs: [
-        {
-          internalType: 'address',
-          name: 'to',
-          type: 'address'
-        },
-        {
-          internalType: 'uint256',
-          name: 'amount',
-          type: 'uint256'
-        }
-      ],
-      name: 'mint',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
       inputs: [],
-      name: 'admin',
+      name: 'acceptUpgrade',
       outputs: [
         {
           internalType: 'address',
@@ -66,7 +48,7 @@ export class ScoutTokenERC20TokenClient {
           type: 'address'
         }
       ],
-      stateMutability: 'view',
+      stateMutability: 'nonpayable',
       type: 'function'
     }
   ];
@@ -105,19 +87,15 @@ export class ScoutTokenERC20TokenClient {
     }
   }
 
-  async mint(params: {
-    args: { to: string; amount: bigint };
-    value?: bigint;
-    gasPrice?: bigint;
-  }): Promise<TransactionReceipt> {
+  async acceptUpgrade(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
     if (!this.walletClient) {
       throw new Error('Wallet client is required for write operations.');
     }
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'mint',
-      args: [params.args.to, params.args.amount]
+      functionName: 'acceptUpgrade',
+      args: []
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -132,28 +110,5 @@ export class ScoutTokenERC20TokenClient {
 
     // Return the transaction receipt
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
-  async admin(): Promise<string> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'admin',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'admin',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as string;
   }
 }

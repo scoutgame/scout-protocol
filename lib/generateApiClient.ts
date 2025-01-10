@@ -116,11 +116,13 @@ function generateMethodImplementation(abiItem: any): string {
 export async function generateApiClient({
   abi,
   selectedFunctionIndices,
-  abiPath
+  abiPath,
+  writeClient = true
 }: {
   abi: Abi;
   selectedFunctionIndices?: number[];
   abiPath: string;
+  writeClient?: boolean;
 }) {
   // If no selectedFunctionIndices are provided, select all functions
 
@@ -207,10 +209,14 @@ export async function generateApiClient({
   }
   `;
 
-  // Write to a separate file
-  const outputPath = path.join(__dirname, `/apiClients/${apiClientName}.ts`);
-  fs.writeFileSync(outputPath, classCode);
-  console.log(`API Client written to ${outputPath}`);
+  if (writeClient) {
+    // Write to a separate file
+    const outputPath = path.join(__dirname, `/apiClients/${apiClientName}.ts`);
+    fs.writeFileSync(outputPath, classCode);
+    console.log(`API Client written to ${outputPath}`);
+  }
+
+  return classCode;
 }
 
 // Function to load the ABI from a file

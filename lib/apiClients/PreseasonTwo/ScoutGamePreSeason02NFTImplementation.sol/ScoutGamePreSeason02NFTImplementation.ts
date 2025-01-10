@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class BuilderNFTSeasonOneStarterPackImplementation01Client {
+export class ScoutGamePreSeason02NFTImplementationClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;
@@ -39,6 +39,45 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
 
   public abi: Abi = [
     {
+      inputs: [],
+      name: 'ERC20Token',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'acceptUpgrade',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'admin',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
       inputs: [
         {
           internalType: 'address',
@@ -47,7 +86,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
         },
         {
           internalType: 'uint256',
-          name: 'id',
+          name: 'tokenId',
           type: 'uint256'
         }
       ],
@@ -71,7 +110,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
         },
         {
           internalType: 'uint256[]',
-          name: 'ids',
+          name: 'tokenIds',
           type: 'uint256[]'
         }
       ],
@@ -81,30 +120,6 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
           internalType: 'uint256[]',
           name: '',
           type: 'uint256[]'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'string',
-          name: 'scout',
-          type: 'string'
-        },
-        {
-          internalType: 'uint256',
-          name: 'tokenId',
-          type: 'uint256'
-        }
-      ],
-      name: 'balanceOfScout',
-      outputs: [
-        {
-          internalType: 'uint256',
-          name: '',
-          type: 'uint256'
         }
       ],
       stateMutability: 'view',
@@ -126,11 +141,6 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
           internalType: 'uint256',
           name: 'amount',
           type: 'uint256'
-        },
-        {
-          internalType: 'string',
-          name: 'scout',
-          type: 'string'
         }
       ],
       name: 'burn',
@@ -152,32 +162,6 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
           internalType: 'string',
           name: '',
           type: 'string'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [],
-      name: 'getERC20Contract',
-      outputs: [
-        {
-          internalType: 'address',
-          name: '',
-          type: 'address'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [],
-      name: 'getMinter',
-      outputs: [
-        {
-          internalType: 'address',
-          name: '',
-          type: 'address'
         }
       ],
       stateMutability: 'view',
@@ -219,6 +203,11 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
       inputs: [
         {
           internalType: 'uint256',
+          name: 'tokenId',
+          type: 'uint256'
+        },
+        {
+          internalType: 'uint256',
           name: 'amount',
           type: 'uint256'
         }
@@ -235,40 +224,19 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
       type: 'function'
     },
     {
-      inputs: [],
-      name: 'getUriPrefix',
-      outputs: [
-        {
-          internalType: 'string',
-          name: '',
-          type: 'string'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [],
-      name: 'getUriSuffix',
-      outputs: [
-        {
-          internalType: 'string',
-          name: '',
-          type: 'string'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
       inputs: [
         {
-          internalType: 'string',
-          name: 'uuid',
-          type: 'string'
+          internalType: 'address',
+          name: 'account',
+          type: 'address'
+        },
+        {
+          internalType: 'address',
+          name: 'operator',
+          type: 'address'
         }
       ],
-      name: 'isValidUUID',
+      name: 'isApprovedForAll',
       outputs: [
         {
           internalType: 'bool',
@@ -276,7 +244,20 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
           type: 'bool'
         }
       ],
-      stateMutability: 'pure',
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'isPaused',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool'
+        }
+      ],
+      stateMutability: 'view',
       type: 'function'
     },
     {
@@ -295,11 +276,6 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
           internalType: 'uint256',
           name: 'amount',
           type: 'uint256'
-        },
-        {
-          internalType: 'string',
-          name: 'scout',
-          type: 'string'
         }
       ],
       name: 'mint',
@@ -323,11 +299,6 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
           internalType: 'uint256',
           name: 'amount',
           type: 'uint256'
-        },
-        {
-          internalType: 'string',
-          name: 'scout',
-          type: 'string'
         }
       ],
       name: 'mintTo',
@@ -336,16 +307,70 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
       type: 'function'
     },
     {
+      inputs: [],
+      name: 'minter',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'name',
+      outputs: [
+        {
+          internalType: 'string',
+          name: '',
+          type: 'string'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'pause',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'pauser',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'proceedsReceiver',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
       inputs: [
         {
           internalType: 'string',
           name: 'builderId',
           type: 'string'
-        },
-        {
-          internalType: 'uint256',
-          name: 'builderTokenId',
-          type: 'uint256'
         }
       ],
       name: 'registerBuilderToken',
@@ -356,8 +381,97 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     {
       inputs: [
         {
+          internalType: 'address',
+          name: 'from',
+          type: 'address'
+        },
+        {
+          internalType: 'address',
+          name: 'to',
+          type: 'address'
+        },
+        {
+          internalType: 'uint256[]',
+          name: 'tokenIds',
+          type: 'uint256[]'
+        },
+        {
+          internalType: 'uint256[]',
+          name: 'amounts',
+          type: 'uint256[]'
+        },
+        {
+          internalType: 'bytes',
+          name: 'data',
+          type: 'bytes'
+        }
+      ],
+      name: 'safeBatchTransferFrom',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: 'from',
+          type: 'address'
+        },
+        {
+          internalType: 'address',
+          name: 'to',
+          type: 'address'
+        },
+        {
+          internalType: 'uint256',
+          name: 'tokenId',
+          type: 'uint256'
+        },
+        {
+          internalType: 'uint256',
+          name: 'amount',
+          type: 'uint256'
+        },
+        {
+          internalType: 'bytes',
+          name: 'data',
+          type: 'bytes'
+        }
+      ],
+      name: 'safeTransferFrom',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [
+        {
+          internalType: 'address',
+          name: 'operator',
+          type: 'address'
+        },
+        {
+          internalType: 'bool',
+          name: 'approved',
+          type: 'bool'
+        }
+      ],
+      name: 'setApprovalForAll',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [
+        {
           internalType: 'string',
-          name: 'newBaseUri',
+          name: '_prefix',
+          type: 'string'
+        },
+        {
+          internalType: 'string',
+          name: '_suffix',
           type: 'string'
         }
       ],
@@ -370,7 +484,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
       inputs: [
         {
           internalType: 'address',
-          name: 'minter',
+          name: '_minter',
           type: 'address'
         }
       ],
@@ -382,12 +496,12 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     {
       inputs: [
         {
-          internalType: 'string',
-          name: 'newPrefix',
-          type: 'string'
+          internalType: 'address',
+          name: '_newPauser',
+          type: 'address'
         }
       ],
-      name: 'setUriPrefix',
+      name: 'setPauser',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function'
@@ -395,30 +509,12 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     {
       inputs: [
         {
-          internalType: 'string',
-          name: 'newPrefix',
-          type: 'string'
-        },
-        {
-          internalType: 'string',
-          name: 'newSuffix',
-          type: 'string'
+          internalType: 'address',
+          name: 'receiver',
+          type: 'address'
         }
       ],
-      name: 'setUriPrefixAndSuffix',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'string',
-          name: 'newSuffix',
-          type: 'string'
-        }
-      ],
-      name: 'setUriSuffix',
+      name: 'setProceedsReceiver',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function'
@@ -437,6 +533,19 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
           internalType: 'bool',
           name: '',
           type: 'bool'
+        }
+      ],
+      stateMutability: 'pure',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'symbol',
+      outputs: [
+        {
+          internalType: 'string',
+          name: '',
+          type: 'string'
         }
       ],
       stateMutability: 'view',
@@ -477,25 +586,6 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     {
       inputs: [
         {
-          internalType: 'string',
-          name: 'scout',
-          type: 'string'
-        }
-      ],
-      name: 'totalMinted',
-      outputs: [
-        {
-          internalType: 'uint256',
-          name: '',
-          type: 'uint256'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
           internalType: 'uint256',
           name: 'tokenId',
           type: 'uint256'
@@ -516,11 +606,31 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
       inputs: [
         {
           internalType: 'address',
-          name: 'newContract',
+          name: '_newAdmin',
           type: 'address'
         }
       ],
-      name: 'updateERC20Contract',
+      name: 'transferAdmin',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'unPause',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [
+        {
+          internalType: 'uint256',
+          name: 'newIncrement',
+          type: 'uint256'
+        }
+      ],
+      name: 'updatePriceIncrement',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function'
@@ -580,18 +690,12 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
         },
         {
           indexed: false,
-          internalType: 'uint256',
-          name: 'amount',
-          type: 'uint256'
-        },
-        {
-          indexed: false,
           internalType: 'string',
-          name: 'scout',
+          name: 'builderId',
           type: 'string'
         }
       ],
-      name: 'BuilderScouted',
+      name: 'BuilderTokenRegistered',
       type: 'event'
     },
     {
@@ -599,18 +703,37 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
       inputs: [
         {
           indexed: false,
-          internalType: 'uint256',
-          name: 'tokenId',
-          type: 'uint256'
-        },
+          internalType: 'address',
+          name: '_callerAddress',
+          type: 'address'
+        }
+      ],
+      name: 'Paused',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
         {
           indexed: false,
           internalType: 'string',
-          name: 'builderId',
+          name: 'roleName',
           type: 'string'
+        },
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'previousHolder',
+          type: 'address'
+        },
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'newHolder',
+          type: 'address'
         }
       ],
-      name: 'BuilderTokenRegistered',
+      name: 'RoleTransferred',
       type: 'event'
     },
     {
@@ -705,6 +828,19 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
       ],
       name: 'URI',
       type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: 'address',
+          name: '_callerAddress',
+          type: 'address'
+        }
+      ],
+      name: 'Unpaused',
+      type: 'event'
     }
   ];
 
@@ -742,11 +878,80 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     }
   }
 
-  async balanceOf(params: { args: { account: Address; id: bigint } }): Promise<bigint> {
+  async ERC20Token(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'ERC20Token',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'ERC20Token',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
+  }
+
+  async acceptUpgrade(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'acceptUpgrade',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'acceptUpgrade',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
+  }
+
+  async admin(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'admin',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'admin',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
+  }
+
+  async balanceOf(params: { args: { account: Address; tokenId: bigint } }): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'balanceOf',
-      args: [params.args.account, params.args.id]
+      args: [params.args.account, params.args.tokenId]
     });
 
     const { data } = await this.publicClient.call({
@@ -765,11 +970,11 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     return result as bigint;
   }
 
-  async balanceOfBatch(params: { args: { accounts: Address[]; ids: bigint[] } }): Promise<bigint[]> {
+  async balanceOfBatch(params: { args: { accounts: Address[]; tokenIds: bigint[] } }): Promise<bigint[]> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'balanceOfBatch',
-      args: [params.args.accounts, params.args.ids]
+      args: [params.args.accounts, params.args.tokenIds]
     });
 
     const { data } = await this.publicClient.call({
@@ -788,31 +993,8 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     return result as bigint[];
   }
 
-  async balanceOfScout(params: { args: { scout: string; tokenId: bigint } }): Promise<bigint> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'balanceOfScout',
-      args: [params.args.scout, params.args.tokenId]
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'balanceOfScout',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as bigint;
-  }
-
   async burn(params: {
-    args: { account: Address; tokenId: bigint; amount: bigint; scout: string };
+    args: { account: Address; tokenId: bigint; amount: bigint };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -823,7 +1005,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'burn',
-      args: [params.args.account, params.args.tokenId, params.args.amount, params.args.scout]
+      args: [params.args.account, params.args.tokenId, params.args.amount]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -861,52 +1043,6 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
 
     // Parse the result based on the return type
     return result as string;
-  }
-
-  async getERC20Contract(): Promise<Address> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'getERC20Contract',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'getERC20Contract',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as Address;
-  }
-
-  async getMinter(): Promise<Address> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'getMinter',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'getMinter',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as Address;
   }
 
   async getPriceIncrement(): Promise<bigint> {
@@ -955,11 +1091,11 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     return result as bigint;
   }
 
-  async getTokenPurchasePrice(params: { args: { amount: bigint } }): Promise<bigint> {
+  async getTokenPurchasePrice(params: { args: { tokenId: bigint; amount: bigint } }): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'getTokenPurchasePrice',
-      args: [params.args.amount]
+      args: [params.args.tokenId, params.args.amount]
     });
 
     const { data } = await this.publicClient.call({
@@ -978,10 +1114,33 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     return result as bigint;
   }
 
-  async getUriPrefix(): Promise<string> {
+  async isApprovedForAll(params: { args: { account: Address; operator: Address } }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'getUriPrefix',
+      functionName: 'isApprovedForAll',
+      args: [params.args.account, params.args.operator]
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'isApprovedForAll',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as boolean;
+  }
+
+  async isPaused(): Promise<boolean> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'isPaused',
       args: []
     });
 
@@ -993,53 +1152,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     // Decode the result based on the expected return type
     const result = decodeFunctionResult({
       abi: this.abi,
-      functionName: 'getUriPrefix',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as string;
-  }
-
-  async getUriSuffix(): Promise<string> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'getUriSuffix',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'getUriSuffix',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as string;
-  }
-
-  async isValidUUID(params: { args: { uuid: string } }): Promise<boolean> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'isValidUUID',
-      args: [params.args.uuid]
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'isValidUUID',
+      functionName: 'isPaused',
       data: data as `0x${string}`
     });
 
@@ -1048,7 +1161,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
   }
 
   async mint(params: {
-    args: { account: Address; tokenId: bigint; amount: bigint; scout: string };
+    args: { account: Address; tokenId: bigint; amount: bigint };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1059,7 +1172,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'mint',
-      args: [params.args.account, params.args.tokenId, params.args.amount, params.args.scout]
+      args: [params.args.account, params.args.tokenId, params.args.amount]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -1077,7 +1190,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
   }
 
   async mintTo(params: {
-    args: { account: Address; tokenId: bigint; amount: bigint; scout: string };
+    args: { account: Address; tokenId: bigint; amount: bigint };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1088,7 +1201,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'mintTo',
-      args: [params.args.account, params.args.tokenId, params.args.amount, params.args.scout]
+      args: [params.args.account, params.args.tokenId, params.args.amount]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -1105,8 +1218,125 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
+  async minter(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'minter',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'minter',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
+  }
+
+  async name(): Promise<string> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'name',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'name',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as string;
+  }
+
+  async pause(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'pause',
+      args: []
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async pauser(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'pauser',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'pauser',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
+  }
+
+  async proceedsReceiver(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'proceedsReceiver',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'proceedsReceiver',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
+  }
+
   async registerBuilderToken(params: {
-    args: { builderId: string; builderTokenId: bigint };
+    args: { builderId: string };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1117,7 +1347,94 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'registerBuilderToken',
-      args: [params.args.builderId, params.args.builderTokenId]
+      args: [params.args.builderId]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async safeBatchTransferFrom(params: {
+    args: { from: Address; to: Address; tokenIds: bigint[]; amounts: bigint[]; data: string };
+    value?: bigint;
+    gasPrice?: bigint;
+  }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'safeBatchTransferFrom',
+      args: [params.args.from, params.args.to, params.args.tokenIds, params.args.amounts, params.args.data]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async safeTransferFrom(params: {
+    args: { from: Address; to: Address; tokenId: bigint; amount: bigint; data: string };
+    value?: bigint;
+    gasPrice?: bigint;
+  }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'safeTransferFrom',
+      args: [params.args.from, params.args.to, params.args.tokenId, params.args.amount, params.args.data]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async setApprovalForAll(params: {
+    args: { operator: Address; approved: boolean };
+    value?: bigint;
+    gasPrice?: bigint;
+  }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'setApprovalForAll',
+      args: [params.args.operator, params.args.approved]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -1135,7 +1452,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
   }
 
   async setBaseUri(params: {
-    args: { newBaseUri: string };
+    args: { _prefix: string; _suffix: string };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1146,7 +1463,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'setBaseUri',
-      args: [params.args.newBaseUri]
+      args: [params.args._prefix, params.args._suffix]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -1164,7 +1481,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
   }
 
   async setMinter(params: {
-    args: { minter: Address };
+    args: { _minter: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1175,7 +1492,7 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'setMinter',
-      args: [params.args.minter]
+      args: [params.args._minter]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -1192,8 +1509,8 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async setUriPrefix(params: {
-    args: { newPrefix: string };
+  async setPauser(params: {
+    args: { _newPauser: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1203,8 +1520,8 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'setUriPrefix',
-      args: [params.args.newPrefix]
+      functionName: 'setPauser',
+      args: [params.args._newPauser]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -1221,8 +1538,8 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async setUriPrefixAndSuffix(params: {
-    args: { newPrefix: string; newSuffix: string };
+  async setProceedsReceiver(params: {
+    args: { receiver: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1232,37 +1549,8 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'setUriPrefixAndSuffix',
-      args: [params.args.newPrefix, params.args.newSuffix]
-    });
-
-    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
-      to: getAddress(this.contractAddress),
-      data: txData,
-      value: params.value ?? BigInt(0), // Optional value for payable methods
-      gasPrice: params.gasPrice // Optional gasPrice
-    };
-
-    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
-    const tx = await this.walletClient.sendTransaction(txInput as any);
-
-    // Return the transaction receipt
-    return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
-  async setUriSuffix(params: {
-    args: { newSuffix: string };
-    value?: bigint;
-    gasPrice?: bigint;
-  }): Promise<TransactionReceipt> {
-    if (!this.walletClient) {
-      throw new Error('Wallet client is required for write operations.');
-    }
-
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'setUriSuffix',
-      args: [params.args.newSuffix]
+      functionName: 'setProceedsReceiver',
+      args: [params.args.receiver]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -1300,6 +1588,29 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
 
     // Parse the result based on the return type
     return result as boolean;
+  }
+
+  async symbol(): Promise<string> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'symbol',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'symbol',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as string;
   }
 
   async tokenURI(params: { args: { _tokenId: bigint } }): Promise<string> {
@@ -1348,29 +1659,6 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     return result as bigint;
   }
 
-  async totalMinted(params: { args: { scout: string } }): Promise<bigint> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'totalMinted',
-      args: [params.args.scout]
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'totalMinted',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as bigint;
-  }
-
   async totalSupply(params: { args: { tokenId: bigint } }): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
@@ -1394,8 +1682,8 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
     return result as bigint;
   }
 
-  async updateERC20Contract(params: {
-    args: { newContract: Address };
+  async transferAdmin(params: {
+    args: { _newAdmin: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -1405,8 +1693,62 @@ export class BuilderNFTSeasonOneStarterPackImplementation01Client {
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'updateERC20Contract',
-      args: [params.args.newContract]
+      functionName: 'transferAdmin',
+      args: [params.args._newAdmin]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async unPause(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'unPause',
+      args: []
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async updatePriceIncrement(params: {
+    args: { newIncrement: bigint };
+    value?: bigint;
+    gasPrice?: bigint;
+  }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'updatePriceIncrement',
+      args: [params.args.newIncrement]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {

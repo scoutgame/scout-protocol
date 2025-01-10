@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class ScoutTokenERC20Client {
+export class ScoutTokenERC20ImplementationClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;
@@ -46,6 +46,19 @@ export class ScoutTokenERC20Client {
           internalType: 'uint256',
           name: '',
           type: 'uint256'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'acceptUpgrade',
+      outputs: [
+        {
+          internalType: 'address',
+          name: '',
+          type: 'address'
         }
       ],
       stateMutability: 'view',
@@ -243,6 +256,26 @@ export class ScoutTokenERC20Client {
     },
     {
       inputs: [],
+      name: 'initialize',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'isInitialized',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
       name: 'isPaused',
       outputs: [
         {
@@ -277,7 +310,7 @@ export class ScoutTokenERC20Client {
           type: 'string'
         }
       ],
-      stateMutability: 'view',
+      stateMutability: 'pure',
       type: 'function'
     },
     {
@@ -381,7 +414,7 @@ export class ScoutTokenERC20Client {
           type: 'string'
         }
       ],
-      stateMutability: 'view',
+      stateMutability: 'pure',
       type: 'function'
     },
     {
@@ -680,6 +713,29 @@ export class ScoutTokenERC20Client {
     return result as bigint;
   }
 
+  async acceptUpgrade(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'acceptUpgrade',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'acceptUpgrade',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
+  }
+
   async admin(): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
@@ -940,6 +996,54 @@ export class ScoutTokenERC20Client {
 
     // Return the transaction receipt
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async initialize(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'initialize',
+      args: []
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async isInitialized(): Promise<boolean> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'isInitialized',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'isInitialized',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as boolean;
   }
 
   async isPaused(): Promise<boolean> {
