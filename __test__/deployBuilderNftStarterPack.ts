@@ -5,11 +5,13 @@ import { deployTestUSDC } from './deployTestUSDC';
 import { generateWallets } from './generateWallets';
 
 export async function deployBuilderNftStarterPackContract({
-  USDCContractAddress
-}: { USDCContractAddress?: Address } = {}) {
+  USDCContractAddress,
+  tokenName = 'ScoutGame Builders Test',
+  tokenSymbol = '$TESTBUILDERS'
+}: { USDCContractAddress?: Address; tokenName?: string; tokenSymbol?: string } = {}) {
   const { adminAccount: admin, thirdUserAccount: proceedsReceiverAccount } = await generateWallets();
 
-  const implementation = await viem.deployContract('BuilderNFTSeasonOneStarterPackImplementation01', [], {
+  const implementation = await viem.deployContract('ScoutGameStarterPackNFTImplementation', [], {
     client: { wallet: admin }
   });
 
@@ -18,8 +20,8 @@ export async function deployBuilderNftStarterPackContract({
   const erc20Contract = USDCContractAddress || (await deployTestUSDC().then(({ USDC }) => USDC.address));
 
   const proxy = await viem.deployContract(
-    'BuilderNFTSeasonOneStarterPackUpgradeable',
-    [implementation.address, erc20Contract as Address, proceedsReceiver],
+    'ScoutGameStarterPackNFTUpgradeable',
+    [implementation.address, erc20Contract as Address, proceedsReceiver, tokenName, tokenSymbol],
     {
       client: { wallet: admin }
     }
@@ -27,7 +29,7 @@ export async function deployBuilderNftStarterPackContract({
 
   // Make the implementation ABI available to the proxy
   const proxyWithImplementationABI = await viem.getContractAt(
-    'BuilderNFTSeasonOneStarterPackImplementation01', // Implementation ABI
+    'ScoutGameStarterPackNFTImplementation', // Implementation ABI
     proxy.address, // Proxy address
     { client: { wallet: admin } } // Use the admin account for interaction
   );

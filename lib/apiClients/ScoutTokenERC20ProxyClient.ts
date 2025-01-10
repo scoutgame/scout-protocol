@@ -28,7 +28,7 @@ type ReadWriteWalletClient<
   PublicActions<transport, chain, account> & WalletActions<chain, account>
 >;
 
-export class BuilderNFTSeasonOneUpgradeableABIClient {
+export class ScoutTokenERC20ProxyClient {
   private contractAddress: Address;
 
   private publicClient: PublicClient;
@@ -53,20 +53,7 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
     },
     {
       inputs: [],
-      name: 'getPriceIncrement',
-      outputs: [
-        {
-          internalType: 'uint256',
-          name: '',
-          type: 'uint256'
-        }
-      ],
-      stateMutability: 'view',
-      type: 'function'
-    },
-    {
-      inputs: [],
-      name: 'getProceedsReceiver',
+      name: 'implementation',
       outputs: [
         {
           internalType: 'address',
@@ -79,7 +66,27 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
     },
     {
       inputs: [],
-      name: 'implementation',
+      name: 'isPaused',
+      outputs: [
+        {
+          internalType: 'bool',
+          name: '',
+          type: 'bool'
+        }
+      ],
+      stateMutability: 'view',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'pause',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'pauser',
       outputs: [
         {
           internalType: 'address',
@@ -107,11 +114,11 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
       inputs: [
         {
           internalType: 'address',
-          name: 'receiver',
+          name: '_newPauser',
           type: 'address'
         }
       ],
-      name: 'setProceedsReceiver',
+      name: 'setPauser',
       outputs: [],
       stateMutability: 'nonpayable',
       type: 'function'
@@ -125,15 +132,67 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
         }
       ],
       name: 'transferAdmin',
-      outputs: [
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      inputs: [],
+      name: 'unPause',
+      outputs: [],
+      stateMutability: 'nonpayable',
+      type: 'function'
+    },
+    {
+      anonymous: false,
+      inputs: [
         {
+          indexed: false,
           internalType: 'address',
-          name: '',
+          name: '_callerAddress',
           type: 'address'
         }
       ],
-      stateMutability: 'nonpayable',
-      type: 'function'
+      name: 'Paused',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: 'string',
+          name: 'roleName',
+          type: 'string'
+        },
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'previousHolder',
+          type: 'address'
+        },
+        {
+          indexed: true,
+          internalType: 'address',
+          name: 'newHolder',
+          type: 'address'
+        }
+      ],
+      name: 'RoleTransferred',
+      type: 'event'
+    },
+    {
+      anonymous: false,
+      inputs: [
+        {
+          indexed: false,
+          internalType: 'address',
+          name: '_callerAddress',
+          type: 'address'
+        }
+      ],
+      name: 'Unpaused',
+      type: 'event'
     }
   ];
 
@@ -171,7 +230,7 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
     }
   }
 
-  async admin(): Promise<string> {
+  async admin(): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'admin',
@@ -191,56 +250,10 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
     });
 
     // Parse the result based on the return type
-    return result as string;
+    return result as Address;
   }
 
-  async getPriceIncrement(): Promise<bigint> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'getPriceIncrement',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'getPriceIncrement',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as bigint;
-  }
-
-  async getProceedsReceiver(): Promise<string> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'getProceedsReceiver',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'getProceedsReceiver',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as string;
-  }
-
-  async implementation(): Promise<string> {
+  async implementation(): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'implementation',
@@ -260,11 +273,82 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
     });
 
     // Parse the result based on the return type
-    return result as string;
+    return result as Address;
+  }
+
+  async isPaused(): Promise<boolean> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'isPaused',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'isPaused',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as boolean;
+  }
+
+  async pause(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'pause',
+      args: []
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async pauser(): Promise<Address> {
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'pauser',
+      args: []
+    });
+
+    const { data } = await this.publicClient.call({
+      to: this.contractAddress,
+      data: txData
+    });
+
+    // Decode the result based on the expected return type
+    const result = decodeFunctionResult({
+      abi: this.abi,
+      functionName: 'pauser',
+      data: data as `0x${string}`
+    });
+
+    // Parse the result based on the return type
+    return result as Address;
   }
 
   async setImplementation(params: {
-    args: { newImplementation: string };
+    args: { newImplementation: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -292,8 +376,8 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async setProceedsReceiver(params: {
-    args: { receiver: string };
+  async setPauser(params: {
+    args: { _newPauser: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -303,8 +387,8 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
 
     const txData = encodeFunctionData({
       abi: this.abi,
-      functionName: 'setProceedsReceiver',
-      args: [params.args.receiver]
+      functionName: 'setPauser',
+      args: [params.args._newPauser]
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
@@ -322,7 +406,7 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
   }
 
   async transferAdmin(params: {
-    args: { _newAdmin: string };
+    args: { _newAdmin: Address };
     value?: bigint;
     gasPrice?: bigint;
   }): Promise<TransactionReceipt> {
@@ -334,6 +418,31 @@ export class BuilderNFTSeasonOneUpgradeableABIClient {
       abi: this.abi,
       functionName: 'transferAdmin',
       args: [params.args._newAdmin]
+    });
+
+    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
+      to: getAddress(this.contractAddress),
+      data: txData,
+      value: params.value ?? BigInt(0), // Optional value for payable methods
+      gasPrice: params.gasPrice // Optional gasPrice
+    };
+
+    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
+    const tx = await this.walletClient.sendTransaction(txInput as any);
+
+    // Return the transaction receipt
+    return this.walletClient.waitForTransactionReceipt({ hash: tx });
+  }
+
+  async unPause(params: { value?: bigint; gasPrice?: bigint }): Promise<TransactionReceipt> {
+    if (!this.walletClient) {
+      throw new Error('Wallet client is required for write operations.');
+    }
+
+    const txData = encodeFunctionData({
+      abi: this.abi,
+      functionName: 'unPause',
+      args: []
     });
 
     const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {

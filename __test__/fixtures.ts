@@ -1,7 +1,7 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
 
 import { deployBuilderNftContract } from './deployBuilderNft';
-import { deployBuilderNftPreSeason02Contract } from './deployBuilderNftPreSeason02';
+import { deployScoutGamePreSeason02NftContract } from './deployScoutGamePreSeason02NftContract';
 import { deployBuilderNftStarterPackContract } from './deployBuilderNftStarterPack';
 import { deployEASContracts } from './deployEAS';
 import { deployProtocolContract } from './deployProtocol';
@@ -20,10 +20,18 @@ export async function loadContractFixtures() {
   return loadFixture(deployContractFixtures);
 }
 
-export async function loadContractWithStarterPackFixtures() {
+export async function loadContractWithStarterPackFixtures({
+  tokenName,
+  tokenSymbol
+}: {
+  tokenName?: string;
+  tokenSymbol?: string;
+} = {}) {
   const { usdc } = await loadContractFixtures();
   const builderNftStarterPack = await deployBuilderNftStarterPackContract({
-    USDCContractAddress: usdc.USDC.address
+    USDCContractAddress: usdc.USDC.address,
+    tokenName,
+    tokenSymbol
   });
   return { usdc, builderNftStarterPack };
 }
@@ -38,7 +46,7 @@ async function deployProtocolFixtures() {
 
 async function deployBuilderNFTPreSeason02Fixtures() {
   const token = await deployTestUSDC();
-  const builderNftSeason02 = await deployBuilderNftPreSeason02Contract({
+  const builderNftSeason02 = await deployScoutGamePreSeason02NftContract({
     USDCAddress: token.USDC.address
   });
 

@@ -1,6 +1,6 @@
 import { getAddress } from 'viem';
 
-import { deployBuilderNftPreSeason02Contract } from '../deployBuilderNftPreSeason02';
+import { deployScoutGamePreSeason02NftContract } from '../deployScoutGamePreSeason02NftContract';
 import { deployTestUSDC } from '../deployTestUSDC';
 
 describe('Proxy and Initialization', function () {
@@ -8,7 +8,7 @@ describe('Proxy and Initialization', function () {
     const { USDC } = await deployTestUSDC();
 
     const { builderProxyContract, builderImplementationContract, builderNftContract, builderNftAdminAccount } =
-      await deployBuilderNftPreSeason02Contract({
+      await deployScoutGamePreSeason02NftContract({
         USDCAddress: USDC.address
       });
 
@@ -19,5 +19,7 @@ describe('Proxy and Initialization', function () {
     expect(proxyAdmin).toBe(getAddress(builderNftAdminAccount.account.address));
     expect(proxyImplementation).toBe(getAddress(builderImplementationContract.address));
     expect(erc20).toBe(getAddress(USDC.address));
+    expect(await builderNftContract.read.name()).toBe('ScoutGame (PreSeason 02)');
+    expect(await builderNftContract.read.symbol()).toBe('SCOUTGAME-P02');
   });
 });

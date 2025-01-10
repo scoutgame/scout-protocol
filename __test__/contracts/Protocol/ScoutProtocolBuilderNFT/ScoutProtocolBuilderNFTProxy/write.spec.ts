@@ -7,7 +7,7 @@ import { loadScoutProtocolBuilderNFTFixtures } from '../../../../fixtures';
 import { walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
 
 function deployImplementation() {
-  return viem.deployContract('BuilderNFTPreSeason02Implementation', []);
+  return viem.deployContract('ScoutGamePreSeason02NFTImplementation', []);
 }
 
 type DeployedImplementation = Awaited<ReturnType<typeof deployImplementation>>;

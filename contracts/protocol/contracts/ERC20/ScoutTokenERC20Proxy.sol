@@ -18,6 +18,8 @@ contract ScoutTokenERC20Proxy is Context, ScoutProtocolAccessControl {
     address internal constant DEFAULT_L2_MESSENGER_ADDRESS =
         0x4200000000000000000000000000000000000023;
 
+    /// We need to pass the admin so that we can support cross-chain transfers.
+    /// Otherwise our usual pattern on contract is for the admin to be _msgSender() by default
     constructor(address _implementation, address _admin) {
         MemoryUtils._setAddress(MemoryUtils.ADMIN_SLOT, _admin);
         MemoryUtils._setAddress(
