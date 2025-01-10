@@ -135,7 +135,7 @@ contract ScoutGamePreSeason02NFTImplementation is
         uint256[] memory tokenIds,
         uint256[] memory amounts,
         bytes memory data
-    ) external override {
+    ) external override onlyWhenNotPaused {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not owner nor approved"
@@ -298,7 +298,11 @@ contract ScoutGamePreSeason02NFTImplementation is
         BuilderNFTPreSeasonStorage.incrementNextTokenId();
     }
 
-    function mint(address account, uint256 tokenId, uint256 amount) external {
+    function mint(
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) external onlyWhenNotPaused {
         require(account != address(0), "Invalid account address");
         // Throws if token ID is not registered
         require(
@@ -341,7 +345,11 @@ contract ScoutGamePreSeason02NFTImplementation is
         _mintTo(account, tokenId, amount);
     }
 
-    function burn(address account, uint256 tokenId, uint256 amount) external {
+    function burn(
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) external onlyWhenNotPaused {
         require(
             account == _msgSender() ||
                 isApprovedForAll(account, _msgSender()) ||
