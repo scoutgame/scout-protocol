@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../../SeasonOne/libs/MemoryUtils.sol";
+import "../libs/MemoryUtils.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/IERC1155MetadataURI.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
@@ -34,7 +34,7 @@ library ImplementationStorage {
     }
 }
 
-contract ScoutGameStarterPackNFTImplementation is
+contract BuilderNFTSeasonOneStarterPackImplementation01 is
     Context,
     ERC165,
     IERC1155,
@@ -417,6 +417,14 @@ contract ScoutGameStarterPackNFTImplementation is
         return total;
     }
 
+    function getPriceIncrement() external view returns (uint256) {
+        return _getPriceIncrement();
+    }
+
+    function _getPriceIncrement() internal view returns (uint256) {
+        return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
+    }
+
     function setUriPrefixAndSuffix(
         string memory newPrefix,
         string memory newSuffix
@@ -528,34 +536,5 @@ contract ScoutGameStarterPackNFTImplementation is
             uuidBytes[13] == "-" &&
             uuidBytes[18] == "-" &&
             uuidBytes[23] == "-";
-    }
-
-    function name() external view returns (string memory) {
-        return MemoryUtils.getString(MemoryUtils.TOKEN_NAME);
-    }
-
-    function symbol() external view returns (string memory) {
-        return MemoryUtils.getString(MemoryUtils.TOKEN_SYMBOL);
-    }
-
-    function setProceedsReceiver(address receiver) external onlyAdmin {
-        require(receiver != address(0), "Invalid address");
-        MemoryUtils.setAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT, receiver);
-    }
-
-    function getProceedsReceiver() external view returns (address) {
-        return _getProceedsReceiver();
-    }
-
-    function _getProceedsReceiver() internal view returns (address) {
-        return MemoryUtils.getAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT);
-    }
-
-    function updatePriceIncrement(uint256 newIncrement) external onlyAdmin {
-        MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, newIncrement);
-    }
-
-    function getPriceIncrement() public view returns (uint256) {
-        return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
     }
 }

@@ -106,6 +106,15 @@ contract ScoutProtocolBuilderNFTImplementation is
         );
         require(to != address(0), "ERC1155: transfer to the zero address");
 
+        _beforeTokenTransfer(
+            _msgSender(),
+            from,
+            to,
+            _asSingletonUintArray(tokenId),
+            _asSingletonUintArray(amount),
+            data
+        );
+
         uint256 fromBalance = ScoutProtocolBuilderNFTStorage.getBalance(
             from,
             tokenId
@@ -136,7 +145,7 @@ contract ScoutProtocolBuilderNFTImplementation is
         uint256[] memory tokenIds,
         uint256[] memory amounts,
         bytes memory data
-    ) external override onlyWhenNotPaused {
+    ) external override {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not owner nor approved"
@@ -146,6 +155,8 @@ contract ScoutProtocolBuilderNFTImplementation is
             tokenIds.length == amounts.length,
             "ERC1155: ids and amounts length mismatch"
         );
+
+        _beforeTokenTransfer(_msgSender(), from, to, tokenIds, amounts, data);
 
         for (uint256 i = 0; i < tokenIds.length; ++i) {
             uint256 id = tokenIds[i];
@@ -180,6 +191,33 @@ contract ScoutProtocolBuilderNFTImplementation is
         uint256 _tokenId
     ) external view override returns (string memory) {
         return _tokenURI(_tokenId);
+    }
+
+    function _asSingletonAddressArray(
+        address element
+    ) private pure returns (address[] memory) {
+        address[] memory addrArray = new address[](1);
+        addrArray[0] = element;
+        return addrArray;
+    }
+
+    function _asSingletonUintArray(
+        uint256 element
+    ) private pure returns (uint256[] memory) {
+        uint256[] memory uintArray = new uint256[](1);
+        uintArray[0] = element;
+        return uintArray;
+    }
+
+    function _beforeTokenTransfer(
+        address operator,
+        address from,
+        address to,
+        uint256[] memory tokenIds,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual {
+        // Hook that can be overridden
     }
 
     function _doSafeTransferAcceptanceCheck(
@@ -245,14 +283,11 @@ contract ScoutProtocolBuilderNFTImplementation is
     // Implement ERC165
     function supportsInterface(
         bytes4 interfaceId
-    ) public pure override(ERC165, IERC165) returns (bool) {
-        if (
+    ) public view virtual override(ERC165, IERC165) returns (bool) {
+        return
             interfaceId == type(IERC1155).interfaceId ||
-            interfaceId == type(IERC1155MetadataURI).interfaceId
-        ) {
-            return true;
-        }
-        return false;
+            interfaceId == type(IERC1155MetadataURI).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     // Rest of the contract methods
@@ -313,11 +348,7 @@ contract ScoutProtocolBuilderNFTImplementation is
         ScoutProtocolBuilderNFTStorage.incrementNextTokenId();
     }
 
-    function mint(
-        address account,
-        uint256 tokenId,
-        uint256 amount
-    ) external onlyWhenNotPaused {
+    function mint(address account, uint256 tokenId, uint256 amount) external {
         require(account != address(0), "Invalid account address");
 
         string memory builderId = ScoutProtocolBuilderNFTStorage
@@ -409,11 +440,7 @@ contract ScoutProtocolBuilderNFTImplementation is
         );
     }
 
-    function burn(
-        address account,
-        uint256 tokenId,
-        uint256 amount
-    ) external onlyWhenNotPaused {
+    function burn(address account, uint256 tokenId, uint256 amount) external {
         require(
             account == _msgSender() || isApprovedForAll(account, _msgSender()),
             "ERC1155: caller is not owner nor approved"
@@ -432,7 +459,7 @@ contract ScoutProtocolBuilderNFTImplementation is
         _setRole(MemoryUtils.MINTER_SLOT, _minter);
     }
 
-    function minter() public view returns (address) {
+    function minter() external view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.MINTER_SLOT);
     }
 

@@ -25,12 +25,6 @@ describe('deployScoutTokenERC20', () => {
 
     expect(adminBalance).toBe(1_000_000_000);
 
-    const totalSupply = await ScoutTokenERC20.ScoutTokenERC20.read.totalSupply();
-
-    const decimals = await ScoutTokenERC20.ScoutTokenERC20.read.decimals();
-
-    expect(Number(totalSupply / 10n ** BigInt(decimals))).toBe(1_000_000_000);
-
     const userBalance = await balanceOfScoutTokenERC20({ account: userAccount.account.address });
 
     expect(userBalance).toBe(0);

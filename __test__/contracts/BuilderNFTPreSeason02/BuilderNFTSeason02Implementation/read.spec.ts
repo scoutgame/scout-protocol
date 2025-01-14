@@ -1,12 +1,12 @@
 import { v4 as uuid } from 'uuid';
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../deployScoutGamePreSeason02NftContract';
+import type { BuilderNftSeason02Fixture } from '../../../deployBuilderNftPreSeason02';
 import type { USDCTestFixture } from '../../../deployTestUSDC';
 import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
 import { generateWallets } from '../../../generateWallets';
 
-describe('ScoutGamePreSeason02NFTImplementation', function () {
+describe('BuilderNFTPreSeason02Implementation', function () {
   let builderNftSeason02: BuilderNftSeason02Fixture;
   let erc20: USDCTestFixture;
   let builderNftContract: BuilderNftSeason02Fixture['builderNftContract'];
