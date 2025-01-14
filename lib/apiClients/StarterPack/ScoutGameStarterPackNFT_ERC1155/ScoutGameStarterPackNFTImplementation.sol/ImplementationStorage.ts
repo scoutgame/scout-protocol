@@ -7,9 +7,12 @@ import type {
   PublicActions,
   PublicClient,
   RpcSchema,
+  TransactionReceipt,
   Transport,
-  WalletActions
+  WalletActions,
+  WalletClient
 } from 'viem';
+import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
 
 // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
 //  https://github.com/wevm/viem/discussions/1463#discussioncomment-7504732

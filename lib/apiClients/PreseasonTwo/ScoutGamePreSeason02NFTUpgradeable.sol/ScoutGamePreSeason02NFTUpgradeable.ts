@@ -243,7 +243,7 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
     }
   }
 
-  async ERC20_DECIMALS(): Promise<bigint> {
+  async ERC20_DECIMALS(params: { blockNumber?: bigint } = {}): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'ERC20_DECIMALS',
@@ -252,7 +252,8 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -266,7 +267,7 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
     return result as bigint;
   }
 
-  async admin(): Promise<Address> {
+  async admin(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'admin',
@@ -275,7 +276,8 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -289,7 +291,7 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
     return result as Address;
   }
 
-  async implementation(): Promise<Address> {
+  async implementation(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'implementation',
@@ -298,7 +300,8 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -312,7 +315,7 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
     return result as Address;
   }
 
-  async isPaused(): Promise<boolean> {
+  async isPaused(params: { blockNumber?: bigint } = {}): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'isPaused',
@@ -321,7 +324,8 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -360,7 +364,7 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async pauser(): Promise<Address> {
+  async pauser(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'pauser',
@@ -369,7 +373,8 @@ export class ScoutGamePreSeason02NFTUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type

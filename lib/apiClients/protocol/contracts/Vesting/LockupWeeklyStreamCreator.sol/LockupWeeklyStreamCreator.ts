@@ -155,7 +155,7 @@ export class LockupWeeklyStreamCreatorClient {
     }
   }
 
-  async LOCKUP_TRANCHED(): Promise<Address> {
+  async LOCKUP_TRANCHED(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'LOCKUP_TRANCHED',
@@ -164,7 +164,8 @@ export class LockupWeeklyStreamCreatorClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -178,7 +179,7 @@ export class LockupWeeklyStreamCreatorClient {
     return result as Address;
   }
 
-  async SCOUT(): Promise<Address> {
+  async SCOUT(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'SCOUT',
@@ -187,7 +188,8 @@ export class LockupWeeklyStreamCreatorClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -201,7 +203,7 @@ export class LockupWeeklyStreamCreatorClient {
     return result as Address;
   }
 
-  async WEEKS_PER_STREAM(): Promise<bigint> {
+  async WEEKS_PER_STREAM(params: { blockNumber?: bigint } = {}): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'WEEKS_PER_STREAM',
@@ -210,7 +212,8 @@ export class LockupWeeklyStreamCreatorClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type

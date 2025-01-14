@@ -132,7 +132,7 @@ export class ScoutGameStarterPackNFTUpgradeableClient {
     }
   }
 
-  async admin(): Promise<Address> {
+  async admin(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'admin',
@@ -141,7 +141,8 @@ export class ScoutGameStarterPackNFTUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -155,7 +156,7 @@ export class ScoutGameStarterPackNFTUpgradeableClient {
     return result as Address;
   }
 
-  async implementation(): Promise<Address> {
+  async implementation(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'implementation',
@@ -164,7 +165,8 @@ export class ScoutGameStarterPackNFTUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type

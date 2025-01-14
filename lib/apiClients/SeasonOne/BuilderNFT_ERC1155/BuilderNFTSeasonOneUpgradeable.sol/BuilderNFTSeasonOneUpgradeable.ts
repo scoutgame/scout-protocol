@@ -236,7 +236,7 @@ export class BuilderNFTSeasonOneUpgradeableClient {
     }
   }
 
-  async admin(): Promise<Address> {
+  async admin(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'admin',
@@ -245,7 +245,8 @@ export class BuilderNFTSeasonOneUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -259,7 +260,7 @@ export class BuilderNFTSeasonOneUpgradeableClient {
     return result as Address;
   }
 
-  async getERC20Contract(): Promise<bigint> {
+  async getERC20Contract(params: { blockNumber?: bigint } = {}): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'getERC20Contract',
@@ -268,7 +269,8 @@ export class BuilderNFTSeasonOneUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -282,7 +284,7 @@ export class BuilderNFTSeasonOneUpgradeableClient {
     return result as bigint;
   }
 
-  async getPriceIncrement(): Promise<bigint> {
+  async getPriceIncrement(params: { blockNumber?: bigint } = {}): Promise<bigint> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'getPriceIncrement',
@@ -291,7 +293,8 @@ export class BuilderNFTSeasonOneUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -305,7 +308,7 @@ export class BuilderNFTSeasonOneUpgradeableClient {
     return result as bigint;
   }
 
-  async getProceedsReceiver(): Promise<Address> {
+  async getProceedsReceiver(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'getProceedsReceiver',
@@ -314,7 +317,8 @@ export class BuilderNFTSeasonOneUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -328,7 +332,7 @@ export class BuilderNFTSeasonOneUpgradeableClient {
     return result as Address;
   }
 
-  async implementation(): Promise<Address> {
+  async implementation(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'implementation',
@@ -337,7 +341,8 @@ export class BuilderNFTSeasonOneUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -351,7 +356,7 @@ export class BuilderNFTSeasonOneUpgradeableClient {
     return result as Address;
   }
 
-  async name(): Promise<string> {
+  async name(params: { blockNumber?: bigint } = {}): Promise<string> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'name',
@@ -360,7 +365,8 @@ export class BuilderNFTSeasonOneUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -432,7 +438,7 @@ export class BuilderNFTSeasonOneUpgradeableClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async symbol(): Promise<string> {
+  async symbol(params: { blockNumber?: bigint } = {}): Promise<string> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'symbol',
@@ -441,7 +447,8 @@ export class BuilderNFTSeasonOneUpgradeableClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type

@@ -503,7 +503,7 @@ export class ScoutProtocolImplementationClient {
     }
   }
 
-  async acceptUpgrade(): Promise<Address> {
+  async acceptUpgrade(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'acceptUpgrade',
@@ -512,7 +512,8 @@ export class ScoutProtocolImplementationClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -526,7 +527,7 @@ export class ScoutProtocolImplementationClient {
     return result as Address;
   }
 
-  async admin(): Promise<Address> {
+  async admin(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'admin',
@@ -535,7 +536,8 @@ export class ScoutProtocolImplementationClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -574,7 +576,7 @@ export class ScoutProtocolImplementationClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async claimsManager(): Promise<Address> {
+  async claimsManager(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'claimsManager',
@@ -583,7 +585,8 @@ export class ScoutProtocolImplementationClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -597,7 +600,7 @@ export class ScoutProtocolImplementationClient {
     return result as Address;
   }
 
-  async getWeeklyMerkleRoot(params: { args: { week: string } }): Promise<any> {
+  async getWeeklyMerkleRoot(params: { args: { week: string }; blockNumber?: bigint }): Promise<any> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'getWeeklyMerkleRoot',
@@ -606,7 +609,8 @@ export class ScoutProtocolImplementationClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -620,7 +624,7 @@ export class ScoutProtocolImplementationClient {
     return result as any;
   }
 
-  async hasClaimed(params: { args: { week: string; account: Address } }): Promise<boolean> {
+  async hasClaimed(params: { args: { week: string; account: Address }; blockNumber?: bigint }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'hasClaimed',
@@ -629,7 +633,8 @@ export class ScoutProtocolImplementationClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -643,7 +648,7 @@ export class ScoutProtocolImplementationClient {
     return result as boolean;
   }
 
-  async isPaused(): Promise<boolean> {
+  async isPaused(params: { blockNumber?: bigint } = {}): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'isPaused',
@@ -652,7 +657,8 @@ export class ScoutProtocolImplementationClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -716,7 +722,7 @@ export class ScoutProtocolImplementationClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async pauser(): Promise<Address> {
+  async pauser(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'pauser',
@@ -725,7 +731,8 @@ export class ScoutProtocolImplementationClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -739,7 +746,7 @@ export class ScoutProtocolImplementationClient {
     return result as Address;
   }
 
-  async scoutTokenERC20(): Promise<Address> {
+  async scoutTokenERC20(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'scoutTokenERC20',
@@ -748,7 +755,8 @@ export class ScoutProtocolImplementationClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type

@@ -48,10 +48,10 @@ function generateMethodImplementation(abiItem: any): string {
   // Define the parameter type based on inputs
   const paramsType =
     inputs.length > 0
-      ? `{ args: { ${generateInputTypes(abiItem)} }, ${transactionConfig} }`
+      ? `{ args: { ${generateInputTypes(abiItem)} }, ${isReadOperation ? 'blockNumber?: bigint, ' : ''}${transactionConfig} }`
       : transactionConfig
         ? `{ ${transactionConfig} }`
-        : '';
+        : '{ blockNumber?: bigint } = {}';
 
   // Handle read methods (view/pure) with output type parsing
   if (isReadOperation) {
@@ -62,12 +62,13 @@ function generateMethodImplementation(abiItem: any): string {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "${functionName}",
-        args: [${inputNames}],
+        args: [${inputNames}]
       });
 
       const { data } = await this.publicClient.call({
         to: this.contractAddress,
         data: txData,
+        blockNumber: params.blockNumber
       });
 
       // Decode the result based on the expected return type

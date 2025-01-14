@@ -230,7 +230,7 @@ export class ScoutTokenERC20ProxyClient {
     }
   }
 
-  async admin(): Promise<Address> {
+  async admin(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'admin',
@@ -239,7 +239,8 @@ export class ScoutTokenERC20ProxyClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -253,7 +254,7 @@ export class ScoutTokenERC20ProxyClient {
     return result as Address;
   }
 
-  async implementation(): Promise<Address> {
+  async implementation(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'implementation',
@@ -262,7 +263,8 @@ export class ScoutTokenERC20ProxyClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -276,7 +278,7 @@ export class ScoutTokenERC20ProxyClient {
     return result as Address;
   }
 
-  async isPaused(): Promise<boolean> {
+  async isPaused(params: { blockNumber?: bigint } = {}): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'isPaused',
@@ -285,7 +287,8 @@ export class ScoutTokenERC20ProxyClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -324,7 +327,7 @@ export class ScoutTokenERC20ProxyClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async pauser(): Promise<Address> {
+  async pauser(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'pauser',
@@ -333,7 +336,8 @@ export class ScoutTokenERC20ProxyClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type

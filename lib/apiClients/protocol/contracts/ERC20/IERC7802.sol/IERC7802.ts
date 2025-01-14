@@ -12,7 +12,7 @@ import type {
   WalletActions,
   WalletClient
 } from 'viem';
-import { decodeFunctionResult, encodeFunctionData, getAddress } from 'viem';
+import { encodeFunctionData, decodeFunctionResult, getAddress } from 'viem';
 
 // ReadWriteWalletClient reflects a wallet client that has been extended with PublicActions
 //  https://github.com/wevm/viem/discussions/1463#discussioncomment-7504732
@@ -237,7 +237,7 @@ export class IERC7802Client {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async supportsInterface(params: { args: { interfaceId: string } }): Promise<boolean> {
+  async supportsInterface(params: { args: { interfaceId: string }; blockNumber?: bigint }): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'supportsInterface',
@@ -246,7 +246,8 @@ export class IERC7802Client {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type

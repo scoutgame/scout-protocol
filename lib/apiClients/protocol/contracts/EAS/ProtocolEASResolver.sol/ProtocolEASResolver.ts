@@ -576,7 +576,7 @@ export class ProtocolEASResolverClient {
     }
   }
 
-  async admin(): Promise<Address> {
+  async admin(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'admin',
@@ -585,7 +585,8 @@ export class ProtocolEASResolverClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -624,7 +625,7 @@ export class ProtocolEASResolverClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async attester(): Promise<Address> {
+  async attester(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'attester',
@@ -633,7 +634,8 @@ export class ProtocolEASResolverClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -647,7 +649,7 @@ export class ProtocolEASResolverClient {
     return result as Address;
   }
 
-  async isPaused(): Promise<boolean> {
+  async isPaused(params: { blockNumber?: bigint } = {}): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'isPaused',
@@ -656,7 +658,8 @@ export class ProtocolEASResolverClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -670,7 +673,7 @@ export class ProtocolEASResolverClient {
     return result as boolean;
   }
 
-  async isPayable(): Promise<boolean> {
+  async isPayable(params: { blockNumber?: bigint } = {}): Promise<boolean> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'isPayable',
@@ -679,7 +682,8 @@ export class ProtocolEASResolverClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -776,7 +780,7 @@ export class ProtocolEASResolverClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async pauser(): Promise<Address> {
+  async pauser(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'pauser',
@@ -785,7 +789,8 @@ export class ProtocolEASResolverClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -853,7 +858,7 @@ export class ProtocolEASResolverClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async secondaryAttester(): Promise<Address> {
+  async secondaryAttester(params: { blockNumber?: bigint } = {}): Promise<Address> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'secondaryAttester',
@@ -862,7 +867,8 @@ export class ProtocolEASResolverClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
@@ -988,7 +994,7 @@ export class ProtocolEASResolverClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async version(): Promise<string> {
+  async version(params: { blockNumber?: bigint } = {}): Promise<string> {
     const txData = encodeFunctionData({
       abi: this.abi,
       functionName: 'version',
@@ -997,7 +1003,8 @@ export class ProtocolEASResolverClient {
 
     const { data } = await this.publicClient.call({
       to: this.contractAddress,
-      data: txData
+      data: txData,
+      blockNumber: params.blockNumber
     });
 
     // Decode the result based on the expected return type
