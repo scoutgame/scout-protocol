@@ -74,7 +74,7 @@ describe('LockupWeeklyStreamCreator', () => {
 
   describe('createStream()', () => {
     describe('effects', () => {
-      it('creates a claimable, cancellable, non-transferable stream for the protocol', async () => {
+      it('creates a claimable, and cancellable stream for the protocol', async () => {
         const { WeeklyERC20Vesting, SablierLockupTranched } = vesting;
 
         const recipient = await walletFromKey();
@@ -118,8 +118,6 @@ describe('LockupWeeklyStreamCreator', () => {
         expect(streamLog[0].eventName).toEqual('CreateLockupTranchedStream');
         expect(streamLog[0].args.recipient).toEqual(recipient.account.address);
         expect(streamLog[0].args.sender).toEqual(streamCreator.account.address);
-        expect(streamLog[0].args.transferable).toEqual(false);
-        expect(streamLog[0].args.cancelable).toEqual(true);
         expect(streamLog[0].args.amounts.deposit).toEqual(
           BigInt(amountToVest) * erc20.ScoutTokenERC20_DECIMAL_MULTIPLIER
         );

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../../SeasonOne/libs/MemoryUtils.sol";
+import "../libs/MemoryUtils.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract ScoutGameStarterPackNFTUpgradeable {
+contract BuilderNFTSeasonOneStarterPackUpgradeable {
     using MemoryUtils for bytes32;
 
     // Modifier to restrict access to admin functions
@@ -19,9 +19,7 @@ contract ScoutGameStarterPackNFTUpgradeable {
     constructor(
         address implementationAddress,
         address paymentTokenAddress,
-        address _proceedsReceiver,
-        string memory _tokenName,
-        string memory _tokenSymbol
+        address _proceedsReceiver
     ) {
         require(
             implementationAddress != address(0),
@@ -47,11 +45,19 @@ contract ScoutGameStarterPackNFTUpgradeable {
 
         MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, 2000000);
 
-        MemoryUtils.setString(MemoryUtils.TOKEN_NAME, _tokenName);
-        MemoryUtils.setString(MemoryUtils.TOKEN_SYMBOL, _tokenSymbol);
+        MemoryUtils.setString(MemoryUtils.TOKEN_NAME, "ScoutGame Builders");
+        MemoryUtils.setString(MemoryUtils.TOKEN_SYMBOL, "BUILDERS");
 
         // Init logic
         MemoryUtils.setUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT, 1);
+    }
+
+    function name() external view returns (string memory) {
+        return MemoryUtils.getString(MemoryUtils.TOKEN_NAME);
+    }
+
+    function symbol() external view returns (string memory) {
+        return MemoryUtils.getString(MemoryUtils.TOKEN_SYMBOL);
     }
 
     // External wrapper for setting implementation
@@ -93,6 +99,27 @@ contract ScoutGameStarterPackNFTUpgradeable {
         return MemoryUtils.getAddress(MemoryUtils.ADMIN_SLOT);
     }
 
+    function setProceedsReceiver(address receiver) external onlyAdmin {
+        require(receiver != address(0), "Invalid address");
+        MemoryUtils.setAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT, receiver);
+    }
+
+    function getProceedsReceiver() external view returns (address) {
+        return _getProceedsReceiver();
+    }
+
+    function _getProceedsReceiver() internal view returns (address) {
+        return MemoryUtils.getAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT);
+    }
+
+    function updatePriceIncrement(uint256 newIncrement) external onlyAdmin {
+        MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, newIncrement);
+    }
+
+    function getPriceIncrement() external view returns (uint256) {
+        return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
+    }
+
     // Helper function to extract revert message from delegatecall
     function _getRevertMsg(
         bytes memory _returnData
@@ -121,5 +148,12 @@ contract ScoutGameStarterPackNFTUpgradeable {
                 return(0, returndatasize())
             }
         }
+    }
+
+    receive() external payable {
+        address payable receiver = payable(_getProceedsReceiver());
+
+        (bool success, ) = receiver.call{value: msg.value}("");
+        require(success, "Transfer to proceedsReceiver failed.");
     }
 }

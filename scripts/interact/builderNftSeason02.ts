@@ -73,8 +73,8 @@ task('interactBuilderNFTPreSeason02', 'Interact with BuilderNFT Season 02 contra
 
     const contract = await hre.viem.getContractAt(
       (functionType === 'Admin Functions'
-        ? 'ScoutGamePreSeason02NFTUpgradeable'
-        : 'ScoutGamePreSeason02NFTImplementation') as any,
+        ? 'BuilderNFTPreSeason02Upgradeable'
+        : 'BuilderNFTPreSeason02Implementation') as any,
       contractAddress as `0x${string}`
     );
 

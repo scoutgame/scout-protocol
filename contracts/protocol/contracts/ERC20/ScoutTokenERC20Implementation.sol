@@ -27,12 +27,11 @@ contract ScoutTokenERC20Implementation is
 
     constructor() ERC20("Scout Token", "$SCOUT") {}
 
-    function isInitialized() public view returns (bool) {
-        return MemoryUtils._getBool(MemoryUtils.INITIALIZED_SLOT);
-    }
-
     function initialize() external onlyAdmin {
-        require(!isInitialized(), "Already initialized");
+        require(
+            MemoryUtils._getBool(MemoryUtils.INITIALIZED_SLOT) == false,
+            "Already initialized"
+        );
         address _admin = MemoryUtils._getAddress(MemoryUtils.ADMIN_SLOT);
         _mint(_admin, SUPPLY);
         MemoryUtils._setBool(MemoryUtils.INITIALIZED_SLOT, true);

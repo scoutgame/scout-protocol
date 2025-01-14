@@ -15,16 +15,6 @@
         "internalType": "address",
         "name": "_proceedsReceiver",
         "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_tokenName",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_tokenSymbol",
-        "type": "string"
       }
     ],
     "stateMutability": "nonpayable",

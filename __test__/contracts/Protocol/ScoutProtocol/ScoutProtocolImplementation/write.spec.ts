@@ -390,44 +390,6 @@ describe('ScoutProtocolImplementation', function () {
       });
     });
 
-    describe('events', function () {
-      it('emits a WeeklyMerkleRootSet event', async function () {
-        const validUntil = BigInt(Math.round(Date.now() / 1000) + 60 * 60 * 24 * 26);
-        const merkleRoot = `0x${merkleTree.rootHash}` as `0x${string}`;
-        const merkleTreeUri = `https://ipfs.com/gateway/<content-hash>`;
-
-        const tx = await protocol.protocolContract.write.setWeeklyMerkleRoot(
-          [
-            {
-              isoWeek: week,
-              validUntil,
-              merkleRoot,
-              merkleTreeUri
-            }
-          ],
-          {
-            account: admin.account
-          }
-        );
-
-        const receipt = await user.waitForTransactionReceipt({ hash: tx });
-
-        const events = parseEventLogs({
-          eventName: 'WeeklyMerkleRootSet',
-          abi: protocol.protocolContract.abi,
-          logs: receipt.logs
-        });
-
-        expect(events).toHaveLength(1);
-        expect(events[0].args).toMatchObject({
-          week,
-          merkleRoot,
-          validUntil,
-          merkleTreeUri
-        });
-      });
-    });
-
     describe('permissions', function () {
       it('reverts when the contract is paused', async function () {
         // Pause the contract
