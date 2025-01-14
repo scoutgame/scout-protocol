@@ -17,6 +17,13 @@ contract ScoutProtocolImplementation is Context, ScoutProtocolAccessControl {
         string merkleTreeUri;
     }
 
+    event WeeklyMerkleRootSet(
+        string week,
+        bytes32 merkleRoot,
+        uint256 validUntil,
+        string merkleTreeUri
+    );
+
     struct Claim {
         string week;
         uint256 amount;
@@ -139,6 +146,13 @@ contract ScoutProtocolImplementation is Context, ScoutProtocolAccessControl {
 
         // Pack the entire struct into bytes and store it
         MemoryUtils._setBytes(slot, abi.encode(weeklyRoot));
+
+        emit WeeklyMerkleRootSet(
+            weeklyRoot.isoWeek,
+            weeklyRoot.merkleRoot,
+            weeklyRoot.validUntil,
+            weeklyRoot.merkleTreeUri
+        );
 
         return true;
     }
