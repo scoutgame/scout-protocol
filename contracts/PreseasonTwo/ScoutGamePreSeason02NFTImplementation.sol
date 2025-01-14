@@ -13,7 +13,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract BuilderNFTPreSeason02Implementation is
+contract ScoutGamePreSeason02NFTImplementation is
     Context,
     ERC165,
     ScoutProtocolAccessControl,
@@ -105,15 +105,6 @@ contract BuilderNFTPreSeason02Implementation is
         );
         require(to != address(0), "ERC1155: transfer to the zero address");
 
-        _beforeTokenTransfer(
-            _msgSender(),
-            from,
-            to,
-            _asSingletonUintArray(tokenId),
-            _asSingletonUintArray(amount),
-            data
-        );
-
         uint256 fromBalance = BuilderNFTPreSeasonStorage.getBalance(
             from,
             tokenId
@@ -144,7 +135,7 @@ contract BuilderNFTPreSeason02Implementation is
         uint256[] memory tokenIds,
         uint256[] memory amounts,
         bytes memory data
-    ) external override {
+    ) external override onlyWhenNotPaused {
         require(
             from == _msgSender() || isApprovedForAll(from, _msgSender()),
             "ERC1155: caller is not owner nor approved"
@@ -154,8 +145,6 @@ contract BuilderNFTPreSeason02Implementation is
             tokenIds.length == amounts.length,
             "ERC1155: ids and amounts length mismatch"
         );
-
-        _beforeTokenTransfer(_msgSender(), from, to, tokenIds, amounts, data);
 
         for (uint256 i = 0; i < tokenIds.length; ++i) {
             uint256 id = tokenIds[i];
@@ -190,33 +179,6 @@ contract BuilderNFTPreSeason02Implementation is
         uint256 _tokenId
     ) external view override returns (string memory) {
         return _tokenURI(_tokenId);
-    }
-
-    function _asSingletonAddressArray(
-        address element
-    ) private pure returns (address[] memory) {
-        address[] memory addrArray = new address[](1);
-        addrArray[0] = element;
-        return addrArray;
-    }
-
-    function _asSingletonUintArray(
-        uint256 element
-    ) private pure returns (uint256[] memory) {
-        uint256[] memory uintArray = new uint256[](1);
-        uintArray[0] = element;
-        return uintArray;
-    }
-
-    function _beforeTokenTransfer(
-        address operator,
-        address from,
-        address to,
-        uint256[] memory tokenIds,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual {
-        // Hook that can be overridden
     }
 
     function _doSafeTransferAcceptanceCheck(
@@ -280,13 +242,17 @@ contract BuilderNFTPreSeason02Implementation is
     }
 
     // Implement ERC165
+    // Implement ERC165
     function supportsInterface(
         bytes4 interfaceId
-    ) public view virtual override(ERC165, IERC165) returns (bool) {
-        return
+    ) public pure override(ERC165, IERC165) returns (bool) {
+        if (
             interfaceId == type(IERC1155).interfaceId ||
-            interfaceId == type(IERC1155MetadataURI).interfaceId ||
-            super.supportsInterface(interfaceId);
+            interfaceId == type(IERC1155MetadataURI).interfaceId
+        ) {
+            return true;
+        }
+        return false;
     }
 
     // Rest of the contract methods
@@ -332,7 +298,11 @@ contract BuilderNFTPreSeason02Implementation is
         BuilderNFTPreSeasonStorage.incrementNextTokenId();
     }
 
-    function mint(address account, uint256 tokenId, uint256 amount) external {
+    function mint(
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) external onlyWhenNotPaused {
         require(account != address(0), "Invalid account address");
         // Throws if token ID is not registered
         require(
@@ -375,9 +345,15 @@ contract BuilderNFTPreSeason02Implementation is
         _mintTo(account, tokenId, amount);
     }
 
-    function burn(address account, uint256 tokenId, uint256 amount) external {
+    function burn(
+        address account,
+        uint256 tokenId,
+        uint256 amount
+    ) external onlyWhenNotPaused {
         require(
-            account == _msgSender() || isApprovedForAll(account, _msgSender()),
+            account == _msgSender() ||
+                isApprovedForAll(account, _msgSender()) ||
+                _isAdmin(),
             "ERC1155: caller is not owner nor approved"
         );
         BuilderNFTPreSeasonStorage.decreaseBalance(account, tokenId, amount);

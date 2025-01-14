@@ -7,7 +7,7 @@
 #### createStream()
 
 - **Effects**:
-  - creates a claimable, and cancellable stream for the protocol
+  - creates a claimable, cancellable, non-transferable stream for the protocol
   - immediately deducts the balance from the stream creator
 
 #### claim()
@@ -199,6 +199,17 @@
 - **Events**:
   - Emits BuilderTokenRegistered event new tokenId and builderId
 
+#### rolloverMinterWallet()
+
+- **Effects**:
+  - Updates minter and secondary minter roles
+- **Permissions**:
+  - Can only be called by the admin
+- **Validations**:
+  - Rejects zero address as new minter
+- **Events**:
+  - Emits RoleTransferred event
+
 #### mint()
 
 - **Effects**:
@@ -208,6 +219,7 @@
   - Forwards 20% of the $SCOUT to the builder, and the remaining 80% to the proceeds receiver
 - **Permissions**:
   - Allows any user to mint tokens if they pay the price
+  - Cannot mint when contract is paused
 - **Validations**:
   - Reverts if tokenId is not registered
 - **Events**:
@@ -356,6 +368,12 @@
 - **Returns**:
   - returns its own address
 
+#### supportsInterface()
+
+- **Returns**:
+  - Returns true for IERC1155 and IERC1155MetadataURI
+  - Returns false for ERC20 and ERC721 interfaces
+
 ## Contract: ScoutProtocolBuilderNFTProxy
 
 ### Write Methods
@@ -418,6 +436,8 @@
   - allows the claims manager to set the merkle root
 - **Validations**:
   - reverts when the validUntil is in the past
+- **Events**:
+  - emits a WeeklyMerkleRootSet event
 
 #### setClaimsManager()
 
@@ -442,4 +462,62 @@
   - Reverts if new implementation address is an EOA wallet
   - Reverts if new implementation address cannot accept the upgrade
   - Reverts if new implementation address is the same as current
+
+## Contract: ScoutTokenERC20Implementation
+
+### Write Methods
+
+#### transfer
+
+- **Effects**:
+  - transfers tokens correctly
+- **Permissions**:
+  - allows token holders to transfer their tokens
+- **Validations**:
+  - prevents transferring more tokens than balance
+- **Events**:
+  - emits Transfer event on transfer
+
+#### approve
+
+- **Effects**:
+  - approves allowance correctly
+- **Events**:
+  - emits Approval event on approve
+
+#### transferFrom
+
+- **Effects**:
+  - transfers tokens correctly using allowance
+- **Permissions**:
+  - allows spender to transfer within allowance
+  - prevents spender from transferring more than allowance
+  - prevents spender from transferring more than balance
+- **Events**:
+  - emits Transfer event on transferFrom
+
+#### increaseAllowance
+
+- **Effects**:
+  - increases allowance correctly
+- **Events**:
+  - emits Approval event on increaseAllowance
+
+#### decreaseAllowance
+
+- **Effects**:
+  - decreases allowance correctly
+- **Validations**:
+  - reverts when decreasing allowance below zero
+
+## Contract: ScoutTokenERC20Proxy
+
+### Write Methods
+
+#### setImplementation()
+
+- **Effects**:
+  - updates the implementation address correctly, preserving balances and initialized state
+- **Permissions**:
+  - prevents non-admin from setting the implementation
 
