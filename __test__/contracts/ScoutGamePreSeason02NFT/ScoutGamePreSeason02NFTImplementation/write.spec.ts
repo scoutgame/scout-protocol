@@ -1,7 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { parseEventLogs, getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../deployBuilderNftPreSeason02';
+import type { BuilderNftSeason02Fixture } from '../../../deployScoutGamePreSeason02NftContract';
 import type { USDCTestFixture } from '../../../deployTestUSDC';
 import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
 import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../generateWallets';
@@ -60,7 +60,7 @@ async function mintNft({
   });
 }
 
-describe('BuilderNFTPreSeason02Implementation', function () {
+describe('ScoutGamePreSeason02NFTImplementation', function () {
   let token: USDCTestFixture;
   let builderNftSeason02: BuilderNftSeason02Fixture;
   let erc1155AdminAccount: GeneratedWallet;
@@ -592,6 +592,29 @@ describe('BuilderNFTPreSeason02Implementation', function () {
         await expect(
           builderNftSeason02.builderNftContract.write.burn([userAccount.account.address, BigInt(1), BigInt(1)], {
             account: operatorAccount.account
+          })
+        ).resolves.toBeDefined();
+      });
+
+      it('Allows admin to burn tokens', async function () {
+        const { tokenId } = await registerBuilderToken({
+          wallet: erc1155AdminAccount,
+          nft: builderNftSeason02
+        });
+
+        // Mint tokens first
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: builderNftSeason02,
+          amount: 1,
+          tokenId
+        });
+
+        // Burn tokens as operator
+        await expect(
+          builderNftSeason02.builderNftContract.write.burn([userAccount.account.address, BigInt(1), BigInt(1)], {
+            account: erc1155AdminAccount.account
           })
         ).resolves.toBeDefined();
       });
