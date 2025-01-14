@@ -1,11 +1,11 @@
 import { v4 as uuid } from 'uuid';
 import { getAddress, parseEventLogs } from 'viem';
 
-import { randomBigIntFromInterval } from '../../../../lib/utils';
-import { loadContractWithStarterPackFixtures } from '../../../fixtures';
-import { generateWallets, walletFromKey } from '../../../generateWallets';
+import { randomBigIntFromInterval } from '../../../lib/utils';
+import { loadContractWithStarterPackFixtures } from '../../fixtures';
+import { generateWallets, walletFromKey } from '../../generateWallets';
 
-describe('ScoutGameStarterPackNFTImplementation', function () {
+describe('BuilderNFTSeasonOneStarterPack', function () {
   describe('registerBuilderToken()', function () {
     describe('effects', function () {
       it('Register a new builder token using a builderId and a specific tokenId', async function () {

@@ -435,37 +435,6 @@ export class ScoutProtocolImplementationClient {
       ],
       name: 'Unpaused',
       type: 'event'
-    },
-    {
-      anonymous: false,
-      inputs: [
-        {
-          indexed: false,
-          internalType: 'string',
-          name: 'week',
-          type: 'string'
-        },
-        {
-          indexed: false,
-          internalType: 'bytes32',
-          name: 'merkleRoot',
-          type: 'bytes32'
-        },
-        {
-          indexed: false,
-          internalType: 'uint256',
-          name: 'validUntil',
-          type: 'uint256'
-        },
-        {
-          indexed: false,
-          internalType: 'string',
-          name: 'merkleTreeUri',
-          type: 'string'
-        }
-      ],
-      name: 'WeeklyMerkleRootSet',
-      type: 'event'
     }
   ];
 

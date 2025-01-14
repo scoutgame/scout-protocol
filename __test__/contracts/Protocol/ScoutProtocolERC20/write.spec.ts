@@ -1,10 +1,10 @@
 import { parseEventLogs } from 'viem';
 
-import type { ScoutTokenERC20TestFixture } from '../../../../deployScoutTokenERC20';
-import { loadScoutTokenERC20Fixtures } from '../../../../fixtures';
-import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../../generateWallets';
+import type { ScoutTokenERC20TestFixture } from '../../../deployScoutTokenERC20';
+import { loadScoutTokenERC20Fixtures } from '../../../fixtures';
+import { generateWallets, walletFromKey, type GeneratedWallet } from '../../../generateWallets';
 
-describe('ScoutTokenERC20Implementation', function () {
+describe('ScoutTokenERC20', function () {
   let token: ScoutTokenERC20TestFixture;
   let erc20AdminAccount: GeneratedWallet;
   let userAccount: GeneratedWallet;
@@ -133,12 +133,9 @@ describe('ScoutTokenERC20Implementation', function () {
 
     describe('events', function () {
       it('emits Approval event on approve', async function () {
-        const txResponse = await token.ScoutTokenERC20.write.approve(
-          [secondUserAccount.account.address, BigInt(1000)],
-          {
-            account: userAccount.account
-          }
-        );
+        const txResponse = await token.ScoutTokenERC20.write.approve([secondUserAccount.account.address, BigInt(1000)], {
+          account: userAccount.account
+        });
 
         const receipt = await userAccount.getTransactionReceipt({ hash: txResponse });
 
