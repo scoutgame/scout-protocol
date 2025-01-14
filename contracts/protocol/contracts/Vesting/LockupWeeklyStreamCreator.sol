@@ -50,7 +50,7 @@ contract LockupWeeklyStreamCreator is Context {
         params.totalAmount = uint128(totalAmount); // Total amount is the amount inclusive of all fees
         params.asset = SCOUT; // The streaming asset
         params.cancelable = true; // Whether the stream will be cancelable or not
-        params.transferable = false; // Whether the stream will be transferable or not
+        params.transferable = true; // Whether the stream will be transferable or not
 
         // Declare the tranches array
         params.tranches = new LockupTranched.TrancheWithDuration[](

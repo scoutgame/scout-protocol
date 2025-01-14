@@ -436,19 +436,6 @@ contract ScoutProtocolBuilderNFTImplementation is
         return MemoryUtils._getAddress(MemoryUtils.MINTER_SLOT);
     }
 
-    function secondaryMinter() external view returns (address) {
-        return MemoryUtils._getAddress(MemoryUtils.SECONDARY_MINTER_SLOT);
-    }
-
-    function rolloverMinterWallet(address _minterWallet) external onlyAdmin {
-        address _currentMinter = minter();
-        _setRole(MemoryUtils.MINTER_SLOT, _minterWallet);
-
-        if (_currentMinter != address(0)) {
-            _setRole(MemoryUtils.SECONDARY_MINTER_SLOT, _currentMinter);
-        }
-    }
-
     function ERC20Token() public view returns (address) {
         return MemoryUtils._getAddress(MemoryUtils.CLAIMS_TOKEN_SLOT);
     }

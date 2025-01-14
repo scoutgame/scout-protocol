@@ -65,8 +65,6 @@ library MemoryUtils {
             return "Pauser";
         } else if (role == MINTER_SLOT) {
             return "Minter";
-        } else if (role == SECONDARY_MINTER_SLOT) {
-            return "Secondary Minter";
         } else {
             return "Unknown Role";
         }
