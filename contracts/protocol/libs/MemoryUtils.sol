@@ -33,8 +33,6 @@ library MemoryUtils {
         keccak256("builderNFT.proceedsReceiver");
 
     bytes32 internal constant MINTER_SLOT = keccak256("builderNFT.minterRole");
-    bytes32 internal constant SECONDARY_MINTER_SLOT =
-        keccak256("builderNFT.secondaryMinterRole");
 
     // 4. State
     bytes32 internal constant IS_PAUSED_SLOT = keccak256("common.isPaused");
