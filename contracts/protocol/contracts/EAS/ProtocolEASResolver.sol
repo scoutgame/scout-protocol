@@ -26,7 +26,6 @@ contract ProtocolEASResolver is
     }
 
     // Method that is called by the EAS contract when an attestation is made
-    //
     function onAttest(
         Attestation calldata attestation,
         uint256 /*value*/
