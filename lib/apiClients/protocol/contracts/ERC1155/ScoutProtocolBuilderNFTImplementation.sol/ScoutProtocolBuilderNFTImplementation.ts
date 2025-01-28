@@ -383,19 +383,6 @@ export class ScoutProtocolBuilderNFTImplementationClient {
       inputs: [
         {
           internalType: 'address',
-          name: '_minterWallet',
-          type: 'address'
-        }
-      ],
-      name: 'rolloverMinterWallet',
-      outputs: [],
-      stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
-      inputs: [
-        {
-          internalType: 'address',
           name: 'from',
           type: 'address'
         },
@@ -456,19 +443,6 @@ export class ScoutProtocolBuilderNFTImplementationClient {
       name: 'safeTransferFrom',
       outputs: [],
       stateMutability: 'nonpayable',
-      type: 'function'
-    },
-    {
-      inputs: [],
-      name: 'secondaryMinter',
-      outputs: [
-        {
-          internalType: 'address',
-          name: '',
-          type: 'address'
-        }
-      ],
-      stateMutability: 'view',
       type: 'function'
     },
     {
@@ -1428,35 +1402,6 @@ export class ScoutProtocolBuilderNFTImplementationClient {
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
   }
 
-  async rolloverMinterWallet(params: {
-    args: { _minterWallet: Address };
-    value?: bigint;
-    gasPrice?: bigint;
-  }): Promise<TransactionReceipt> {
-    if (!this.walletClient) {
-      throw new Error('Wallet client is required for write operations.');
-    }
-
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'rolloverMinterWallet',
-      args: [params.args._minterWallet]
-    });
-
-    const txInput: Omit<Parameters<WalletClient['sendTransaction']>[0], 'account' | 'chain'> = {
-      to: getAddress(this.contractAddress),
-      data: txData,
-      value: params.value ?? BigInt(0), // Optional value for payable methods
-      gasPrice: params.gasPrice // Optional gasPrice
-    };
-
-    // This is necessary because the wallet client requires account and chain, which actually cause writes to throw
-    const tx = await this.walletClient.sendTransaction(txInput as any);
-
-    // Return the transaction receipt
-    return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
   async safeBatchTransferFrom(params: {
     args: { from: Address; to: Address; tokenIds: bigint[]; amounts: bigint[]; data: string };
     value?: bigint;
@@ -1513,30 +1458,6 @@ export class ScoutProtocolBuilderNFTImplementationClient {
 
     // Return the transaction receipt
     return this.walletClient.waitForTransactionReceipt({ hash: tx });
-  }
-
-  async secondaryMinter(params: { blockNumber?: bigint } = {}): Promise<Address> {
-    const txData = encodeFunctionData({
-      abi: this.abi,
-      functionName: 'secondaryMinter',
-      args: []
-    });
-
-    const { data } = await this.publicClient.call({
-      to: this.contractAddress,
-      data: txData,
-      blockNumber: params.blockNumber
-    });
-
-    // Decode the result based on the expected return type
-    const result = decodeFunctionResult({
-      abi: this.abi,
-      functionName: 'secondaryMinter',
-      data: data as `0x${string}`
-    });
-
-    // Parse the result based on the return type
-    return result as Address;
   }
 
   async setApprovalForAll(params: {
