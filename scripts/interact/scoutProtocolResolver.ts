@@ -6,7 +6,7 @@ import { task } from 'hardhat/config';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
 import { privateKeyToAccount } from 'viem/accounts';
 
-import { ScoutProtocolEASResolverClient as _ScoutProtocolEASResolverClient } from '../../lib/apiClients/ScoutProtocolEASResolverClient';
+import { ProtocolEASResolverClient as _ScoutProtocolEASResolverClient } from '../../lib/apiClients/protocol/contracts/EAS/ProtocolEASResolver.sol/ProtocolEASResolver';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 import type { ContractDeploymentEnvironment } from '../../lib/connectors';
 import { getWalletClient } from '../../lib/getWalletClient';

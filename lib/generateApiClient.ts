@@ -48,10 +48,10 @@ function generateMethodImplementation(abiItem: any): string {
   // Define the parameter type based on inputs
   const paramsType =
     inputs.length > 0
-      ? `{ args: { ${generateInputTypes(abiItem)} }, ${transactionConfig} }`
+      ? `{ args: { ${generateInputTypes(abiItem)} }, ${isReadOperation ? 'blockNumber?: bigint, ' : ''}${transactionConfig} }`
       : transactionConfig
         ? `{ ${transactionConfig} }`
-        : '';
+        : '{ blockNumber?: bigint } = {}';
 
   // Handle read methods (view/pure) with output type parsing
   if (isReadOperation) {
@@ -62,12 +62,13 @@ function generateMethodImplementation(abiItem: any): string {
       const txData = encodeFunctionData({
         abi: this.abi,
         functionName: "${functionName}",
-        args: [${inputNames}],
+        args: [${inputNames}]
       });
 
       const { data } = await this.publicClient.call({
         to: this.contractAddress,
         data: txData,
+        blockNumber: params.blockNumber
       });
 
       // Decode the result based on the expected return type
@@ -116,11 +117,13 @@ function generateMethodImplementation(abiItem: any): string {
 export async function generateApiClient({
   abi,
   selectedFunctionIndices,
-  abiPath
+  abiPath,
+  writeClient = true
 }: {
   abi: Abi;
   selectedFunctionIndices?: number[];
   abiPath: string;
+  writeClient?: boolean;
 }) {
   // If no selectedFunctionIndices are provided, select all functions
 
@@ -207,10 +210,14 @@ export async function generateApiClient({
   }
   `;
 
-  // Write to a separate file
-  const outputPath = path.join(__dirname, `/apiClients/${apiClientName}.ts`);
-  fs.writeFileSync(outputPath, classCode);
-  console.log(`API Client written to ${outputPath}`);
+  if (writeClient) {
+    // Write to a separate file
+    const outputPath = path.join(__dirname, `/apiClients/${apiClientName}.ts`);
+    fs.writeFileSync(outputPath, classCode);
+    console.log(`API Client written to ${outputPath}`);
+  }
+
+  return classCode;
 }
 
 // Function to load the ABI from a file

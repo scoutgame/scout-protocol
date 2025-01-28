@@ -3,7 +3,7 @@ import { task } from 'hardhat/config';
 import inquirer from 'inquirer'; // Importing inquirer for interactive CLI
 import { privateKeyToAccount } from 'viem/accounts';
 
-import { ScoutProtocolProxyClient as _ScoutProtocolProxyClient } from '../../lib/apiClients/ProtocolProxyClient';
+import { ScoutProtocolProxyClient as _ScoutProtocolProxyClient } from '../../lib/apiClients/protocol/contracts/ScoutProtocol/ScoutProtocolProxy.sol/ScoutProtocolProxy';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 import { getWalletClient } from '../../lib/getWalletClient';
 import { interactWithContract } from '../../lib/interactWithContract';

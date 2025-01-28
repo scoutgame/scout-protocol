@@ -1,21 +1,22 @@
-import fs from 'node:fs';
+import fsSync from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 
 import { log } from '@charmverse/core/log';
 
 import { generateApiClient, loadAbiFromFile } from '../../lib/generateApiClient';
 
-function getAllJsonFiles(dir: string): string[] {
+async function getAllJsonFiles(dir: string): Promise<string[]> {
   const files: string[] = [];
 
-  function traverse(currentDir: string) {
-    const entries = fs.readdirSync(currentDir, { withFileTypes: true });
+  async function traverse(currentDir: string) {
+    const entries = await fs.readdir(currentDir, { withFileTypes: true });
 
     for (const entry of entries) {
       const fullPath = path.join(currentDir, entry.name);
 
       if (entry.isDirectory()) {
-        traverse(fullPath);
+        await traverse(fullPath);
       } else if (entry.isFile() && entry.name.endsWith('.json')) {
         console.log(fullPath);
 
@@ -27,20 +28,23 @@ function getAllJsonFiles(dir: string): string[] {
     }
   }
 
-  traverse(dir);
+  await traverse(dir);
   return [...new Set(files)]; // Remove any duplicates
 }
 
 async function generateAllApiClients() {
   // Get all JSON files from artifacts/contracts/protocol
   const artifactsPath = path.resolve('artifacts/contracts/protocol');
-  const seasonOnePath = path.resolve('artifacts/contracts/SeasonOne');
+  const preSeasonOnePath = path.resolve('artifacts/contracts/SeasonOne');
+  const preSeasonTwoPath = path.resolve('artifacts/contracts/PreseasonTwo');
+  const starterPackPath = path.resolve('artifacts/contracts/StarterPack');
+
   const jsonFiles: string[] = [];
 
-  const rootPaths = [artifactsPath, seasonOnePath];
+  const rootPaths = [artifactsPath, preSeasonOnePath, preSeasonTwoPath, starterPackPath];
 
   for (const rootPath of rootPaths) {
-    const files = getAllJsonFiles(rootPath);
+    const files = await getAllJsonFiles(rootPath);
     jsonFiles.push(...files);
   }
 
@@ -53,14 +57,34 @@ async function generateAllApiClients() {
     log.info(`Generating API client for ${jsonFile} (${i + 1} of ${jsonFiles.length})`);
 
     const abi = loadAbiFromFile(jsonFile);
+
     if (abi) {
       const relativePath = path.relative(process.cwd(), jsonFile);
-      await generateApiClient({
+      const classCode = await generateApiClient({
         abi,
-        abiPath: relativePath
+        abiPath: relativePath,
+        writeClient: false
       });
+
+      const outputPath = path
+        .resolve(`${relativePath}`.replace('.json', '.ts'))
+        .replace('artifacts/contracts', 'lib/apiClients');
+
+      console.log('Writing API client to', outputPath);
+
+      // Ensure target directory exists
+      const targetDir = path.dirname(outputPath);
+      if (!fsSync.existsSync(targetDir)) {
+        fsSync.mkdirSync(targetDir, { recursive: true });
+      }
+
+      await fs.writeFile(outputPath, classCode);
     }
   }
 }
 
-generateAllApiClients().catch(console.error);
+generateAllApiClients()
+  .then(() => {
+    console.log('API clients generated successfully');
+  })
+  .catch(console.error);
