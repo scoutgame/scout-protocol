@@ -9,6 +9,7 @@
       "source.organizeImports": "never"
     }
   },
+  "jestrunner.jestCommand": "npm run compile && npx jest",
   "[solidity]": {
     "editor.defaultFormatter": "JuanBlanco.solidity", // Ensure you have this extension installed
     "editor.tabSize": 2,

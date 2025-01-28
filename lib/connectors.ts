@@ -82,10 +82,12 @@ export const connectors = {
       }
     },
     preseason02Nft: {
-      stg: '0xbec9119e3e31bcd88acfe949afe9ca3ab7d00d44'
+      stg: '0xbec9119e3e31bcd88acfe949afe9ca3ab7d00d44',
+      prod: '0x6fbbd55274169d67f6fe9c868327003c90143440'
     },
     preseason02StarterPack: {
-      stg: '0xbecac59ad40691f0a5192d790fccc798854115a1'
+      stg: '0xbecac59ad40691f0a5192d790fccc798854115a1',
+      prod: '0xcbbdb9e378a4c33b1b202392b10e1be5e01a97f8'
     }
   } as Connector,
   sepolia: {

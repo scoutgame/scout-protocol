@@ -364,4 +364,27 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
       });
     });
   });
+
+  describe('supportsInterface()', function () {
+    describe('returns', function () {
+      it('Returns true for IERC1155 and IERC1155MetadataURI', async function () {
+        const IERC1155Bytes = '0xd9b67a26';
+        const IERC1155MetadataURIBytes = '0x0e89341c';
+        const supportsIERC1155 = await builderNftContract.read.supportsInterface([IERC1155Bytes]);
+        expect(supportsIERC1155).toBe(true);
+        const supportsIERC1155MetadataURI = await builderNftContract.read.supportsInterface([IERC1155MetadataURIBytes]);
+        expect(supportsIERC1155MetadataURI).toBe(true);
+      });
+
+      it('Returns false for ERC20 and ERC721 interfaces', async function () {
+        const ERC20Bytes = '0x01ffc9a7';
+        const ERC721Bytes = '0x80ac58cd';
+        const supportsERC20 = await builderNftContract.read.supportsInterface([ERC20Bytes]);
+        expect(supportsERC20).toBe(false);
+
+        const supportsERC721 = await builderNftContract.read.supportsInterface([ERC721Bytes]);
+        expect(supportsERC721).toBe(false);
+      });
+    });
+  });
 });

@@ -46,7 +46,7 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
     // Deploy the implementation contract first
     console.log('Deploying the implementation contract...');
 
-    const implementation = await hre.viem.deployContract('BuilderNFTPreSeason02Implementation', [], {
+    const implementation = await hre.viem.deployContract('ScoutGamePreSeason02NFTImplementation', [], {
       client: {
         wallet: walletClient
       }
@@ -66,7 +66,7 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
     }
 
     fs.writeFileSync(
-      path.resolve('abis', 'BuilderNFTPreSeason02Implementation.json'),
+      path.resolve('abis', 'ScoutGamePreSeason02NFTImplementation.json'),
       JSON.stringify(implementationABI, null, 2)
     );
 
@@ -146,13 +146,18 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
     }
 
     if (deployNew) {
-      const deployArgs = [implementationAddress as Address, usdc as Address, proceedsReceiver] as [
+      const tokenName = 'Scout Game (PreSeason 02)';
+      const tokenSymbol = 'SCOUTGAME-P02';
+
+      const baseDeployArgs = [implementationAddress as Address, usdc as Address, proceedsReceiver] as [
         Address,
         Address,
         Address
       ];
 
-      const newProxyContract = await hre.viem.deployContract('BuilderNFTPreSeason02Upgradeable', deployArgs, {
+      const deployArgs = [...baseDeployArgs, tokenName, tokenSymbol] as [Address, Address, Address, string, string];
+
+      const newProxyContract = await hre.viem.deployContract('ScoutGamePreSeason02NFTUpgradeable', deployArgs, {
         client: {
           wallet: walletClient
         }
@@ -165,7 +170,7 @@ task('deployBuilderNFTPreSeason02', 'Deploys or updates the BuilderNFT Season 02
       console.log('Verifying proxy contract with etherscan..');
       try {
         execSync(
-          `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')}`
+          `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${baseDeployArgs.join(' ')} '${tokenName}' '${tokenSymbol}'`
         );
       } catch (err) {
         console.warn('Error verifying contract', err);

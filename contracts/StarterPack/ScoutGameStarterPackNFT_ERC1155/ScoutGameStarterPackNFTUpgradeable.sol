@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "../libs/MemoryUtils.sol";
+import "../../SeasonOne/libs/MemoryUtils.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract BuilderNFTSeasonOneStarterPackUpgradeable {
+contract ScoutGameStarterPackNFTUpgradeable {
     using MemoryUtils for bytes32;
 
     // Modifier to restrict access to admin functions
@@ -19,7 +19,9 @@ contract BuilderNFTSeasonOneStarterPackUpgradeable {
     constructor(
         address implementationAddress,
         address paymentTokenAddress,
-        address _proceedsReceiver
+        address _proceedsReceiver,
+        string memory _tokenName,
+        string memory _tokenSymbol
     ) {
         require(
             implementationAddress != address(0),
@@ -45,19 +47,11 @@ contract BuilderNFTSeasonOneStarterPackUpgradeable {
 
         MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, 2000000);
 
-        MemoryUtils.setString(MemoryUtils.TOKEN_NAME, "ScoutGame Builders");
-        MemoryUtils.setString(MemoryUtils.TOKEN_SYMBOL, "BUILDERS");
+        MemoryUtils.setString(MemoryUtils.TOKEN_NAME, _tokenName);
+        MemoryUtils.setString(MemoryUtils.TOKEN_SYMBOL, _tokenSymbol);
 
         // Init logic
         MemoryUtils.setUint256(MemoryUtils.NEXT_TOKEN_ID_SLOT, 1);
-    }
-
-    function name() external view returns (string memory) {
-        return MemoryUtils.getString(MemoryUtils.TOKEN_NAME);
-    }
-
-    function symbol() external view returns (string memory) {
-        return MemoryUtils.getString(MemoryUtils.TOKEN_SYMBOL);
     }
 
     // External wrapper for setting implementation
@@ -99,27 +93,6 @@ contract BuilderNFTSeasonOneStarterPackUpgradeable {
         return MemoryUtils.getAddress(MemoryUtils.ADMIN_SLOT);
     }
 
-    function setProceedsReceiver(address receiver) external onlyAdmin {
-        require(receiver != address(0), "Invalid address");
-        MemoryUtils.setAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT, receiver);
-    }
-
-    function getProceedsReceiver() external view returns (address) {
-        return _getProceedsReceiver();
-    }
-
-    function _getProceedsReceiver() internal view returns (address) {
-        return MemoryUtils.getAddress(MemoryUtils.PROCEEDS_RECEIVER_SLOT);
-    }
-
-    function updatePriceIncrement(uint256 newIncrement) external onlyAdmin {
-        MemoryUtils.setUint256(MemoryUtils.PRICE_INCREMENT_SLOT, newIncrement);
-    }
-
-    function getPriceIncrement() external view returns (uint256) {
-        return MemoryUtils.getUint256(MemoryUtils.PRICE_INCREMENT_SLOT);
-    }
-
     // Helper function to extract revert message from delegatecall
     function _getRevertMsg(
         bytes memory _returnData
@@ -148,12 +121,5 @@ contract BuilderNFTSeasonOneStarterPackUpgradeable {
                 return(0, returndatasize())
             }
         }
-    }
-
-    receive() external payable {
-        address payable receiver = payable(_getProceedsReceiver());
-
-        (bool success, ) = receiver.call{value: msg.value}("");
-        require(success, "Transfer to proceedsReceiver failed.");
     }
 }
