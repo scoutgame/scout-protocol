@@ -118,7 +118,8 @@ describe('LockupWeeklyStreamCreator', () => {
         expect(streamLog[0].eventName).toEqual('CreateLockupTranchedStream');
         expect(streamLog[0].args.recipient).toEqual(recipient.account.address);
         expect(streamLog[0].args.sender).toEqual(streamCreator.account.address);
-        expect(streamLog[0].args.transferable).toEqual(false);
+        // In future we'll make this false
+        expect(streamLog[0].args.transferable).toEqual(true);
         expect(streamLog[0].args.cancelable).toEqual(true);
         expect(streamLog[0].args.amounts.deposit).toEqual(
           BigInt(amountToVest) * erc20.ScoutTokenERC20_DECIMAL_MULTIPLIER

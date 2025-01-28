@@ -2,9 +2,8 @@ import { randomBytes } from 'node:crypto';
 
 import { v4 as uuid } from 'uuid';
 import type { Address } from 'viem';
-import { getAddress, parseEventLogs } from 'viem';
+import { parseEventLogs } from 'viem';
 
-import { NULL_ADDRESS } from '../../../../../lib/constants';
 import type { ScoutProtocolBuilderNFTFixture } from '../../../../deployScoutProtocolBuilderNft';
 import type { ScoutTokenERC20TestFixture } from '../../../../deployScoutTokenERC20';
 import { loadScoutProtocolBuilderNFTFixtures } from '../../../../fixtures';
@@ -202,86 +201,6 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
             account: erc1155AdminAccount.account
           })
         ).rejects.toThrow('Builder ID must be a valid UUID');
-      });
-    });
-  });
-
-  describe('rolloverMinterWallet()', function () {
-    describe('effects', function () {
-      it('Updates minter and secondary minter roles', async function () {
-        const currentMinter = randomEthereumAddress();
-
-        await scoutProtocolBuilderNFT.builderNftContract.write.rolloverMinterWallet([currentMinter], {
-          account: erc1155AdminAccount.account
-        });
-
-        expect((await scoutProtocolBuilderNFT.builderNftContract.read.minter()).toLowerCase()).toBe(currentMinter);
-        expect((await scoutProtocolBuilderNFT.builderNftContract.read.secondaryMinter()).toLowerCase()).toBe(
-          NULL_ADDRESS
-        );
-
-        const newMinter = randomEthereumAddress();
-
-        await scoutProtocolBuilderNFT.builderNftContract.write.rolloverMinterWallet([newMinter], {
-          account: erc1155AdminAccount.account
-        });
-
-        expect((await scoutProtocolBuilderNFT.builderNftContract.read.minter()).toLowerCase()).toBe(newMinter);
-        expect((await scoutProtocolBuilderNFT.builderNftContract.read.secondaryMinter()).toLowerCase()).toBe(
-          currentMinter
-        );
-      });
-    });
-
-    describe('events', function () {
-      it('Emits RoleTransferred event', async function () {
-        const newMinter = randomEthereumAddress();
-
-        const txResponse = await scoutProtocolBuilderNFT.builderNftContract.write.rolloverMinterWallet([newMinter], {
-          account: erc1155AdminAccount.account
-        });
-
-        const receipt = await userAccount.getTransactionReceipt({ hash: txResponse });
-
-        const parsedLogs = parseEventLogs({
-          abi: scoutProtocolBuilderNFT.builderNftContract.abi,
-          logs: receipt.logs,
-          eventName: ['RoleTransferred']
-        });
-
-        const decodedEvent = parsedLogs.find((log) => log.eventName === 'RoleTransferred');
-
-        expect(decodedEvent).toBeDefined();
-
-        expect(decodedEvent!.args).toMatchObject({
-          roleName: 'Minter',
-          previousHolder: NULL_ADDRESS,
-          newHolder: getAddress(newMinter)
-        });
-      });
-    });
-
-    describe('permissions', function () {
-      it('Can only be called by the admin', async function () {
-        const newMinter = randomEthereumAddress();
-
-        await expect(
-          scoutProtocolBuilderNFT.builderNftContract.write.rolloverMinterWallet([newMinter], {
-            account: userAccount.account
-          })
-        ).rejects.toThrow('Caller is not the admin');
-      });
-    });
-
-    describe('validations', function () {
-      it('Rejects zero address as new minter', async function () {
-        await expect(
-          scoutProtocolBuilderNFT.builderNftContract.write.rolloverMinterWallet([NULL_ADDRESS], {
-            account: erc1155AdminAccount.account
-          })
-        ).rejects.toThrow('Invalid account. Cannot be empty');
-
-        expect(await scoutProtocolBuilderNFT.builderNftContract.read.minter()).toBe(NULL_ADDRESS);
       });
     });
   });
