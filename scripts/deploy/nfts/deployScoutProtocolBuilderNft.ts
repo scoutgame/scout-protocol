@@ -154,36 +154,25 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
         }
       ]);
 
-      const { tokenName, tokenSymbol } = await inquirer.prompt([
+      const { season } = await inquirer.prompt([
         {
           type: 'input',
-          name: 'tokenName',
-          message: 'Enter the token name:',
+          name: 'season',
+          message: 'Enter the season number ex. 01',
           validate: (input: string) => {
-            const expectedMatch = /^ScoutGame \(Season \d{2}\)/;
+            const expectedMatch = /^\d{2}$/;
 
             if (!input.match(expectedMatch)) {
-              return 'Token name must match the expected format: "ScoutGame (Season XX)"';
-            }
-
-            return true;
-          }
-        },
-        {
-          type: 'input',
-          name: 'tokenSymbol',
-          message: 'Enter the token symbol:',
-          validate: (input: string) => {
-            const expectedMatch = /^SCOUTGAME-S\d{2}$/;
-
-            if (!input.match(expectedMatch)) {
-              return 'Token symbol must match the expected format: "SCOUTGAME-SXX"';
+              return 'Season number must match the expected format: "XX"';
             }
 
             return true;
           }
         }
       ]);
+
+      const tokenName = `ScoutGame (Season ${season})`;
+      const tokenSymbol = `SCOUTGAME-S${season}`;
 
       const tokenDeployArgs = [implementationAddress as Address, scoutToken as Address, proceedsReceiver] as [
         Address,
