@@ -191,7 +191,13 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
         Address
       ];
 
-      const deployArgs = [...tokenDeployArgs, tokenName, tokenSymbol] as [Address, Address, Address, string, string];
+      const deployArgs = [...tokenDeployArgs, `"${tokenName}"`, `"${tokenSymbol}"`] as [
+        Address,
+        Address,
+        Address,
+        string,
+        string
+      ];
 
       const newProxyContract = await hre.viem.deployContract('ScoutProtocolBuilderNFTProxy', deployArgs, {
         client: {
