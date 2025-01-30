@@ -1,6 +1,4 @@
 import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
 
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
@@ -10,6 +8,7 @@ import { createPublicClient, createWalletClient, http, isAddress, parseAbiItem }
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
+import { getScoutProtocolSafeAddress } from '../../lib/constants';
 
 dotenv.config();
 
@@ -19,6 +18,8 @@ const PRIVATE_KEY = (
 
 task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').setAction(async (taskArgs, hre) => {
   const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
+
+  const adminAddress = getScoutProtocolSafeAddress();
 
   await hre.run('compile');
 
@@ -61,11 +62,6 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
   } catch (err) {
     console.warn('Error verifying contract', err);
   }
-
-  fs.writeFileSync(
-    path.resolve('abis', 'ScoutProtocolImplementation.json'),
-    JSON.stringify(deployedImplementation.abi, null, 2)
-  );
 
   const proxyOptions = [];
 
@@ -171,13 +167,15 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     console.log('Verifying proxy contract with etherscan..');
     try {
       execSync(
-        `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')}`
+        `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')} --contract contracts/protocol/contracts/ScoutProtocol/ScoutProtocolProxy.sol:ScoutProtocolProxy`
       );
     } catch (err) {
       console.warn('Error verifying contract', err);
     }
 
-    fs.writeFileSync(path.resolve('abis', 'ScoutProtocolProxy.json'), JSON.stringify(deployedProxy.abi, null, 2));
+    console.log(`Transferring Admin Access to Safe Address: ${adminAddress}`);
+
+    await deployedProxy.write.transferAdmin([adminAddress]);
   }
 
   console.log('Deployment and update process completed.');

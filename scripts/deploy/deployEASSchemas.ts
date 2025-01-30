@@ -15,6 +15,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import type { SupportedChains } from '../../lib/connectors';
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey, getEasUrl } from '../../lib/connectors';
+import { getScoutProtocolSafeAddress } from '../../lib/constants';
 
 dotenv.config();
 
@@ -27,6 +28,8 @@ task('deployEASSchemas', 'Deploys or updates the EAS Resolver and scoutgame atte
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
     await hre.run('compile');
+
+    const adminAddress = getScoutProtocolSafeAddress();
 
     const viem = hre.viem;
 
@@ -112,6 +115,9 @@ task('deployEASSchemas', 'Deploys or updates the EAS Resolver and scoutgame atte
 
       await walletClient.waitForTransactionReceipt({ hash: namingTx });
     }
+
+    console.log(`Transferring Admin Access to Safe Address: ${adminAddress}`);
+    await deployedResolver.write.transferAdmin([adminAddress]);
 
     console.log('EAS Schemas deployed, view them on EAS');
     console.log(getEasUrl({ chain: hre.hardhatArguments.network as SupportedChains, type: 'schemas_list' }));

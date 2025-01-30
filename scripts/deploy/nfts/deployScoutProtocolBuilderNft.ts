@@ -1,6 +1,4 @@
 import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
 
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
@@ -10,6 +8,7 @@ import { createPublicClient, createWalletClient, http, isAddress, parseAbiItem }
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey, proceedsReceiver } from '../../../lib/connectors';
+import { getScoutProtocolSafeAddress } from '../../../lib/constants';
 
 dotenv.config();
 
@@ -19,6 +18,8 @@ const PRIVATE_KEY = (
 
 task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Builder NFT contracts').setAction(
   async (taskArgs, hre) => {
+    const adminAddress = getScoutProtocolSafeAddress();
+
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
     await hre.run('compile');
@@ -47,7 +48,6 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
     });
 
     const implementationAddress = implementation.address;
-    const implementationABI = implementation.abi;
 
     console.log('Implementation contract deployed at address:', implementationAddress);
 
@@ -58,11 +58,6 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
     } catch (err) {
       console.warn('Error verifying contract', err);
     }
-
-    fs.writeFileSync(
-      path.resolve('abis', 'ScoutProtocolBuilderNFTImplementation.json'),
-      JSON.stringify(implementationABI, null, 2)
-    );
 
     let deployNew = true;
 
@@ -207,7 +202,9 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
         console.warn('Error verifying contract', err);
       }
 
-      fs.writeFileSync(path.resolve('abis', 'ScoutProtocolProxy.json'), JSON.stringify(newProxyContract.abi, null, 2));
+      console.log(`Transferring Admin Access to Safe Address: ${adminAddress}`);
+
+      await newProxyContract.write.transferAdmin([adminAddress]);
     }
   }
 );

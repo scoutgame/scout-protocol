@@ -19,6 +19,7 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
+import { getScoutProtocolSafeAddress } from '../../lib/constants';
 
 /**
  * Computes the deterministic address for a contract using the CREATE2 formula.
@@ -69,6 +70,8 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
     await hre.run('compile');
 
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
+
+    const adminAddress = getScoutProtocolSafeAddress();
 
     if (!isAddress(connector.foundryCreate2Deployer as string)) {
       throw new Error('DETERMINISTIC_DEPLOYER_CONTRACT_DEPLOY_CODE is not a valid address');
@@ -147,7 +150,7 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
 
     const proxyImplementationBytecode = proxyContract.bytecode;
 
-    const proxyDeployArgs = [deployedImplementation.address, account.address] as const;
+    const proxyDeployArgs = [deployedImplementation.address, adminAddress] as const;
 
     const proxyEncodedArgs = encodeAbiParameters([{ type: 'address' }, { type: 'address' }], proxyDeployArgs);
 
@@ -178,30 +181,6 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
     } catch (err) {
       log.error('Error verifying contract', err);
     }
-
-    // Get proxy contract with implementation ABI
-    const proxyWithImplementationABI = await hre.viem.getContractAt(
-      'ScoutTokenERC20Implementation',
-      expectedProxyAddress,
-      {
-        client: {
-          wallet: walletClient
-        }
-      }
-    );
-
-    // Initialize the proxy
-    await proxyWithImplementationABI.write.initialize();
-
-    // Use proxy address for subsequent interactions
-    const deployedContract = proxyWithImplementationABI;
-
-    const decimals = await deployedContract.read.decimals();
-
-    const balance = await deployedContract.read.balanceOf([account.address]);
-
-    log.info('Deployed contract:', deployedContract.address);
-    log.info('Balance:', balance / BigInt(10 ** decimals));
   }
 );
 

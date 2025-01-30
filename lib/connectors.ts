@@ -91,9 +91,10 @@ export const connectors = {
     }
   } as Connector,
   sepolia: {
-    rpcUrl: 'https://ethereum-sepolia.blockpi.network/v1/rpc/public',
+    rpcUrl: 'https://eth-sepolia-public.unifra.io',
     chain: sepolia,
     easContract: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
+    easAttestationContract: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
     luckyStarCoinContract: NULL_ADDRESS,
     builderNFTContract: NULL_ADDRESS,
     usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
