@@ -3,6 +3,7 @@ import SafeApiKit from '@safe-global/api-kit';
 import Safe from '@safe-global/protocol-kit';
 import type { MetaTransactionData } from '@safe-global/types-kit';
 import { OperationType } from '@safe-global/types-kit';
+import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
 import type { Address } from 'viem';
 import { encodeFunctionData, getAddress, isAddress } from 'viem';
@@ -11,14 +12,14 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
 import { getScoutProtocolSafeAddress } from '../../lib/constants';
 
+dotenv.config();
+
 const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
 task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game ERC20 contract').setAction(
   async (taskArgs, hre) => {
-    await hre.run('compile');
-
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
     // ---------------------------------------------------------------------
@@ -28,7 +29,7 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     const safeAddress = getScoutProtocolSafeAddress();
 
     // ERC20
-    const scoutTokenERC20ProxyAddress = '' as Address;
+    const scoutTokenERC20ProxyAddress = '0x1a9e8decfa5a95819766c93f409a88caab06065f' as Address;
     const erc20Decimals = BigInt(10) ** BigInt(18);
 
     if (!isAddress(scoutTokenERC20ProxyAddress)) {
@@ -70,8 +71,8 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     ];
 
     // ERC1155
-    const scoutBuilderNFTERC1155ProxyAddress = '' as Address;
-    const scoutProtocolBuilderNftMinterAddress = '' as Address;
+    const scoutBuilderNFTERC1155ProxyAddress = '0xaf03279e4c309c75ee5b03b5779ec0248855e223' as Address;
+    const scoutProtocolBuilderNftMinterAddress = '0x854AFEBD6A5ed967A2D959eFE23d79336B3a4310' as Address;
 
     if (!isAddress(scoutBuilderNFTERC1155ProxyAddress)) {
       throw new Error('Invalid Scout Builder NFT ERC1155 Proxy Address');
@@ -119,8 +120,8 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     ];
 
     // EAS Resolver Config
-    const easResolverAddress = '' as Address;
-    const easAttesterWalletAddress = '' as Address;
+    const easResolverAddress = '0x26d6d57ceb9a96befdb5efd486a8d9a39085c4b5' as Address;
+    const easAttesterWalletAddress = '0x854AFEBD6A5ed967A2D959eFE23d79336B3a4310' as Address;
 
     const easResolverAbi = [
       {
@@ -148,7 +149,7 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
 
     // Protocol Funding Config
     // Make sure this is the actual allocation
-    const _season01ProtocolTokenAllocationAsWholeNumber = 100;
+    const _season01ProtocolTokenAllocationAsWholeNumber = 500_000;
 
     if (_season01ProtocolTokenAllocationAsWholeNumber <= 1_000) {
       throw new Error('Invalid Season 01 Protocol Token Allocation. Make sure this is the actual allocation');
@@ -156,14 +157,14 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
 
     const season01ProtocolTokenAllocation = BigInt(_season01ProtocolTokenAllocationAsWholeNumber) * erc20Decimals;
 
-    const scoutProtocolAddress = '' as Address;
+    const scoutProtocolAddress = '0xc12dadf94463537ed03de4ecce97374fbc2ed08d' as Address;
 
     if (!isAddress(scoutProtocolAddress)) {
       throw new Error('Invalid Scout Protocol Address');
     }
 
     // Sablier Lockup Tranched
-    const sablierLockupTranchedAddress = '' as Address;
+    const sablierLockupTranchedAddress = '0x1a9e8decfa5a95819766c93f409a88caab06065f' as Address;
 
     const lockupAbi = [
       {
@@ -214,6 +215,7 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     const safeTransactionData: MetaTransactionData[] = [];
 
     // Phase 1 - Initialise the ERC20 to distribute the tokens
+    console.log('Preparing the ERC20 contract...');
     const encodedERC20Data = encodeFunctionData({
       abi: erc20Abi,
       functionName: 'initialize',
