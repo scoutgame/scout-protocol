@@ -51,8 +51,6 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
     throw new Error('Failed to deploy erc20 contract');
   }
 
-  console.log('Sablier Vesting contract deployed at:', sablierLockupAddress);
-
   // Verify contract in the explorer
 
   try {
@@ -62,6 +60,8 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
   } catch (err) {
     console.warn('Error verifying contract', err);
   }
+
+  console.log('Sablier Vesting contract deployed at:', sablierLockupAddress);
 });
 
 module.exports = {};

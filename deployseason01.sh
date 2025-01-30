@@ -1,7 +1,25 @@
 #!/bin/bash
 
-echo "Enter the network name (e.g. sepolia, mainnet):"
+echo "Enter the network name (e.g. opsepolia, optimism, sepolia, basesepolia, base):"
 read NETWORK
+
+# Validate network name against supported chains
+case $NETWORK in
+  "opsepolia"|"optimism"|"sepolia"|"basesepolia"|"base")
+    echo "Using network: $NETWORK"
+    ;;
+  *)
+    echo "Error: Invalid network name. Supported networks are:"
+    echo "- opsepolia"
+    echo "- optimism"
+    echo "- sepolia" 
+    echo "- basesepolia"
+    echo "- base"
+    exit 1
+    ;;
+esac
+
+
 
 npm run compile
 npm run scout:deploy:erc20 $NETWORK || exit 1
@@ -34,3 +52,7 @@ fi
 
 npm run scout:deploy:protocol $NETWORK || exit 1
 echo "Protocol deployment completed."
+
+
+npm run scout:launch:season01 $NETWORK || exit 1
+echo "Scout Game Launch Safe Transaction deployment completed."

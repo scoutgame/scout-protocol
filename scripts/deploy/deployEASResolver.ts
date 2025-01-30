@@ -50,8 +50,6 @@ task('deployEASResolver', 'Deploys or updates the EAS Resolver and scoutgame att
 
     const resolverAddress = deployedResolver.address;
 
-    console.log('Resolver contract deployed at:', deployedResolver.address);
-
     console.log('Verifying implementation with etherscan');
     try {
       execSync(
@@ -60,6 +58,10 @@ task('deployEASResolver', 'Deploys or updates the EAS Resolver and scoutgame att
     } catch (err) {
       console.warn('Error verifying contract', err);
     }
+
+    console.log('EAS Resolver contract deployed at:', deployedResolver.address);
+
+    console.log(`Transferring Admin role to Safe Address: ${adminAddress}`);
 
     await deployedResolver.write.transferAdmin([adminAddress], {
       account: walletClient.account

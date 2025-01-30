@@ -25,6 +25,7 @@ import './scripts/deploy/nfts/deployScoutProtocolBuilderNft';
 import './scripts/deploy/nfts/deployBuilderNftStarterPack';
 import './scripts/deploy/deployVesting';
 import './scripts/deploy/deployFoundryCreate2Deployer';
+import './scripts/deploy/prepareScoutGameLaunchSafeTransaction';
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';
 import './scripts/interact/scoutProtocol';
@@ -136,6 +137,14 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
           urls: {
             apiURL: 'https://base-sepolia.blockscout.com/api',
             browserURL: 'https://base-sepolia.blockscout.com'
+          }
+        },
+        {
+          network: 'base',
+          chainId: 8453,
+          urls: {
+            apiURL: 'https://base.blockscout.com/api',
+            browserURL: 'https://base.blockscout.com'
           }
         },
         {
