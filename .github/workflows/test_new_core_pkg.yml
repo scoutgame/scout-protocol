@@ -51,15 +51,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - app_name: scoutgame
+          - app_name: scout-protocol
             test_command: |
-              npm run typecheck -w apps/scoutgame
-              npx dotenv -e .env.test.local -- npm run test -w packages
-          - app_name: cron
-            test_command: npm run typecheck -w apps/cron
-          - app_name: admin
-            test_command: npm run typecheck -w apps/admin
-
+              npm run typecheck
+              npm run test
+              
     steps:
       - uses: actions/checkout@v4
 
