@@ -1,20 +1,12 @@
 import { execSync } from 'node:child_process';
 
-import {
-  allSchemas,
-  encodeNameSchemaAttestation,
-  NAME_SCHEMA_UID,
-  NULL_EAS_REF_UID,
-  NULL_EVM_ADDRESS
-} from '@charmverse/core/protocol';
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
 import type { Address } from 'viem';
-import { createWalletClient, http, isAddress, parseEventLogs, publicActions } from 'viem';
+import { createWalletClient, http, isAddress, publicActions } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
-import type { SupportedChains } from '../../lib/connectors';
-import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey, getEasUrl } from '../../lib/connectors';
+import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
 import { getScoutProtocolSafeAddress } from '../../lib/constants';
 
 dotenv.config();
@@ -46,12 +38,6 @@ task('deployEASSchemas', 'Deploys or updates the EAS Resolver and scoutgame atte
       throw new Error(`No EAS Contract found for chain ${connector.chain.name}:${connector.chain.id}`);
     }
 
-    const easContract = await viem.getContractAt('IEAS', connector.easAttestationContract as `0x${string}`);
-
-    const easSchemaRegistryAddress = await easContract.read.getSchemaRegistry();
-
-    const easRegistryContract = await viem.getContractAt('ISchemaRegistry', easSchemaRegistryAddress as Address);
-
     console.log('Deploying the resolver contract...');
 
     const deployArgs = [connector.easAttestationContract as Address, account.address] as [Address, Address];
@@ -75,52 +61,9 @@ task('deployEASSchemas', 'Deploys or updates the EAS Resolver and scoutgame atte
       console.warn('Error verifying contract', err);
     }
 
-    for (const { schema, name } of allSchemas) {
-      const registerTx = await easRegistryContract.write.register([schema, resolverAddress, true], {
-        account
-      });
-
-      const registerReceipt = await walletClient.waitForTransactionReceipt({ hash: registerTx });
-
-      const logs = parseEventLogs({
-        abi: easRegistryContract.abi,
-        logs: registerReceipt.logs,
-        eventName: ['Registered']
-      });
-
-      const schemaId = logs[0].args.schema.uid;
-
-      console.log(`Schema "${name}" registered with UID: ${schemaId}`);
-
-      const data = encodeNameSchemaAttestation({ name, schemaId });
-
-      const namingTx = await easContract.write.attest(
-        [
-          {
-            schema: NAME_SCHEMA_UID,
-            data: {
-              value: BigInt(0),
-              revocable: true,
-              recipient: NULL_EVM_ADDRESS,
-              expirationTime: BigInt(0),
-              refUID: NULL_EAS_REF_UID,
-              data
-            }
-          }
-        ],
-        {
-          account
-        }
-      );
-
-      await walletClient.waitForTransactionReceipt({ hash: namingTx });
-    }
-
-    console.log(`Transferring Admin Access to Safe Address: ${adminAddress}`);
-    await deployedResolver.write.transferAdmin([adminAddress]);
-
-    console.log('EAS Schemas deployed, view them on EAS');
-    console.log(getEasUrl({ chain: hre.hardhatArguments.network as SupportedChains, type: 'schemas_list' }));
+    await deployedResolver.write.transferAdmin([adminAddress], {
+      account: walletClient.account
+    });
   }
 );
 

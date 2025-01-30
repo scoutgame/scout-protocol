@@ -2,7 +2,7 @@ import type { HardhatRuntimeEnvironment } from 'hardhat/types';
 import type { Address } from 'viem';
 
 import type { SupportedChains } from './connectors';
-import { NULL_ADDRESS } from './constants';
+import { NULL_EVM_ADDRESS } from './constants';
 
 const DEPLOY_SALT = 'deterministic-salt-02';
 
@@ -17,11 +17,11 @@ type Factory = {
 
 export const factories: Record<Extract<SupportedChains, 'opsepolia' | 'sepolia'>, Factory> = {
   opsepolia: {
-    stargateFactory: NULL_ADDRESS,
+    stargateFactory: NULL_EVM_ADDRESS,
     tokenFactory: '0xcc572382158221b0baee53d6eb35b7c82de39b18'
   } as Factory,
   sepolia: {
-    stargateFactory: NULL_ADDRESS,
+    stargateFactory: NULL_EVM_ADDRESS,
     tokenFactory: '0xf7580046ca7c642e116b21f3d327f6debbaa8487'
   } as Factory
 } as const;
@@ -47,7 +47,7 @@ export function getFactoryFromHardhatRuntimeEnvironment({
 
   const factoryAddress = factory[type];
 
-  if (factoryAddress === NULL_ADDRESS) {
+  if (factoryAddress === NULL_EVM_ADDRESS) {
     throw new Error(`Factory type "${type}" is not deployed on ${chainName}`);
   }
 

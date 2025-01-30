@@ -2,7 +2,7 @@ import type { HardhatRuntimeEnvironment } from 'hardhat/types';
 import type { Address, Chain } from 'viem';
 import { base, baseSepolia, optimism, optimismSepolia, sepolia } from 'viem/chains';
 
-import { NULL_ADDRESS } from './constants';
+import { NULL_EVM_ADDRESS } from './constants';
 
 // https://app.ens.domains/scoutgame.eth
 export const proceedsReceiver = '0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D';
@@ -63,8 +63,8 @@ export const connectors = {
   optimism: {
     rpcUrl: 'https://opt-mainnet.g.alchemy.com/v2/0rLYBVk_UG9HAInXCNbYMX-gO5t1UxCM',
     chain: optimism,
-    easContract: NULL_ADDRESS,
-    luckyStarCoinContract: NULL_ADDRESS,
+    easContract: NULL_EVM_ADDRESS,
+    luckyStarCoinContract: NULL_EVM_ADDRESS,
     builderNFTContract: '0x7df4d9f54a5cddfef50a032451f694d6345c60af',
     usdcContract: '0x0b2c639c533813f4aa9d7837caf62653d097ff85',
     seasonOneProxy: '0x743ec903fe6d05e73b19a6db807271bb66100e83',
@@ -95,15 +95,15 @@ export const connectors = {
     chain: sepolia,
     easContract: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
     easAttestationContract: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
-    luckyStarCoinContract: NULL_ADDRESS,
-    builderNFTContract: NULL_ADDRESS,
+    luckyStarCoinContract: NULL_EVM_ADDRESS,
+    builderNFTContract: NULL_EVM_ADDRESS,
     usdcContract: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238'
   } as Connector,
   basesepolia: {
     rpcUrl: 'https://sepolia.base.org',
     chain: baseSepolia,
-    easContract: NULL_ADDRESS,
-    luckyStarCoinContract: NULL_ADDRESS,
+    easContract: NULL_EVM_ADDRESS,
+    luckyStarCoinContract: NULL_EVM_ADDRESS,
     foundryCreate2Deployer: '0x4e59b44847b379578588920ca78fbf26c0b4956c',
     // This is the new version of the contract with a sudo-type mint
     builderNFTContract: '0xec66b6a6c2ce744543517776ff9906cd41c50a63',
@@ -155,8 +155,8 @@ export const connectors = {
   base: {
     rpcUrl: 'https://mainnet.base.org',
     chain: base,
-    easContract: NULL_ADDRESS,
-    luckyStarCoinContract: NULL_ADDRESS,
+    easContract: NULL_EVM_ADDRESS,
+    luckyStarCoinContract: NULL_EVM_ADDRESS,
     builderNFTContract: '0x278cc8861cfc93ea47c9e89b1876d0def2037c27',
     usdcContract: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
     easAttestationContract: '0x4200000000000000000000000000000000000021',

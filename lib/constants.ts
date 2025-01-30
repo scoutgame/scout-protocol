@@ -8,7 +8,9 @@ export const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
-export const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+export const NULL_EVM_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+export const NULL_EAS_REF_UID = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
 export function getScoutProtocolSafeAddress(): Address {
   const address = process.env.SCOUT_PROTOCOL_SAFE_ADDRESS;

@@ -1,5 +1,4 @@
-import { NULL_EAS_REF_UID, type ContributionReceiptAttestation } from '@charmverse/core/protocol';
-
+import type { ContributionReceiptAttestation } from '../deployEAS';
 import { deployEASContracts } from '../deployEAS';
 
 describe('deployEAS', function () {
@@ -7,7 +6,6 @@ describe('deployEAS', function () {
     const { attestContributionReceipt, getContributionReceipt } = await deployEASContracts();
 
     const data: ContributionReceiptAttestation = {
-      userRefUID: NULL_EAS_REF_UID,
       description: 'Example',
       metadataUrl: 'https://example.com/metadataUrl',
       url: 'https://example.com',

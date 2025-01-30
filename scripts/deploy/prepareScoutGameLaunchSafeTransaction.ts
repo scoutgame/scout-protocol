@@ -1,5 +1,5 @@
 import { task } from 'hardhat/config';
-import type { Address } from 'viem';
+import { isAddress, type Address } from 'viem';
 
 import { getScoutProtocolSafeAddress } from '../../lib/constants';
 
@@ -21,9 +21,21 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     const scoutTokenERC20ProxyAddress = '' as Address;
     const erc20Decimals = BigInt(10) ** BigInt(18);
 
+    if (!isAddress(scoutTokenERC20ProxyAddress)) {
+      throw new Error('Invalid Scout Token ERC20 Proxy Address');
+    }
+
     // ERC1155
     const scoutBuilderNFTERC1155ProxyAddress = '' as Address;
     const scoutProtocolBuilderNftMinterAddress = '' as Address;
+
+    if (!isAddress(scoutBuilderNFTERC1155ProxyAddress)) {
+      throw new Error('Invalid Scout Builder NFT ERC1155 Proxy Address');
+    }
+
+    if (!isAddress(scoutProtocolBuilderNftMinterAddress)) {
+      throw new Error('Invalid Scout Builder NFT Minter Address');
+    }
 
     const nftPrefix = 'https://awsresourcehere.com/';
     const nftSuffix = 'metadata.json';
@@ -32,13 +44,29 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     const easResolverAddress = '' as Address;
     const easAttesterWalletAddress = '' as Address;
 
+    if (!isAddress(easResolverAddress)) {
+      throw new Error('Invalid EAS Resolver Address');
+    }
+
+    if (!isAddress(easAttesterWalletAddress)) {
+      throw new Error('Invalid EAS Attester Wallet Address');
+    }
+
     // Protocol Config
     // Make sure this is the actual allocation
     const _season01ProtocolTokenAllocationAsWholeNumber = 100;
 
+    if (_season01ProtocolTokenAllocationAsWholeNumber <= 1_000) {
+      throw new Error('Invalid Season 01 Protocol Token Allocation. Make sure this is the actual allocation');
+    }
+
     const season01ProtocolTokenAllocation = BigInt(_season01ProtocolTokenAllocationAsWholeNumber) * erc20Decimals;
 
     const scoutProtocolAddress = '' as Address;
+
+    if (!isAddress(scoutProtocolAddress)) {
+      throw new Error('Invalid Scout Protocol Address');
+    }
 
     // Sablier Lockup Tranched
     const sablierLockupTranchedAddress = '' as Address;
