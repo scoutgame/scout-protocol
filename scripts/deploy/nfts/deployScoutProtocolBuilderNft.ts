@@ -36,10 +36,7 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
       transport: http(connector.rpcUrl)
     });
 
-    console.log('Using account:', account.address, 'on chain:', connector.chain.name);
-
     // Deploy the implementation contract first
-    console.log('Deploying the implementation contract...');
 
     const implementation = await hre.viem.deployContract('ScoutProtocolBuilderNFTImplementation', [], {
       client: {
@@ -49,10 +46,7 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
 
     const implementationAddress = implementation.address;
 
-    console.log('Implementation contract deployed at address:', implementationAddress);
-
     // Verify contract in the explorer
-    console.log('Verifying implementation with etherscan');
     try {
       execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${implementationAddress}`);
     } catch (err) {
@@ -79,8 +73,6 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
       if (prodProxy) {
         proxyOptions.push({ address: prodProxy, env: 'prod' });
       }
-
-      console.log('Proxy options:', proxyOptions);
 
       const newProxyOption = 'New Proxy';
 
@@ -191,9 +183,8 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
 
       const proxyAddress = newProxyContract.address;
 
-      console.log('Proxy contract deployed at address:', proxyAddress);
+      console.log('ERC1155 Proxy contract deployed at:', proxyAddress);
 
-      console.log('Verifying proxy contract with etherscan..');
       try {
         execSync(
           `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')}`
@@ -202,7 +193,7 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
         console.warn('Error verifying contract', err);
       }
 
-      console.log(`Transferring Admin Access to Safe Address: ${adminAddress}`);
+      console.log(`Transferring ERC1155 Admin role to Safe Address: ${adminAddress}`);
 
       await newProxyContract.write.transferAdmin([adminAddress]);
     }

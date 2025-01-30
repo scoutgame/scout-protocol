@@ -35,10 +35,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     transport: http(connector.rpcUrl)
   });
 
-  console.log('Using account:', account.address, 'on chain:', connector.chain.name);
-
   // Deploy the implementation contract first
-  console.log('Deploying the implementation contract...');
 
   const deployedImplementation = await hre.viem.deployContract('ScoutProtocolImplementation', [], {
     client: {
@@ -52,11 +49,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     throw new Error('Failed to deploy implementation contract');
   }
 
-  console.log('Implementation contract deployed at address:', implementationAddress);
-
   // Verify contract in the explorer
-
-  console.log('Verifying implementation with etherscan');
   try {
     execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${implementationAddress}`);
   } catch (err) {
@@ -81,8 +74,6 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
 
   // Prompt the user to update the implementation if the proxy already exists
   if (proxyOptions.length > 0) {
-    console.log('Proxy options:', proxyOptions);
-
     const newProxyOption = 'New Proxy';
 
     const { selectedProxy } = await inquirer.prompt([
@@ -162,9 +153,8 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
       throw new Error(`Failed to deploy proxy`);
     }
 
-    console.log('Proxy contract deployed at address:', proxyAddress);
+    console.log('Scout Protocol Proxy contract deployed at:', proxyAddress);
 
-    console.log('Verifying proxy contract with etherscan..');
     try {
       execSync(
         `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')} --contract contracts/protocol/contracts/ScoutProtocol/ScoutProtocolProxy.sol:ScoutProtocolProxy`
@@ -173,12 +163,10 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
       console.warn('Error verifying contract', err);
     }
 
-    console.log(`Transferring Admin Access to Safe Address: ${adminAddress}`);
+    console.log(`Transferring Admin role to Safe Address: ${adminAddress}`);
 
     await deployedProxy.write.transferAdmin([adminAddress]);
   }
-
-  console.log('Deployment and update process completed.');
 });
 
 module.exports = {};

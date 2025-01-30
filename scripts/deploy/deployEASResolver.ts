@@ -15,7 +15,7 @@ const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
-task('deployEASSchemas', 'Deploys or updates the EAS Resolver and scoutgame attestation schemas').setAction(
+task('deployEASResolver', 'Deploys or updates the EAS Resolver and scoutgame attestation schemas').setAction(
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 

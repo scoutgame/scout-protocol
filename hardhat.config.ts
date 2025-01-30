@@ -20,7 +20,7 @@ import './scripts/deploy/nfts/deployBuilderNftPreSeason02';
 // Scout Game Protocol
 import './scripts/deploy/deployDeterministicScoutgameTokenERC20';
 import './scripts/deploy/deployScoutProtocol';
-import './scripts/deploy/deployEASSchemas';
+import './scripts/deploy/deployEASResolver';
 import './scripts/deploy/nfts/deployScoutProtocolBuilderNft';
 import './scripts/deploy/nfts/deployBuilderNftStarterPack';
 import './scripts/deploy/deployVesting';
