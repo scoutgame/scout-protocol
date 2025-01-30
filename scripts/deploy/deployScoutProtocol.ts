@@ -1,6 +1,4 @@
 import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
 
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
@@ -10,6 +8,7 @@ import { createPublicClient, createWalletClient, http, isAddress, parseAbiItem }
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
+import { getScoutProtocolSafeAddress } from '../../lib/constants';
 
 dotenv.config();
 
@@ -19,6 +18,8 @@ const PRIVATE_KEY = (
 
 task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').setAction(async (taskArgs, hre) => {
   const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
+
+  const adminAddress = getScoutProtocolSafeAddress();
 
   await hre.run('compile');
 
@@ -34,10 +35,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     transport: http(connector.rpcUrl)
   });
 
-  console.log('Using account:', account.address, 'on chain:', connector.chain.name);
-
   // Deploy the implementation contract first
-  console.log('Deploying the implementation contract...');
 
   const deployedImplementation = await hre.viem.deployContract('ScoutProtocolImplementation', [], {
     client: {
@@ -51,21 +49,12 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     throw new Error('Failed to deploy implementation contract');
   }
 
-  console.log('Implementation contract deployed at address:', implementationAddress);
-
   // Verify contract in the explorer
-
-  console.log('Verifying implementation with etherscan');
   try {
     execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${implementationAddress}`);
   } catch (err) {
     console.warn('Error verifying contract', err);
   }
-
-  fs.writeFileSync(
-    path.resolve('abis', 'ScoutProtocolImplementation.json'),
-    JSON.stringify(deployedImplementation.abi, null, 2)
-  );
 
   const proxyOptions = [];
 
@@ -85,8 +74,6 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
 
   // Prompt the user to update the implementation if the proxy already exists
   if (proxyOptions.length > 0) {
-    console.log('Proxy options:', proxyOptions);
-
     const newProxyOption = 'New Proxy';
 
     const { selectedProxy } = await inquirer.prompt([
@@ -166,21 +153,20 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
       throw new Error(`Failed to deploy proxy`);
     }
 
-    console.log('Proxy contract deployed at address:', proxyAddress);
+    console.log('Scout Protocol Proxy contract deployed at:', proxyAddress);
 
-    console.log('Verifying proxy contract with etherscan..');
     try {
       execSync(
-        `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')}`
+        `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')} --contract contracts/protocol/contracts/ScoutProtocol/ScoutProtocolProxy.sol:ScoutProtocolProxy`
       );
     } catch (err) {
       console.warn('Error verifying contract', err);
     }
 
-    fs.writeFileSync(path.resolve('abis', 'ScoutProtocolProxy.json'), JSON.stringify(deployedProxy.abi, null, 2));
-  }
+    console.log(`Transferring Admin role to Safe Address: ${adminAddress}`);
 
-  console.log('Deployment and update process completed.');
+    await deployedProxy.write.transferAdmin([adminAddress]);
+  }
 });
 
 module.exports = {};

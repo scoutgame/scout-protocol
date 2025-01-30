@@ -1,0 +1,23 @@
+name: "Install dependencies"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        registry-url: 'https://npm.pkg.github.com'
+
+    - name: Cache dependencies
+      id: cache_node_modules
+      uses: actions/cache@v4
+      with:
+        path: ./node_modules
+        key: core-depcache-${{ hashFiles('package.json') }}-${{ hashFiles('patches/**.patch', 'src/prisma/schema.prisma') }}
+
+    - name: Install npm dependencies
+      shell: bash
+      if: steps.cache_node_modules.outputs.cache-hit != 'true'
+      run: |
+        npm i --no-audit --no-fund
+        echo "workflow ref: ${{github.workflow_ref}}"

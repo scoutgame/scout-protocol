@@ -20,11 +20,12 @@ import './scripts/deploy/nfts/deployBuilderNftPreSeason02';
 // Scout Game Protocol
 import './scripts/deploy/deployDeterministicScoutgameTokenERC20';
 import './scripts/deploy/deployScoutProtocol';
-import './scripts/deploy/deployEASSchemas';
+import './scripts/deploy/deployEASResolver';
 import './scripts/deploy/nfts/deployScoutProtocolBuilderNft';
 import './scripts/deploy/nfts/deployBuilderNftStarterPack';
 import './scripts/deploy/deployVesting';
 import './scripts/deploy/deployFoundryCreate2Deployer';
+import './scripts/deploy/prepareScoutGameLaunchSafeTransaction';
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';
 import './scripts/interact/scoutProtocol';
@@ -118,7 +119,8 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
       apiKey: {
         opsepolia: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ',
         optimism: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ',
-        basesepolia: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ'
+        basesepolia: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ',
+        sepolia: '97FJRW1Q7XF1ATMCRUUN372HNK25WNT6JJ'
       },
       customChains: [
         {
@@ -138,11 +140,27 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
           }
         },
         {
+          network: 'base',
+          chainId: 8453,
+          urls: {
+            apiURL: 'https://base.blockscout.com/api',
+            browserURL: 'https://base.blockscout.com'
+          }
+        },
+        {
           network: 'optimism',
           chainId: 10,
           urls: {
             apiURL: 'https://optimism.blockscout.com/api',
             browserURL: 'https://optimism.blockscout.com'
+          }
+        },
+        {
+          network: 'sepolia',
+          chainId: 11155111,
+          urls: {
+            apiURL: 'https://sepolia.etherscan.io/api',
+            browserURL: 'https://sepolia.etherscan.io'
           }
         }
         // {

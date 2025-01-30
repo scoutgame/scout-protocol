@@ -1,12 +1,8 @@
-import {
-  decodeContributionReceiptAttestation,
-  NULL_EAS_REF_UID,
-  NULL_EVM_ADDRESS,
-  type ContributionReceiptAttestation
-} from '@charmverse/core/protocol';
 import { getAddress } from 'viem';
 
-import type { EASTestFixture } from '../../../deployEAS';
+import { NULL_EVM_ADDRESS } from '../../../../lib/constants';
+import type { ContributionReceiptAttestation, EASTestFixture } from '../../../deployEAS';
+import { decodeContributionReceiptAttestation } from '../../../deployEAS';
 import { loadEASFixtures } from '../../../fixtures';
 import { generateWallets, type GeneratedWallet } from '../../../generateWallets';
 
@@ -176,7 +172,6 @@ describe('ProtocolEASResolver', function () {
   describe('onAttest', function () {
     const data: ContributionReceiptAttestation = {
       description: 'test',
-      userRefUID: NULL_EAS_REF_UID,
       metadataUrl: 'https://www.example.com',
       url: 'https://github.com/ethereum/ethereum-org-website/pull/100',
       type: 'merged_pr',

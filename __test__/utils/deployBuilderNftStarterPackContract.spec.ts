@@ -1,6 +1,6 @@
 import { getAddress } from 'viem';
 
-import { NULL_ADDRESS } from '../../lib/constants';
+import { NULL_EVM_ADDRESS } from '../../lib/constants';
 import { deployBuilderNftStarterPackContract } from '../deployBuilderNftStarterPack';
 import { deployTestUSDC } from '../deployTestUSDC';
 
@@ -18,7 +18,7 @@ describe('Proxy and Initialization', function () {
     const erc20Contract = await builderNftContract.read.getERC20Contract();
 
     expect(proxyAdmin).toBe(getAddress(builderNftAdminAccount.account.address));
-    expect(proxyImplementation).not.toBe(NULL_ADDRESS);
+    expect(proxyImplementation).not.toBe(NULL_EVM_ADDRESS);
     expect(erc20Contract).toBe(getAddress(USDC.address));
   });
 });

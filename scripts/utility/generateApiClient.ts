@@ -3,7 +3,7 @@ import inquirer from 'inquirer';
 import { generateApiClient, loadAbiFromFile } from '../../lib/generateApiClient';
 
 // Main execution flow
-async function main() {
+async function main(): Promise<void> {
   // Ask the user for the ABI file path
   const { abiFilePath } = await inquirer.prompt([
     {

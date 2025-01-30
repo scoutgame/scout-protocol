@@ -1,6 +1,4 @@
 import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
 
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
@@ -10,6 +8,7 @@ import { createPublicClient, createWalletClient, http, isAddress, parseAbiItem }
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey, proceedsReceiver } from '../../../lib/connectors';
+import { getScoutProtocolSafeAddress } from '../../../lib/constants';
 
 dotenv.config();
 
@@ -19,6 +18,8 @@ const PRIVATE_KEY = (
 
 task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Builder NFT contracts').setAction(
   async (taskArgs, hre) => {
+    const adminAddress = getScoutProtocolSafeAddress();
+
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
 
     await hre.run('compile');
@@ -35,10 +36,7 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
       transport: http(connector.rpcUrl)
     });
 
-    console.log('Using account:', account.address, 'on chain:', connector.chain.name);
-
     // Deploy the implementation contract first
-    console.log('Deploying the implementation contract...');
 
     const implementation = await hre.viem.deployContract('ScoutProtocolBuilderNFTImplementation', [], {
       client: {
@@ -47,22 +45,13 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
     });
 
     const implementationAddress = implementation.address;
-    const implementationABI = implementation.abi;
-
-    console.log('Implementation contract deployed at address:', implementationAddress);
 
     // Verify contract in the explorer
-    console.log('Verifying implementation with etherscan');
     try {
       execSync(`npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${implementationAddress}`);
     } catch (err) {
       console.warn('Error verifying contract', err);
     }
-
-    fs.writeFileSync(
-      path.resolve('abis', 'ScoutProtocolBuilderNFTImplementation.json'),
-      JSON.stringify(implementationABI, null, 2)
-    );
 
     let deployNew = true;
 
@@ -84,8 +73,6 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
       if (prodProxy) {
         proxyOptions.push({ address: prodProxy, env: 'prod' });
       }
-
-      console.log('Proxy options:', proxyOptions);
 
       const newProxyOption = 'New Proxy';
 
@@ -154,30 +141,16 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
         }
       ]);
 
-      const { tokenName, tokenSymbol } = await inquirer.prompt([
+      const { season } = await inquirer.prompt([
         {
           type: 'input',
-          name: 'tokenName',
-          message: 'Enter the token name:',
+          name: 'season',
+          message: 'Enter the season number ex. 01',
           validate: (input: string) => {
-            const expectedMatch = /^ScoutGame \(Season \d{2}\)/;
+            const expectedMatch = /^\d{2}$/;
 
             if (!input.match(expectedMatch)) {
-              return 'Token name must match the expected format: "ScoutGame (Season XX)"';
-            }
-
-            return true;
-          }
-        },
-        {
-          type: 'input',
-          name: 'tokenSymbol',
-          message: 'Enter the token symbol:',
-          validate: (input: string) => {
-            const expectedMatch = /^SCOUTGAME-S\d{2}$/;
-
-            if (!input.match(expectedMatch)) {
-              return 'Token symbol must match the expected format: "SCOUTGAME-SXX"';
+              return 'Season number must match the expected format: "XX"';
             }
 
             return true;
@@ -185,13 +158,22 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
         }
       ]);
 
+      const tokenName = `ScoutGame (Season ${season})`;
+      const tokenSymbol = `SCOUTGAME-S${season}`;
+
       const tokenDeployArgs = [implementationAddress as Address, scoutToken as Address, proceedsReceiver] as [
         Address,
         Address,
         Address
       ];
 
-      const deployArgs = [...tokenDeployArgs, tokenName, tokenSymbol] as [Address, Address, Address, string, string];
+      const deployArgs = [...tokenDeployArgs, `"${tokenName}"`, `"${tokenSymbol}"`] as [
+        Address,
+        Address,
+        Address,
+        string,
+        string
+      ];
 
       const newProxyContract = await hre.viem.deployContract('ScoutProtocolBuilderNFTProxy', deployArgs, {
         client: {
@@ -201,9 +183,8 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
 
       const proxyAddress = newProxyContract.address;
 
-      console.log('Proxy contract deployed at address:', proxyAddress);
+      console.log('ERC1155 Proxy contract deployed at:', proxyAddress);
 
-      console.log('Verifying proxy contract with etherscan..');
       try {
         execSync(
           `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${proxyAddress} ${deployArgs.join(' ')}`
@@ -212,7 +193,9 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
         console.warn('Error verifying contract', err);
       }
 
-      fs.writeFileSync(path.resolve('abis', 'ScoutProtocolProxy.json'), JSON.stringify(newProxyContract.abi, null, 2));
+      console.log(`Transferring ERC1155 Admin role to Safe Address: ${adminAddress}`);
+
+      await newProxyContract.write.transferAdmin([adminAddress]);
     }
   }
 );

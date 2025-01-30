@@ -1,6 +1,4 @@
 import { execSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
 
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
@@ -29,11 +27,7 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
     transport: http(connector.rpcUrl)
   });
 
-  console.log('Using account:', account.address, 'on chain:', connector.chain.name);
-
   // Deploy the implementation contract first
-  console.log('Deploying the Sablier Vesting contract...');
-
   const { erc20Address } = await inquirer.prompt([
     {
       type: 'input',
@@ -57,11 +51,8 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
     throw new Error('Failed to deploy erc20 contract');
   }
 
-  console.log('Implementation contract deployed at address:', sablierLockupAddress);
-
   // Verify contract in the explorer
 
-  console.log('Verifying implementation with etherscan');
   try {
     execSync(
       `npx hardhat verify --network ${getConnectorKey(connector.chain.id)} ${sablierLockupAddress} ${deployArgs.join(' ')}`
@@ -70,11 +61,7 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
     console.warn('Error verifying contract', err);
   }
 
-  console.log('Writing ABI to file');
-
-  fs.writeFileSync(path.resolve('abis', 'SablierLockup.json'), JSON.stringify(deployedSablierLockup.abi, null, 2));
-
-  console.log('Complete');
+  console.log('Sablier Vesting contract deployed at:', sablierLockupAddress);
 });
 
 module.exports = {};
