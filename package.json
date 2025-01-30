@@ -2,7 +2,7 @@
   "name": "hardhat-project",
   "scripts": {
     "lint": "npx eslint . --fix",
-    "typecheck": "./node_modules/typescript/bin/tsc --project ./tsconfig.json  --noEmit",
+    "typecheck": "npm run compile && ./node_modules/typescript/bin/tsc --project ./tsconfig.json  --noEmit",
     "test": "npm run compile && npx dotenv -e .env.test.local -- npx jest test --verbose --testTimeout 20000",
     "test:jsonreport": "npm run test -- --json --outputFile=report.json",
     "script": "npx dotenv -e .env.local -- npx tsx",
