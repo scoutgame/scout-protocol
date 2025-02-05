@@ -17,15 +17,18 @@ import { connectors } from './lib/connectors';
 import './scripts/deploy/nfts/deployBuilderNft';
 import './scripts/deploy/nfts/deployBuilderNftPreSeason02';
 
-// Scout Game Protocol
-import './scripts/deploy/deployDeterministicScoutgameTokenERC20';
-import './scripts/deploy/deployScoutProtocol';
-import './scripts/deploy/deployEASResolver';
-import './scripts/deploy/nfts/deployScoutProtocolBuilderNft';
+// Deploy scripts
 import './scripts/deploy/nfts/deployBuilderNftStarterPack';
-import './scripts/deploy/deployVesting';
 import './scripts/deploy/deployFoundryCreate2Deployer';
-import './scripts/deploy/prepareScoutGameLaunchSafeTransaction';
+
+// Scout Protocol Deploy Scripts
+import './scripts/deploy/protocol/01_deployDeterministicScoutgameTokenERC20';
+import './scripts/deploy/protocol/02_deployScoutProtocolBuilderNft';
+import './scripts/deploy/protocol/03_deployVesting';
+import './scripts/deploy/protocol/04_deployEASResolver';
+import './scripts/deploy/protocol/05_deployScoutProtocol';
+import './scripts/deploy/protocol/prepareScoutGameLaunchSafeTransaction';
+
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';
 import './scripts/interact/scoutProtocol';

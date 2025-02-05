@@ -7,7 +7,7 @@ import type { Address } from 'viem';
 import { createWalletClient, http, isAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
-import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
+import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../../lib/connectors';
 
 dotenv.config();
 

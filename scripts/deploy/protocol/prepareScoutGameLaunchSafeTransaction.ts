@@ -9,8 +9,8 @@ import type { Address } from 'viem';
 import { encodeFunctionData, getAddress, isAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
-import { getConnectorFromHardhatRuntimeEnvironment } from '../../lib/connectors';
-import { getScoutProtocolSafeAddress } from '../../lib/constants';
+import { getConnectorFromHardhatRuntimeEnvironment } from '../../../lib/connectors';
+import { getScoutProtocolSafeAddress } from '../../../lib/constants';
 
 dotenv.config();
 

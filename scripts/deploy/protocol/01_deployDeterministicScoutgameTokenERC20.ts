@@ -18,8 +18,8 @@ import {
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
-import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
-import { getScoutProtocolSafeAddress } from '../../lib/constants';
+import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../../lib/connectors';
+import { getScoutProtocolSafeAddress } from '../../../lib/constants';
 
 /**
  * Computes the deterministic address for a contract using the CREATE2 formula.
