@@ -1,5 +1,5 @@
-import { vars } from 'hardhat/config';
 import type { HardhatUserConfig } from 'hardhat/config';
+import { vars } from 'hardhat/config';
 
 import 'solidity-coverage';
 import '@nomicfoundation/hardhat-ethers';
@@ -9,6 +9,7 @@ import '@nomicfoundation/hardhat-viem';
 import 'hardhat-jest'; // Enable support for Jest: https://www.npmjs.com/package/hardhat-jest
 
 import type { NetworksUserConfig } from 'hardhat/types';
+import { base, baseSepolia, optimism, optimismSepolia, sepolia } from 'viem/chains';
 
 import type { SupportedChains } from './lib/connectors';
 import { connectors } from './lib/connectors';
@@ -29,6 +30,7 @@ import './scripts/deploy/protocol/04_deployEASResolver';
 import './scripts/deploy/protocol/05_deployScoutProtocol';
 import './scripts/deploy/protocol/prepareScoutGameLaunchSafeTransaction';
 
+import './scripts/verifyViaTenderly';
 // Interactions ------------------------------
 import './scripts/interact/builderNftApp';
 import './scripts/interact/scoutProtocol';
@@ -40,6 +42,8 @@ import './scripts/interact/builderNftStarterPackApp';
 import './scripts/interact/vesting';
 import './scripts/interact/builderNftSeason02';
 import './scripts/interact/superchainBridge';
+
+// tdly.setup({ automaticVerifications: false });
 
 const PRIVATE_KEY = vars.get('PRIVATE_KEY');
 
@@ -74,45 +78,54 @@ const config: Omit<HardhatUserConfig, 'networks'> & { networks: Record<Supported
         accounts: [PRIVATE_KEY],
         // add gas to avoid errros on deploy https://ethereum.stackexchange.com/questions/115223/cannot-estimate-gas-transaction-may-fail-or-may-require-manual-gas-limit
         gas: 2100000,
-        gasPrice: 1e8
+        gasPrice: 1e8,
+        chainId: optimismSepolia.id
       },
       optimism: {
         url: connectors.optimism.rpcUrl,
         accounts: [PRIVATE_KEY],
         // add gas to avoid errros on deploy https://ethereum.stackexchange.com/questions/115223/cannot-estimate-gas-transaction-may-fail-or-may-require-manual-gas-limit
         gas: 2100000,
-        gasPrice: 1e11
+        gasPrice: 1e11,
+        chainId: optimism.id
       },
       sepolia: {
         url: connectors.sepolia.rpcUrl,
         accounts: [PRIVATE_KEY],
         // add gas to avoid errros on deploy https://ethereum.stackexchange.com/questions/115223/cannot-estimate-gas-transaction-may-fail-or-may-require-manual-gas-limit
-        gas: 8e9
+        gas: 8e9,
+        chainId: sepolia.id
       },
       basesepolia: {
         url: connectors.basesepolia.rpcUrl,
         accounts: [PRIVATE_KEY],
-        gasPrice: 4e8
+        gasPrice: 4e8,
+        chainId: baseSepolia.id
       },
       base: {
         url: connectors.basesepolia.rpcUrl,
         accounts: [PRIVATE_KEY],
-        gasPrice: 3e7
+        gasPrice: 3e7,
+        chainId: base.id
       },
+      // These are the default configs for the supersim chains in localhost
       supersimL1: {
         url: connectors.supersimL1.rpcUrl,
         accounts: [PRIVATE_KEY],
-        gasPrice: 3e7
+        gasPrice: 3e7,
+        chainId: 900
       },
       supersimL2A: {
         url: connectors.supersimL2A.rpcUrl,
         accounts: [PRIVATE_KEY],
-        gasPrice: 3e7
+        gasPrice: 3e7,
+        chainId: 901
       },
       supersimL2B: {
         url: connectors.supersimL2B.rpcUrl,
         accounts: [PRIVATE_KEY],
-        gasPrice: 3e7
+        gasPrice: 3e7,
+        chainId: 902
       }
     } as Record<SupportedChains, NetworksUserConfig[string]>,
     paths: {

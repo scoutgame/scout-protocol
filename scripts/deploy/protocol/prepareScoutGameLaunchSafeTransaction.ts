@@ -29,7 +29,7 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     const safeAddress = getScoutProtocolSafeAddress();
 
     // ERC20
-    const scoutTokenERC20ProxyAddress = '' as Address;
+    const scoutTokenERC20ProxyAddress = '0x0b420076b8e3c9778179baaeb6c69a95904ad6fe' as Address;
     const erc20Decimals = BigInt(10) ** BigInt(18);
 
     if (!isAddress(scoutTokenERC20ProxyAddress)) {
@@ -71,8 +71,8 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     ];
 
     // ERC1155
-    const scoutBuilderNFTERC1155ProxyAddress = '' as Address;
-    const scoutProtocolBuilderNftMinterAddress = '' as Address;
+    const scoutBuilderNFTERC1155ProxyAddress = '0x0f052528167f73add2f2bf175dafced47eda3509' as Address;
+    const scoutProtocolBuilderNftMinterAddress = '0x7388202AEA587c5748F3d1E0ad63ff3A2C6b3Ed4' as Address;
 
     if (!isAddress(scoutBuilderNFTERC1155ProxyAddress)) {
       throw new Error('Invalid Scout Builder NFT ERC1155 Proxy Address');
@@ -120,8 +120,8 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     ];
 
     // EAS Resolver Config
-    const easResolverAddress = '' as Address;
-    const easAttesterWalletAddress = '' as Address;
+    const easResolverAddress = '0x4f9a6351030e058c9db10e2048d5f4d35f4e15f9' as Address;
+    const easAttesterWalletAddress = '0x7388202AEA587c5748F3d1E0ad63ff3A2C6b3Ed4' as Address;
 
     const easResolverAbi = [
       {
@@ -149,7 +149,7 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
 
     // Protocol Funding Config
     // Make sure this is the actual allocation
-    const _season01ProtocolTokenAllocationAsWholeNumber = 100;
+    const _season01ProtocolTokenAllocationAsWholeNumber = 500_000;
 
     if (_season01ProtocolTokenAllocationAsWholeNumber <= 1_000) {
       throw new Error('Invalid Season 01 Protocol Token Allocation. Make sure this is the actual allocation');
@@ -157,14 +157,16 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
 
     const season01ProtocolTokenAllocation = BigInt(_season01ProtocolTokenAllocationAsWholeNumber) * erc20Decimals;
 
-    const scoutProtocolAddress = '' as Address;
+    console.log('season01ProtocolTokenAllocation', season01ProtocolTokenAllocation);
+
+    const scoutProtocolAddress = '0x19a4939eb68d143da6c7814e4f719dd083f8face' as Address;
 
     if (!isAddress(scoutProtocolAddress)) {
       throw new Error('Invalid Scout Protocol Address');
     }
 
     // Sablier Lockup Tranched
-    const sablierLockupTranchedAddress = '' as Address;
+    const sablierLockupTranchedAddress = '0x8227c1bdcd7097f4aff2f9e448405c29263ec60b' as Address;
 
     const lockupAbi = [
       {
@@ -288,16 +290,16 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
 
     safeTransactionData.push(easResolverSetAttesterWalletTxData);
 
-    // Phase 4 - Create the stream
+    // Phase 4 - Approve the Sablier Lockup to transfer the tokens
 
     const encodedLockupApproveData = encodeFunctionData({
       abi: erc20Abi,
       functionName: 'approve',
-      args: [scoutProtocolAddress, season01ProtocolTokenAllocation]
+      args: [sablierLockupTranchedAddress, season01ProtocolTokenAllocation]
     });
 
     const lockupApproveTxData = {
-      to: getAddress(sablierLockupTranchedAddress),
+      to: getAddress(scoutTokenERC20ProxyAddress),
       data: encodedLockupApproveData,
       operation: OperationType.Call,
       value: '0'
