@@ -5,7 +5,7 @@ import type { MetaTransactionData } from '@safe-global/types-kit';
 import { OperationType } from '@safe-global/types-kit';
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
-import type { Address } from 'viem';
+import inquirer from 'inquirer';
 import { encodeFunctionData, getAddress, isAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
@@ -18,6 +18,122 @@ const PRIVATE_KEY = (
   process.env.PRIVATE_KEY?.startsWith('0x') ? process.env.PRIVATE_KEY : `0x${process.env.PRIVATE_KEY}`
 ) as `0x${string}`;
 
+const erc20Abi = [
+  {
+    inputs: [],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'spender',
+        type: 'address'
+      },
+      {
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256'
+      }
+    ],
+    name: 'approve',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool'
+      }
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+];
+
+const erc1155Abi = [
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_minter',
+        type: 'address'
+      }
+    ],
+    name: 'setMinter',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  },
+  {
+    inputs: [
+      {
+        internalType: 'string',
+        name: '_prefix',
+        type: 'string'
+      },
+      {
+        internalType: 'string',
+        name: '_suffix',
+        type: 'string'
+      }
+    ],
+    name: 'setBaseUri',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+];
+
+const easResolverAbi = [
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: '_attesterWallet',
+        type: 'address'
+      }
+    ],
+    name: 'setAttesterWallet',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+];
+
+const lockupAbi = [
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'recipient',
+        type: 'address'
+      },
+      {
+        internalType: 'uint128',
+        name: 'totalAmount',
+        type: 'uint128'
+      },
+      {
+        internalType: 'uint128',
+        name: '_startDate',
+        type: 'uint128'
+      }
+    ],
+    name: 'createStream',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'streamId',
+        type: 'uint256'
+      }
+    ],
+    stateMutability: 'nonpayable',
+    type: 'function'
+  }
+];
+
 task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game ERC20 contract').setAction(
   async (taskArgs, hre) => {
     const connector = getConnectorFromHardhatRuntimeEnvironment(hre);
@@ -25,183 +141,119 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     // ---------------------------------------------------------------------
     // Enter the address of all the contracts here
 
+    const {
+      easAttesterWalletAddress,
+      easResolverAddress,
+      // UTC Timestamp is be in seconds
+      // https://www.epochconverter.com/ is a great tool for getting a timestamp for a date
+      // The timestamp should be lower than or equal to midnight of the start of week 02 of the season
+      firstTokenDistributionTimestamp,
+      nftPrefix,
+      nftSuffix,
+      sablierLockupTranchedAddress,
+      scoutBuilderNFTERC1155ProxyAddress,
+      scoutProtocolAddress,
+      scoutProtocolBuilderNftMinterAddress,
+      scoutTokenERC20ProxyAddress,
+      season01ProtocolTokenAllocation
+    } = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'scoutTokenERC20ProxyAddress',
+        message: 'Enter the Scout Token ERC20 Proxy Address:',
+        validate: (input) => isAddress(input) || 'Please enter a valid address'
+      },
+      {
+        type: 'input',
+        name: 'scoutBuilderNFTERC1155ProxyAddress',
+        message: 'Enter the Scout Builder NFT ERC1155 Proxy Address:',
+        validate: (input) => isAddress(input) || 'Please enter a valid address'
+      },
+      {
+        type: 'input',
+        name: 'scoutProtocolBuilderNftMinterAddress',
+        message: 'Enter the Scout Protocol Builder NFT Minter Address:',
+        validate: (input) => isAddress(input) || 'Please enter a valid address'
+      },
+      {
+        type: 'input',
+        name: 'nftPrefix',
+        message: 'Enter the NFT metadata prefix URL:',
+        validate: (input) => {
+          try {
+            // eslint-disable-next-line no-new
+            new URL(input);
+            return !input.includes('awsresourcehere') || 'Please enter the actual AWS URL for storing the NFT images';
+          } catch {
+            return 'Please enter a valid URL';
+          }
+        }
+      },
+      {
+        type: 'input',
+        name: 'nftSuffix',
+        message: 'Enter the NFT metadata suffix:',
+        default: 'metadata.json'
+      },
+      {
+        type: 'input',
+        name: 'easResolverAddress',
+        message: 'Enter the EAS Resolver Address:',
+        validate: (input) => isAddress(input) || 'Please enter a valid address'
+      },
+      {
+        type: 'input',
+        name: 'easAttesterWalletAddress',
+        message: 'Enter the EAS Attester Wallet Address:',
+        validate: (input) => isAddress(input) || 'Please enter a valid address'
+      },
+      {
+        type: 'number',
+        name: 'season01ProtocolTokenAllocation',
+        message: 'Enter the Season 01 Protocol Token Allocation (whole number without 18 decimals):',
+        validate: (input) => (input ?? 0) > 1000 || 'Allocation must be greater than 1000'
+      },
+      {
+        type: 'input',
+        name: 'scoutProtocolAddress',
+        message: 'Enter the Scout Protocol Address:',
+        validate: (input) => isAddress(input) || 'Please enter a valid address'
+      },
+      {
+        type: 'input',
+        name: 'sablierLockupTranchedAddress',
+        message: 'Enter the Sablier Lockup Tranched Address:',
+        validate: (input) => isAddress(input) || 'Please enter a valid address'
+      },
+      {
+        type: 'number',
+        name: 'firstTokenDistributionTimestamp',
+        message: 'Enter the first token distribution timestamp (UTC in seconds):',
+        validate: (input) => (input ?? 0) > 0 || 'Please enter a valid timestamp'
+      }
+    ]);
+
+    log.info('Collected all required addresses and parameters');
+
     // Safe Address which admins all contracts
     const safeAddress = getScoutProtocolSafeAddress();
 
     // ERC20
-    const scoutTokenERC20ProxyAddress = '0x0b420076b8e3c9778179baaeb6c69a95904ad6fe' as Address;
+
     const erc20Decimals = BigInt(10) ** BigInt(18);
+    const season01ProtocolTokenAllocationWithDecimals = BigInt(season01ProtocolTokenAllocation) * erc20Decimals;
 
     if (!isAddress(scoutTokenERC20ProxyAddress)) {
       throw new Error('Invalid Scout Token ERC20 Proxy Address');
     }
 
-    const erc20Abi = [
-      {
-        inputs: [],
-        name: 'initialize',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function'
-      },
-      {
-        inputs: [
-          {
-            internalType: 'address',
-            name: 'spender',
-            type: 'address'
-          },
-          {
-            internalType: 'uint256',
-            name: 'value',
-            type: 'uint256'
-          }
-        ],
-        name: 'approve',
-        outputs: [
-          {
-            internalType: 'bool',
-            name: '',
-            type: 'bool'
-          }
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function'
-      }
-    ];
-
-    // ERC1155
-    const scoutBuilderNFTERC1155ProxyAddress = '0x0f052528167f73add2f2bf175dafced47eda3509' as Address;
-    const scoutProtocolBuilderNftMinterAddress = '0x7388202AEA587c5748F3d1E0ad63ff3A2C6b3Ed4' as Address;
-
-    if (!isAddress(scoutBuilderNFTERC1155ProxyAddress)) {
-      throw new Error('Invalid Scout Builder NFT ERC1155 Proxy Address');
-    }
-
-    if (!isAddress(scoutProtocolBuilderNftMinterAddress)) {
-      throw new Error('Invalid Scout Builder NFT Minter Address');
-    }
-
-    const nftPrefix = 'https://awsresourcehere.com/';
-    const nftSuffix = 'metadata.json';
-
-    const erc1155Abi = [
-      {
-        inputs: [
-          {
-            internalType: 'address',
-            name: '_minter',
-            type: 'address'
-          }
-        ],
-        name: 'setMinter',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function'
-      },
-      {
-        inputs: [
-          {
-            internalType: 'string',
-            name: '_prefix',
-            type: 'string'
-          },
-          {
-            internalType: 'string',
-            name: '_suffix',
-            type: 'string'
-          }
-        ],
-        name: 'setBaseUri',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function'
-      }
-    ];
-
-    // EAS Resolver Config
-    const easResolverAddress = '0x4f9a6351030e058c9db10e2048d5f4d35f4e15f9' as Address;
-    const easAttesterWalletAddress = '0x7388202AEA587c5748F3d1E0ad63ff3A2C6b3Ed4' as Address;
-
-    const easResolverAbi = [
-      {
-        inputs: [
-          {
-            internalType: 'address',
-            name: '_attesterWallet',
-            type: 'address'
-          }
-        ],
-        name: 'setAttesterWallet',
-        outputs: [],
-        stateMutability: 'nonpayable',
-        type: 'function'
-      }
-    ];
-
-    if (!isAddress(easResolverAddress)) {
-      throw new Error('Invalid EAS Resolver Address');
-    }
-
-    if (!isAddress(easAttesterWalletAddress)) {
-      throw new Error('Invalid EAS Attester Wallet Address');
-    }
-
     // Protocol Funding Config
     // Make sure this is the actual allocation
-    const _season01ProtocolTokenAllocationAsWholeNumber = 500_000;
+    const _season01ProtocolTokenAllocationAsWholeNumber = 100;
 
     if (_season01ProtocolTokenAllocationAsWholeNumber <= 1_000) {
       throw new Error('Invalid Season 01 Protocol Token Allocation. Make sure this is the actual allocation');
     }
-
-    const season01ProtocolTokenAllocation = BigInt(_season01ProtocolTokenAllocationAsWholeNumber) * erc20Decimals;
-
-    console.log('season01ProtocolTokenAllocation', season01ProtocolTokenAllocation);
-
-    const scoutProtocolAddress = '0x19a4939eb68d143da6c7814e4f719dd083f8face' as Address;
-
-    if (!isAddress(scoutProtocolAddress)) {
-      throw new Error('Invalid Scout Protocol Address');
-    }
-
-    // Sablier Lockup Tranched
-    const sablierLockupTranchedAddress = '0x8227c1bdcd7097f4aff2f9e448405c29263ec60b' as Address;
-
-    const lockupAbi = [
-      {
-        inputs: [
-          {
-            internalType: 'address',
-            name: 'recipient',
-            type: 'address'
-          },
-          {
-            internalType: 'uint128',
-            name: 'totalAmount',
-            type: 'uint128'
-          },
-          {
-            internalType: 'uint128',
-            name: '_startDate',
-            type: 'uint128'
-          }
-        ],
-        name: 'createStream',
-        outputs: [
-          {
-            internalType: 'uint256',
-            name: 'streamId',
-            type: 'uint256'
-          }
-        ],
-        stateMutability: 'nonpayable',
-        type: 'function'
-      }
-    ];
-
-    // UTC Timestamp is be in seconds
-    const firstTokenDistributionTimestamp = 1_743_984_000;
 
     /// -------- Start Safe Code --------
     const protocolKitProposer = await Safe.init({
@@ -295,7 +347,7 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     const encodedLockupApproveData = encodeFunctionData({
       abi: erc20Abi,
       functionName: 'approve',
-      args: [sablierLockupTranchedAddress, season01ProtocolTokenAllocation]
+      args: [sablierLockupTranchedAddress, season01ProtocolTokenAllocationWithDecimals]
     });
 
     const lockupApproveTxData = {
@@ -312,7 +364,7 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
     const encodedLockupCreateStreamData = encodeFunctionData({
       abi: lockupAbi,
       functionName: 'createStream',
-      args: [scoutProtocolAddress, season01ProtocolTokenAllocation, BigInt(firstTokenDistributionTimestamp)]
+      args: [scoutProtocolAddress, season01ProtocolTokenAllocationWithDecimals, BigInt(firstTokenDistributionTimestamp)]
     });
 
     const lockupCreateStreamTxData = {
