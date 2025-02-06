@@ -7,8 +7,8 @@ import type { Address } from 'viem';
 import { createPublicClient, createWalletClient, http, isAddress, parseAbiItem } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
-import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../lib/connectors';
-import { getScoutProtocolSafeAddress } from '../../lib/constants';
+import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../../lib/connectors';
+import { getScoutProtocolSafeAddress } from '../../../lib/constants';
 
 dotenv.config();
 

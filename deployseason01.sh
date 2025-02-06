@@ -53,6 +53,6 @@ fi
 npm run scout:deploy:protocol $NETWORK || exit 1
 echo "Protocol deployment completed."
 
-
-npm run scout:launch:season01 $NETWORK || exit 1
-echo "Scout Game Launch Safe Transaction deployment completed."
+echo -e "Copy over the contract addresses to scripts/deploy/prepareScoutGameLaunchSafeTransaction.ts"
+echo -e "Once done, run this command to deploy the safe transaction:"
+echo -e "\033[1;34mnpm run scout:launch:season01\033[0m"
