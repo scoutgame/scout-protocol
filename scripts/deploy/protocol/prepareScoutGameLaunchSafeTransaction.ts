@@ -160,25 +160,25 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
       {
         type: 'input',
         name: 'scoutTokenERC20ProxyAddress',
-        message: 'Enter the Scout Token ERC20 Proxy Address:',
+        message: '[Contract] Enter the Scout Token ERC20 Proxy Address:',
         validate: (input) => isAddress(input) || 'Please enter a valid address'
       },
       {
         type: 'input',
         name: 'scoutBuilderNFTERC1155ProxyAddress',
-        message: 'Enter the Scout Builder NFT ERC1155 Proxy Address:',
+        message: '[Contract] Enter the Scout Builder NFT ERC1155 Proxy Address:',
         validate: (input) => isAddress(input) || 'Please enter a valid address'
       },
       {
         type: 'input',
         name: 'scoutProtocolBuilderNftMinterAddress',
-        message: 'Enter the Scout Protocol Builder NFT Minter Address:',
+        message: '[Wallet]Enter the Scout Protocol Builder NFT Minter Address:',
         validate: (input) => isAddress(input) || 'Please enter a valid address'
       },
       {
         type: 'input',
         name: 'nftPrefix',
-        message: 'Enter the NFT metadata prefix URL:',
+        message: '[Base URL] Enter the NFT metadata prefix URL:',
         validate: (input) => {
           try {
             // eslint-disable-next-line no-new
@@ -192,43 +192,43 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
       {
         type: 'input',
         name: 'nftSuffix',
-        message: 'Enter the NFT metadata suffix:',
+        message: '[Filename] Enter the NFT metadata suffix:',
         default: 'metadata.json'
       },
       {
         type: 'input',
         name: 'easResolverAddress',
-        message: 'Enter the EAS Resolver Address:',
+        message: '[Contract] Enter the EAS Resolver Address:',
         validate: (input) => isAddress(input) || 'Please enter a valid address'
       },
       {
         type: 'input',
         name: 'easAttesterWalletAddress',
-        message: 'Enter the EAS Attester Wallet Address:',
+        message: '[Wallet] Enter the EAS Attester Wallet Address:',
         validate: (input) => isAddress(input) || 'Please enter a valid address'
       },
       {
         type: 'number',
         name: 'season01ProtocolTokenAllocation',
-        message: 'Enter the Season 01 Protocol Token Allocation (whole number without 18 decimals):',
+        message: '[Token Amount] Enter the Season 01 Protocol Token Allocation (whole number without 18 decimals):',
         validate: (input) => (input ?? 0) > 1000 || 'Allocation must be greater than 1000'
       },
       {
         type: 'input',
         name: 'scoutProtocolAddress',
-        message: 'Enter the Scout Protocol Address:',
+        message: '[Contract] Enter the Scout Protocol Address:',
         validate: (input) => isAddress(input) || 'Please enter a valid address'
       },
       {
         type: 'input',
         name: 'sablierLockupTranchedAddress',
-        message: 'Enter the Sablier Lockup Tranched Address:',
+        message: '[Contract] Enter the Sablier Lockup Tranched Address:',
         validate: (input) => isAddress(input) || 'Please enter a valid address'
       },
       {
         type: 'number',
         name: 'firstTokenDistributionTimestamp',
-        message: 'Enter the first token distribution timestamp (UTC in seconds):',
+        message: '[Date] Enter the first token distribution timestamp (UTC in seconds):',
         validate: (input) => (input ?? 0) > 0 || 'Please enter a valid timestamp'
       }
     ]);
@@ -245,14 +245,6 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
 
     if (!isAddress(scoutTokenERC20ProxyAddress)) {
       throw new Error('Invalid Scout Token ERC20 Proxy Address');
-    }
-
-    // Protocol Funding Config
-    // Make sure this is the actual allocation
-    const _season01ProtocolTokenAllocationAsWholeNumber = 100;
-
-    if (_season01ProtocolTokenAllocationAsWholeNumber <= 1_000) {
-      throw new Error('Invalid Season 01 Protocol Token Allocation. Make sure this is the actual allocation');
     }
 
     /// -------- Start Safe Code --------
