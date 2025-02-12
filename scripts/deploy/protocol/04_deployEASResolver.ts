@@ -8,6 +8,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../../lib/connectors';
 import { getScoutProtocolSafeAddress } from '../../../lib/constants';
+import { outputContractAddress } from '../../../lib/outputContract';
 
 dotenv.config();
 
@@ -60,6 +61,12 @@ task('deployEASResolver', 'Deploys or updates the EAS Resolver and scoutgame att
     }
 
     console.log('EAS Resolver contract deployed at:', deployedResolver.address);
+
+    outputContractAddress({
+      name: 'ProtocolEASResolver',
+      address: resolverAddress,
+      network: getConnectorKey(connector.chain.id)
+    });
 
     console.log(`Transferring Admin role to Safe Address: ${adminAddress}`);
 

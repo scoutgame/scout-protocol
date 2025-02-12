@@ -8,6 +8,7 @@ import { createWalletClient, http, isAddress } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../../lib/connectors';
+import { outputContractAddress } from '../../../lib/outputContract';
 
 dotenv.config();
 
@@ -50,6 +51,12 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
   if (!sablierLockupAddress) {
     throw new Error('Failed to deploy erc20 contract');
   }
+
+  outputContractAddress({
+    name: 'SablierLockupWeeklyStreamCreator',
+    address: sablierLockupAddress,
+    network: getConnectorKey(connector.chain.id)
+  });
 
   // Verify contract in the explorer
 
