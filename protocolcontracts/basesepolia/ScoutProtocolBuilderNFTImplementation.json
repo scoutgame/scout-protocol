@@ -1,6 +1,6 @@
 {
   "name": "ScoutProtocolBuilderNFTImplementation",
-  "address": "0x61579c907c89569e4c02f3c0fd5f3c504ff2f16c",
+  "address": "0xb8031be723081ed7b9fc5ac47475cdf9f70cbbd4",
   "network": "basesepolia",
   "contractArtifactSource": "contracts/protocol/contracts/ERC1155/ScoutProtocolBuilderNFTImplementation.sol:ScoutProtocolBuilderNFTImplementation",
   "metadata": {},

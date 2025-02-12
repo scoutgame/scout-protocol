@@ -1,11 +1,11 @@
 {
   "name": "ScoutProtocolProxy",
-  "address": "0xb9814ac8dc2a1150349e1202e479195a37a33ba2",
+  "address": "0xf697c46412683c0d83d5482dc26c8e4cd63972b6",
   "network": "basesepolia",
   "contractArtifactSource": "contracts/protocol/contracts/ScoutProtocol/ScoutProtocolProxy.sol:ScoutProtocolProxy",
   "metadata": {},
   "deployArgs": [
-    "0x62b803b0b0923fd1ca38965479be5b6af534e6d8",
-    "0xe4164d44027d6d4f86f608e9854ef381a02ec398"
+    "0xc2ea862c983c3ea57221e7b538f9cd7712cddd54",
+    "0xae2a92bde75a5e1484fc279633bffdb58819c1f3"
   ]
 }

@@ -103,7 +103,7 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
     log.info('Using account:', account.address, 'on chain:', connector.chain.name);
 
     // Encode the function call with parameters
-    const salt = '0x00055555555555555555535155b88848f5599cdaaae328fbdd36ff0682012291';
+    const salt = '0x00055555555555555555535155b88848f5599cdaaae328fbdd36ff0682012292';
 
     // Base will hold the supply, and other L2s will be compatible
 

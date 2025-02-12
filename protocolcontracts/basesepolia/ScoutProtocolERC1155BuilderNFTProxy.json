@@ -1,12 +1,12 @@
 {
   "name": "ScoutProtocolERC1155BuilderNFTProxy",
-  "address": "0xbafe58108397d993ea95ef7899541064abc0d23a",
+  "address": "0xa7ab91644fc037b79c1bc3c6c642a46e65b53b0d",
   "network": "basesepolia",
   "contractArtifactSource": "contracts/protocol/contracts/ERC1155/ScoutProtocolBuilderNFTProxy.sol:ScoutProtocolBuilderNFTProxy",
   "metadata": {},
   "deployArgs": [
-    "0x61579c907c89569e4c02f3c0fd5f3c504ff2f16c",
-    "0xe4164d44027d6d4f86f608e9854ef381a02ec398",
+    "0xb8031be723081ed7b9fc5ac47475cdf9f70cbbd4",
+    "0xae2a92bde75a5e1484fc279633bffdb58819c1f3",
     "0x93326D53d1E8EBf0af1Ff1B233c46C67c96e4d8D",
     "\"ScoutGame (Season 01)\"",
     "\"SCOUTGAME-S01\""
