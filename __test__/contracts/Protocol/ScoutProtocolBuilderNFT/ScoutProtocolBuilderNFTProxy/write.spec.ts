@@ -37,7 +37,7 @@ describe('ScoutProtocolBuilderNFTProxy', function () {
         ).resolves.toBeDefined();
 
         const implementationAddress = await scoutProtocolBuilderNFT.builderProxyContract.read.implementation();
-        expect(getAddress(implementationAddress)).toEqual(getAddress(newImplementation.address));
+        expect(getAddress(implementationAddress as string)).toEqual(getAddress(newImplementation.address));
       });
     });
 

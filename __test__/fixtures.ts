@@ -1,10 +1,10 @@
 import { loadFixture } from '@nomicfoundation/hardhat-toolbox-viem/network-helpers';
 
 import { deployBuilderNftContract } from './deployBuilderNft';
-import { deployScoutGamePreSeason02NftContract } from './deployScoutGamePreSeason02NftContract';
 import { deployBuilderNftStarterPackContract } from './deployBuilderNftStarterPack';
 import { deployEASContracts } from './deployEAS';
 import { deployProtocolContract } from './deployProtocol';
+import { deployScoutGamePreSeason02NftContract } from './deployScoutGamePreSeason02NftContract';
 import { deployScoutProtocolBuilderNftContract } from './deployScoutProtocolBuilderNft';
 import { deployScoutTokenERC20 } from './deployScoutTokenERC20';
 import { deployTestUSDC } from './deployTestUSDC';

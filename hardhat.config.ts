@@ -1,13 +1,11 @@
-import type { HardhatUserConfig } from 'hardhat/config';
-import { vars } from 'hardhat/config';
-
 import 'solidity-coverage';
 import '@nomicfoundation/hardhat-ethers';
 import '@nomicfoundation/hardhat-ignition-viem';
 import '@nomicfoundation/hardhat-toolbox-viem';
 import '@nomicfoundation/hardhat-viem';
 import 'hardhat-jest'; // Enable support for Jest: https://www.npmjs.com/package/hardhat-jest
-
+import type { HardhatUserConfig } from 'hardhat/config';
+import { vars } from 'hardhat/config';
 import type { NetworksUserConfig } from 'hardhat/types';
 import { base, baseSepolia, optimism, optimismSepolia, sepolia } from 'viem/chains';
 

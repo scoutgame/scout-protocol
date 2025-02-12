@@ -1,3 +1,4 @@
+import type { Address } from 'viem';
 import { getAddress } from 'viem';
 
 import type { ScoutProtocolBuilderNFTFixture } from '../../../../deployScoutProtocolBuilderNft';
@@ -16,7 +17,7 @@ describe('ScoutProtocolBuilderNFTProxy', function () {
     describe('returns', function () {
       it('Returns the current implementation address', async function () {
         const implementationAddress = await scoutProtocolBuilderNFT.builderProxyContract.read.implementation();
-        expect(getAddress(implementationAddress)).toEqual(
+        expect(getAddress(implementationAddress as Address)).toEqual(
           getAddress(scoutProtocolBuilderNFT.builderImplementationContract.address)
         );
       });

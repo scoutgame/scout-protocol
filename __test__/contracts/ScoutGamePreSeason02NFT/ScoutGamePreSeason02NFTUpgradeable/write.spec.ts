@@ -1,8 +1,8 @@
 import { viem } from 'hardhat';
 import { getAddress } from 'viem';
 
-import type { BuilderNftSeason02Fixture } from '../../../deployScoutGamePreSeason02NftContract';
 import { deployEASContracts } from '../../../deployEAS';
+import type { BuilderNftSeason02Fixture } from '../../../deployScoutGamePreSeason02NftContract';
 import { loadBuilderNFTPreSeason02Fixtures } from '../../../fixtures';
 import { walletFromKey, type GeneratedWallet } from '../../../generateWallets';
 
