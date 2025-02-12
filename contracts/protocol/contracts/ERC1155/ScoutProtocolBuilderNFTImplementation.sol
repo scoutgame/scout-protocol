@@ -321,7 +321,7 @@ contract ScoutProtocolBuilderNFTImplementation is
         uint256 totalSupplyForTokenId = totalSupply(tokenId);
 
         require(
-            totalSupplyForTokenId + amount <= 50,
+            totalSupplyForTokenId + amount <= maxSupplyPerToken(),
             "Token supply limit reached"
         );
 
@@ -585,5 +585,21 @@ contract ScoutProtocolBuilderNFTImplementation is
 
     function acceptUpgrade() public view returns (address) {
         return address(this);
+    }
+
+    function setMaxSupplyPerToken(uint256 newMaxSupply) external onlyAdmin {
+        require(newMaxSupply > 0, "Max supply must be greater than 0");
+
+        MemoryUtils._setUint256(
+            ScoutProtocolBuilderNFTStorage.MAX_SUPPLY_SLOT,
+            newMaxSupply
+        );
+    }
+
+    function maxSupplyPerToken() public view returns (uint256) {
+        return
+            MemoryUtils._getUint256(
+                ScoutProtocolBuilderNFTStorage.MAX_SUPPLY_SLOT
+            );
     }
 }

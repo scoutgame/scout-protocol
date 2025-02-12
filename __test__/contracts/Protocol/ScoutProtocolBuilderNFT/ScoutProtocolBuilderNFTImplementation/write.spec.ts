@@ -1428,4 +1428,45 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
       });
     });
   });
+
+  describe('setMaxSupplyPerToken()', function () {
+    describe('effects', function () {
+      it('Updates the max supply per token', async function () {
+        const newMaxSupply = BigInt(127);
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.setMaxSupplyPerToken([newMaxSupply], {
+            account: erc1155AdminAccount.account
+          })
+        ).resolves.toBeDefined();
+
+        const maxSupply = await scoutProtocolBuilderNFT.builderNftContract.read.maxSupplyPerToken();
+        expect(maxSupply).toEqual(newMaxSupply);
+      });
+    });
+
+    describe('permissions', function () {
+      it('Only admin can set the max supply per token', async function () {
+        const newMaxSupply = BigInt(128);
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.setMaxSupplyPerToken([newMaxSupply], {
+            account: userAccount.account
+          })
+        ).rejects.toThrow('Caller is not the admin');
+      });
+    });
+
+    describe('validations', function () {
+      it('Reverts if new max supply is zero', async function () {
+        const newMaxSupply = BigInt(0);
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.setMaxSupplyPerToken([newMaxSupply], {
+            account: erc1155AdminAccount.account
+          })
+        ).rejects.toThrow('Max supply must be greater than 0');
+      });
+    });
+  });
 });
