@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-type DeployedContractInfo = {
+export type DeployedContractInfo = {
   name: string;
   address: string;
   network: string;
