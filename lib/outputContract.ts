@@ -1,7 +1,23 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-export function outputContractAddress({ name, address, network }: { name: string; address: string; network: string }) {
+type DeployedContractInfo = {
+  name: string;
+  address: string;
+  network: string;
+  contractArtifactSource: string;
+  metadata?: any;
+  deployArgs?: any[];
+};
+
+export function outputContractAddress({
+  name,
+  address,
+  network,
+  contractArtifactSource,
+  metadata = {},
+  deployArgs = []
+}: DeployedContractInfo) {
   // Check if protocolcontracts directory exists, create if not
   const contractsDir = path.resolve('protocolcontracts');
   if (!fs.existsSync(contractsDir)) {
@@ -15,5 +31,8 @@ export function outputContractAddress({ name, address, network }: { name: string
   }
 
   const contractFile = path.join(contractWithNetworkDir, `${name}.json`);
-  fs.writeFileSync(contractFile, JSON.stringify({ name, address, network }, null, 2));
+  fs.writeFileSync(
+    contractFile,
+    JSON.stringify({ name, address, network, contractArtifactSource, metadata, deployArgs }, null, 2)
+  );
 }

@@ -31,14 +31,15 @@ case $NETWORK in
     ;;
 esac
 
-CONTRACTS_DIR="protocolcontracts/${NETWORK}"
 
-# Delete existing contracts directory if it exists
+CONTRACTS_DIR="protocolcontracts/$NETWORK"
+
+# Check if contracts directory exists and remove it
 if [ -d "$CONTRACTS_DIR" ]; then
+    echo "Removing existing contracts directory: $CONTRACTS_DIR"
     rm -rf "$CONTRACTS_DIR"
 fi
 
-exit 0
 
 
 echo -e "While this script runs, it will deploy the following contracts:"
@@ -70,7 +71,7 @@ echo ""
 echo "----------------------------------------"
 echo ""
 
-echo -e "All contract addresses have been saved to the protocolcontracts/${NETWORK} directory."
+echo -e "All contract addresses have been saved to the $CONTRACTS_DIR directory."
 
 echo ""
 echo "----------------------------------------"

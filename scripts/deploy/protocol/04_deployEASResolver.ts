@@ -65,7 +65,9 @@ task('deployEASResolver', 'Deploys or updates the EAS Resolver and scoutgame att
     outputContractAddress({
       name: 'ProtocolEASResolver',
       address: resolverAddress,
-      network: getConnectorKey(connector.chain.id)
+      network: getConnectorKey(connector.chain.id),
+      contractArtifactSource: 'contracts/protocol/contracts/EAS/ProtocolEASResolver.sol:ProtocolEASResolver',
+      deployArgs: deployArgs.slice()
     });
 
     console.log(`Transferring Admin role to Safe Address: ${adminAddress}`);

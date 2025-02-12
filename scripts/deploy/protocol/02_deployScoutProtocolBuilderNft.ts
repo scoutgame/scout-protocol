@@ -54,6 +54,15 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
       console.warn('Error verifying contract', err);
     }
 
+    outputContractAddress({
+      name: 'ScoutProtocolBuilderNFTImplementation',
+      address: implementationAddress,
+      network: getConnectorKey(connector.chain.id),
+      contractArtifactSource:
+        'contracts/protocol/contracts/ERC1155/ScoutProtocolBuilderNFTImplementation.sol:ScoutProtocolBuilderNFTImplementation',
+      deployArgs: []
+    });
+
     let deployNew = true;
 
     // Prompt the user to update the implementation if the proxy already exists
@@ -189,7 +198,10 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
       outputContractAddress({
         name: 'ScoutProtocolERC1155BuilderNFTProxy',
         address: proxyAddress,
-        network: getConnectorKey(connector.chain.id)
+        contractArtifactSource:
+          'contracts/protocol/contracts/ERC1155/ScoutProtocolBuilderNFTProxy.sol:ScoutProtocolBuilderNFTProxy',
+        network: getConnectorKey(connector.chain.id),
+        deployArgs: deployArgs.slice()
       });
 
       try {

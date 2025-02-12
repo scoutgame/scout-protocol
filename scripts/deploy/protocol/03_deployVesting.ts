@@ -55,7 +55,10 @@ task('deployVesting', 'Deploys or updates the Sablier Vesting contract').setActi
   outputContractAddress({
     name: 'SablierLockupWeeklyStreamCreator',
     address: sablierLockupAddress,
-    network: getConnectorKey(connector.chain.id)
+    contractArtifactSource:
+      'contracts/protocol/contracts/Vesting/SablierLockupWeeklyStreamCreator.sol:SablierLockupWeeklyStreamCreator',
+    network: getConnectorKey(connector.chain.id),
+    deployArgs: deployArgs.slice()
   });
 
   // Verify contract in the explorer
