@@ -16,6 +16,5 @@
       ]
     },
     "types": ["jest"]
-  },
-  "include": ["**/*.ts", "./artifacts/**/*.d.ts"]
+  }
 }
