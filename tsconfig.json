@@ -8,12 +8,14 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "paths": {
-      "artifacts/*": ["./artifacts/*"],
       "@charmverse/core/log": [
         "./node_modules/@charmverse/core/dist/cjs/lib/log"
+      ],
+      "@charmverse/core/protocol": [
+        "./node_modules/@charmverse/core/dist/cjs/lib/protocol"
       ]
     },
     "types": ["jest"]
   },
-  "include": ["./artifacts/**/*.d.ts"]
+  "include": ["**/*.ts", "./artifacts/**/*.d.ts"]
 }

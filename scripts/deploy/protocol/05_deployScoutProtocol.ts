@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-
+import 'hardhat/types/artifacts';
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
 import inquirer from 'inquirer';

@@ -59,7 +59,7 @@
     "prettier": "^3.3.3",
     "prettier-plugin-solidity": "^1.4.1",
     "solady": "^0.0.177",
-    "ts-jest": "^29.1.2",
+    "ts-jest": "^29.2.5",
     "typechain": "^8.3.2",
     "typescript": "^5.7.3"
   },
@@ -82,7 +82,7 @@
     "inquirer": "^11.0.1",
     "solidity-coverage": "^0.8.14",
     "uuid": "^10.0.0",
-    "viem": "^2.23.2"
+    "viem": "^2.21.9"
   },
   "overrides": {
     "chai": "^4.4.1"
