@@ -1,10 +1,10 @@
 {
   "name": "ScoutTokenERC20Implementation",
-  "address": "0xf92d9aacb7f033dd01119775a11db69516b670ab",
+  "address": "0x2592549abcce423732e4bd976aae56590d231a95",
   "network": "basesepolia",
   "contractArtifactSource": "contracts/protocol/contracts/ERC20/ScoutTokenERC20Implementation.sol:ScoutTokenERC20Implementation",
   "metadata": {
-    "salt": "0x00055555555555555555535155b88848f5599cdaaae328fbdd36ff0682012292"
+    "salt": "0x00055555555555555555535155b88848f5599cdaaae328fbdd36ff0682012291"
   },
   "deployArgs": []
 }

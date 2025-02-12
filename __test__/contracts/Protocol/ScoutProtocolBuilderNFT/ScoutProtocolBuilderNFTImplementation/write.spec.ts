@@ -484,6 +484,10 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
 
     describe('validations', function () {
       it('Reverts if token supply limit is reached', async function () {
+        await scoutProtocolBuilderNFT.builderNftContract.write.setMaxSupplyPerToken([BigInt(78)], {
+          account: erc1155AdminAccount.account
+        });
+
         const { tokenId } = await registerBuilderToken({
           wallet: erc1155AdminAccount,
           nft: scoutProtocolBuilderNFT
@@ -493,7 +497,7 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
           wallet: userAccount,
           erc20: token,
           nft: scoutProtocolBuilderNFT,
-          amount: 50,
+          amount: 78,
           tokenId
         });
 
