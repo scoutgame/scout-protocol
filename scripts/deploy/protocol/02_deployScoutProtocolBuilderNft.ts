@@ -9,6 +9,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey, proceedsReceiver } from '../../../lib/connectors';
 import { getScoutProtocolSafeAddress } from '../../../lib/constants';
+import { outputContractAddress } from '../../../lib/outputContract';
 
 dotenv.config();
 
@@ -52,6 +53,15 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
     } catch (err) {
       console.warn('Error verifying contract', err);
     }
+
+    outputContractAddress({
+      name: 'ScoutProtocolBuilderNFTImplementation',
+      address: implementationAddress,
+      network: getConnectorKey(connector.chain.id),
+      contractArtifactSource:
+        'contracts/protocol/contracts/ERC1155/ScoutProtocolBuilderNFTImplementation.sol:ScoutProtocolBuilderNFTImplementation',
+      deployArgs: []
+    });
 
     let deployNew = true;
 
@@ -184,6 +194,15 @@ task('deployScoutProtocolBuilderNFT', 'Deploys or updates the Scout Protocol Bui
       const proxyAddress = newProxyContract.address;
 
       console.log('ERC1155 Proxy contract deployed at:', proxyAddress);
+
+      outputContractAddress({
+        name: 'ScoutProtocolERC1155BuilderNFTProxy',
+        address: proxyAddress,
+        contractArtifactSource:
+          'contracts/protocol/contracts/ERC1155/ScoutProtocolBuilderNFTProxy.sol:ScoutProtocolBuilderNFTProxy',
+        network: getConnectorKey(connector.chain.id),
+        deployArgs: deployArgs.slice()
+      });
 
       try {
         execSync(

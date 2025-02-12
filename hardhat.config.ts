@@ -29,6 +29,7 @@ import './scripts/deploy/protocol/03_deployVesting';
 import './scripts/deploy/protocol/04_deployEASResolver';
 import './scripts/deploy/protocol/05_deployScoutProtocol';
 import './scripts/deploy/protocol/prepareScoutGameLaunchSafeTransaction';
+import './scripts/deploy/protocol/verifyContracts';
 
 import './scripts/verifyViaTenderly';
 // Interactions ------------------------------

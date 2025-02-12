@@ -20,6 +20,7 @@ import { privateKeyToAccount } from 'viem/accounts';
 
 import { getConnectorFromHardhatRuntimeEnvironment, getConnectorKey } from '../../../lib/connectors';
 import { getScoutProtocolSafeAddress } from '../../../lib/constants';
+import { outputContractAddress } from '../../../lib/outputContract';
 
 /**
  * Computes the deterministic address for a contract using the CREATE2 formula.
@@ -102,11 +103,24 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
     log.info('Using account:', account.address, 'on chain:', connector.chain.name);
 
     // Encode the function call with parameters
-    const salt = '0x0000055555555555001283d1d5b88848fb799cdaaae328fbdd36ff0682012292';
+    const salt = '0x00055555555555555555535155b88848f5599cdaaae328fbdd36ff0682012292';
 
     // Base will hold the supply, and other L2s will be compatible
 
     const expectedAddress = computeAddress(DETERMINISTIC_DEPLOYER_CONTRACT, salt, implementationBytecode);
+
+    const existingContract = await hre.viem.getContractAt('ScoutTokenERC20Implementation', expectedAddress);
+
+    const result = await existingContract.read.admin().catch(() => null);
+
+    // We only need to check this for implementation contract, since the proxy will be deployed deterministically as well based on same salt
+    if (result) {
+      log.warn('ERC20 Implementation Contract already exists at address:', expectedAddress);
+      log.warn(
+        'Change the salt in scripts/deploy/protocol/01_deployDeterministicScoutgameTokenERC20.ts to a different value and try again'
+      );
+      throw new Error('Execution terminated');
+    }
 
     const encodedData = encodePacked(['bytes32', 'bytes'], [salt, implementationBytecode]);
 
@@ -128,6 +142,18 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
         log.error('Error verifying contract', err);
       }
     }
+
+    outputContractAddress({
+      name: 'ScoutTokenERC20Implementation',
+      address: expectedAddress,
+      network: getConnectorKey(connector.chain.id),
+      contractArtifactSource:
+        'contracts/protocol/contracts/ERC20/ScoutTokenERC20Implementation.sol:ScoutTokenERC20Implementation',
+      metadata: {
+        salt
+      },
+      deployArgs: []
+    });
 
     const deployedImplementation = await hre.viem.getContractAt('ScoutTokenERC20Implementation', expectedAddress);
 
@@ -169,6 +195,18 @@ task('deployDeterministicScoutGameERC20', 'Deploys or updates the Scout Game ERC
     }
 
     log.info('Deployed Scout Token ERC20 proxy address: ', expectedProxyAddress);
+
+    outputContractAddress({
+      name: 'ScoutTokenERC20Proxy',
+      address: expectedProxyAddress,
+      network: getConnectorKey(connector.chain.id),
+      contractArtifactSource: 'contracts/protocol/contracts/ERC20/ScoutTokenERC20Proxy.sol:ScoutTokenERC20Proxy',
+      metadata: {
+        deployer: account.address,
+        salt
+      },
+      deployArgs: proxyDeployArgs.slice()
+    });
   }
 );
 
