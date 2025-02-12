@@ -235,6 +235,43 @@ task('prepareScoutGameLaunchSafeTransaction', 'Deploys or updates the Scout Game
 
     log.info('Collected all required addresses and parameters');
 
+    // Get contract instances and verify implementations
+    const erc1155Contract = await hre.viem.getContractAt(
+      'ScoutProtocolBuilderNFTProxy',
+      scoutBuilderNFTERC1155ProxyAddress
+    );
+    const erc20Contract = await hre.viem.getContractAt('ScoutTokenERC20Proxy', scoutTokenERC20ProxyAddress);
+    const protocolContract = await hre.viem.getContractAt('ScoutProtocolProxy', scoutProtocolAddress);
+
+    // Verify implementations resolves
+    const erc1155Implementation = await erc1155Contract.read.implementation().catch(() => {
+      console.error('Error verifying ERC1155 implementation');
+      return null;
+    });
+    if (!erc1155Implementation || !isAddress(erc1155Implementation)) {
+      throw new Error('Invalid ERC1155 proxy address. Make sure you passed the proxy, not the implementation address.');
+    }
+
+    const erc20Implementation = await erc20Contract.read.implementation().catch(() => {
+      console.error('Error verifying ERC20 implementation');
+      return null;
+    });
+    if (!erc20Implementation || !isAddress(erc20Implementation)) {
+      throw new Error('Invalid ERC20 proxy address. Make sure you passed the proxy, not the implementation address.');
+    }
+
+    const protocolImplementation = await protocolContract.read.implementation().catch(() => {
+      console.error('Error verifying Protocol implementation');
+      return null;
+    });
+    if (!protocolImplementation || !isAddress(protocolImplementation)) {
+      throw new Error(
+        'Invalid Protocol proxy address. Make sure you passed the proxy, not the implementation address.'
+      );
+    }
+
+    log.info('Verified all contract implementations resolve correctly');
+
     // Safe Address which admins all contracts
     const safeAddress = getScoutProtocolSafeAddress();
 
