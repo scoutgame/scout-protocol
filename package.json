@@ -37,10 +37,10 @@
     "coverage": "SOLIDITY_COVERAGE=true TS_NODE_TRANSPILE_ONLY=true npx hardhat coverage --sources protocol"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.8",
     "@nomicfoundation/hardhat-ethers": "^3.0.6",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "@nomicfoundation/hardhat-viem": "^2.0.3",
+    "@nomicfoundation/hardhat-viem": "^2.0.6",
     "@openzeppelin/contracts": "^5.0.2",
     "@openzeppelin/contracts-upgradeable": "^5.0.2",
     "@types/uuid": "^10.0.0",
@@ -55,18 +55,19 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^5.1.3",
     "ethers": "^6.13.1",
-    "hardhat": "^2.22.6",
+    "hardhat": "^2.22.18",
     "prettier": "^3.3.3",
     "prettier-plugin-solidity": "^1.4.1",
     "solady": "^0.0.177",
     "ts-jest": "^29.1.2",
-    "typechain": "^8.3.2"
+    "typechain": "^8.3.2",
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "@charmverse/core": "^0.112.1",
     "@ethereum-attestation-service/eas-contracts": "^1.7.1",
     "@ethereum-attestation-service/eas-sdk": "^2.7.0",
-    "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",
+    "@nomicfoundation/hardhat-ignition-viem": "^0.15.9",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
     "@pinata/sdk": "^2.1.0",
     "@sablier/v2-core": "^1.2.0",
@@ -81,7 +82,7 @@
     "inquirer": "^11.0.1",
     "solidity-coverage": "^0.8.14",
     "uuid": "^10.0.0",
-    "viem": "^2.21.9"
+    "viem": "^2.23.2"
   },
   "overrides": {
     "chai": "^4.4.1"

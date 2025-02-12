@@ -9,9 +9,11 @@
     "resolveJsonModule": true,
     "paths": {
       "artifacts/*": ["./artifacts/*"],
-      "@charmverse/core/protocol": ["./node_modules/@charmverse/core/dist/cjs/protocol"],
-      "@charmverse/core/log": ["./node_modules/@charmverse/core/dist/cjs/lib/log"]
+      "@charmverse/core/log": [
+        "./node_modules/@charmverse/core/dist/cjs/lib/log"
+      ]
     },
     "types": ["jest"]
-  }
+  },
+  "include": ["./artifacts/**/*.d.ts"]
 }
