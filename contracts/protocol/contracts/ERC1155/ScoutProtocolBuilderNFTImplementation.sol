@@ -318,6 +318,13 @@ contract ScoutProtocolBuilderNFTImplementation is
         uint256 tokenId,
         uint256 amount
     ) external onlyWhenNotPaused {
+        uint256 totalSupplyForTokenId = totalSupply(tokenId);
+
+        require(
+            totalSupplyForTokenId + amount <= 50,
+            "Token supply limit reached"
+        );
+
         require(account != address(0), "Invalid account address");
 
         string memory builderId = ScoutProtocolBuilderNFTStorage

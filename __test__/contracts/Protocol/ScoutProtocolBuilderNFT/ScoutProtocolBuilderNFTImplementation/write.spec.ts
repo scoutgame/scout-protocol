@@ -483,6 +483,27 @@ describe('ScoutProtocolBuilderNFTImplementation', function () {
     });
 
     describe('validations', function () {
+      it('Reverts if token supply limit is reached', async function () {
+        const { tokenId } = await registerBuilderToken({
+          wallet: erc1155AdminAccount,
+          nft: scoutProtocolBuilderNFT
+        });
+
+        await mintNft({
+          wallet: userAccount,
+          erc20: token,
+          nft: scoutProtocolBuilderNFT,
+          amount: 50,
+          tokenId
+        });
+
+        await expect(
+          scoutProtocolBuilderNFT.builderNftContract.write.mint([userAccount.account.address, tokenId, BigInt(1)], {
+            account: userAccount.account
+          })
+        ).rejects.toThrow('Token supply limit reached');
+      });
+
       it('Reverts if tokenId is not registered', async function () {
         const unregisteredTokenId = BigInt(999);
         const mintPrice = await scoutProtocolBuilderNFT.builderNftContract.read.getTokenPurchasePrice([
