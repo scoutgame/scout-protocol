@@ -63,7 +63,7 @@
     "typechain": "^8.3.2"
   },
   "dependencies": {
-    "@charmverse/core": "^0.111.0",
+    "@charmverse/core": "^0.112.2-rc-scout-token-pri.2",
     "@ethereum-attestation-service/eas-contracts": "^1.7.1",
     "@ethereum-attestation-service/eas-sdk": "^2.7.0",
     "@nomicfoundation/hardhat-ignition-viem": "^0.15.0",

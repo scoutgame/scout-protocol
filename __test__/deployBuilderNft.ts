@@ -17,7 +17,7 @@ export async function deployBuilderNftContract({ USDCContractAddress }: { USDCCo
 
   const proxy = await viem.deployContract(
     'BuilderNFTSeasonOneUpgradeable',
-    [implementation.address, erc20Contract as Address, proceedsReceiver],
+    [implementation.address, erc20Contract as Address, proceedsReceiver] as [Address, Address, Address],
     {
       client: { wallet: admin }
     }
