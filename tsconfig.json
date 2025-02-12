@@ -12,7 +12,7 @@
         "./node_modules/@charmverse/core/dist/cjs/lib/log"
       ],
       "@charmverse/core/protocol": [
-        "./node_modules/@charmverse/core/dist/cjs/lib/protocol"
+        "./node_modules/@charmverse/core/dist/cjs/protocol"
       ]
     },
     "types": ["jest"]
