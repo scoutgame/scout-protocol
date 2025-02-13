@@ -1,5 +1,4 @@
 import { execSync } from 'node:child_process';
-
 import dotenv from 'dotenv';
 import { task } from 'hardhat/config';
 import inquirer from 'inquirer';
@@ -66,7 +65,7 @@ task('deployScoutProtocol', 'Deploys or updates the ScoutProtocol contracts').se
     console.warn('Error verifying contract', err);
   }
 
-  const proxyOptions = [];
+  const proxyOptions: { address?: string; env: string }[] = [];
 
   if (connector.scoutProtocol?.prod?.protocol) {
     proxyOptions.push({ address: connector.scoutProtocol?.prod.protocol, env: 'prod' });
