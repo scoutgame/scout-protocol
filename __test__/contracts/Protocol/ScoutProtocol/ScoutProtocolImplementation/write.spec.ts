@@ -33,18 +33,18 @@ describe('ScoutProtocolImplementation', function () {
 
     userClaim = {
       address: userAccount.account.address,
-      amount: Number(parseUnits('100', decimals))
+      amount: parseUnits('100', decimals).toString()
     };
 
     claims = [
       userClaim,
       {
         address: secondUserAccount.account.address,
-        amount: Number(parseUnits('200', decimals))
+        amount: parseUnits('200', decimals).toString()
       },
       {
         address: thirdUserAccount.account.address,
-        amount: Number(parseUnits('300', decimals))
+        amount: parseUnits('300', decimals).toString()
       }
     ];
 
